@@ -16,6 +16,7 @@ export interface Comment {
   children: Comment[]; 
   parentId: string | null; 
   topCommentId: string; // Tämä on tärkeä, apitunniste kaikille säikeen kommenteille
+  isExpanded?: boolean;
 }
 
 @Injectable({

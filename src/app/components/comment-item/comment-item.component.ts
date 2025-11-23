@@ -15,17 +15,17 @@ export class CommentItemComponent {
   @Input() comment!: Comment;
   @Input() level: number = 0; // Käytetään sisennystä varten
 
-  // UUSI TILA: Kontrolloi lapsien näkyvyyttä
-  isExpanded: boolean = true; 
-
   ngOnInit(): void {
-    // Voi olla hyödyllistä asettaa lapsikommentit (level > 0) oletuksena suljetuiksi
-    // Tämä esimerkki jättää ne oletuksena auki.
+    // Jos isExpanded-tilaa ei ole vielä asetettu (eli ensimmäinen renderöinti):
+    if (this.comment.isExpanded === undefined) {
+      // Oletuksena auki vain tason 0 kommentit. Kaikki vastaukset (level > 0) suljettu.
+      this.comment.isExpanded = false; //this.level === 0;
+    }
   }
 
-  // UUSI METODI: Vaihtaa näkyvyystilaa
+  // Metodi vaihtaa tilaa suoraan dataobjektissa
   toggleReplies(): void {
-    this.isExpanded = !this.isExpanded;
+    this.comment.isExpanded = !this.comment.isExpanded;
   }
 
   // Muotoilee päivämäärän

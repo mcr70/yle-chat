@@ -13,11 +13,11 @@
       *ngIf="comment.children && comment.children.length > 0"
       (click)="toggleReplies()"
       class="toggle-button">
-      {{ isExpanded ? 'Piilota vastaukset ▲' : 'Näytä ' + comment.children.length + ' vastausta ▼' }}
+      {{ comment.isExpanded ? 'Piilota vastaukset ▲' : 'Näytä ' + comment.children.length + ' vastausta ▼' }}
     </button>
   </div>
   
-  <ng-container *ngIf="isExpanded">
+  <ng-container *ngIf="comment.isExpanded">
     <app-comment-item 
       *ngFor="let child of comment.children"
       [comment]="child"
