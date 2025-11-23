@@ -7,15 +7,22 @@
     </p>
 
     <p class="comment-text">{{ comment.content }}</p>
-
     <p class="comment-date">{{ formatDate(comment.createdAt) }}</p>
+
+    <button 
+      *ngIf="comment.children && comment.children.length > 0"
+      (click)="toggleReplies()"
+      class="toggle-button">
+      {{ isExpanded ? 'Piilota vastaukset ▲' : 'Näytä ' + comment.children.length + ' vastausta ▼' }}
+    </button>
   </div>
   
-  <ng-container *ngIf="comment.children && comment.children.length > 0">
+  <ng-container *ngIf="isExpanded">
     <app-comment-item 
       *ngFor="let child of comment.children"
       [comment]="child"
-      [level]="level + 1"> </app-comment-item>
+      [level]="level + 1">
+    </app-comment-item>
   </ng-container>
 
 </div>

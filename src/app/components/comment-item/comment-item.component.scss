@@ -38,3 +38,20 @@
 .child-comment-wrapper {
   margin-top: 5px;
 }
+
+
+
+.toggle-button {
+  background: none;
+  border: none;
+  //color: #007bff; /* Esim. sininen linkkiväri */
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9em;
+  margin-top: 10px;
+  display: block; /* Varmistaa, että vie oman rivinsä */
+}
+
+.toggle-button:hover {
+  text-decoration: underline;
+}
