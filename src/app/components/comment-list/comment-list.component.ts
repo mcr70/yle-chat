@@ -16,10 +16,13 @@ import { CommentItemComponent } from '../comment-item/comment-item.component';
 })
 export class CommentListComponent implements OnInit {
 
-  comments: Comment[] = [];
-
+  articleId: string = '74-20195254'; // default article ID
   currentOffset: number = 0;
   readonly limit: number = 10;
+
+  comments: Comment[] = [];
+  hideUnmarkedTopLevel: boolean = false;
+
   hasMoreComments: boolean = true;
   isLoading: boolean = false;
 
@@ -32,12 +35,20 @@ export class CommentListComponent implements OnInit {
     this.loadComments();
   }
 
-  loadComments(): void {
+  loadComments(reset: boolean = false): void {
     if (this.isLoading) return;
     this.isLoading = true;
 
-    this.commentService.getComments(this.currentOffset, this.limit).subscribe({
+    if (reset) {
+        this.comments = [];
+        this.currentOffset = 0;
+        this.hasMoreComments = true;
+    }
+    
+    // ⭐ KUTSU PALVELUA UUDELLA ARTICLE ID:LLÄ
+    this.commentService.getComments(this.articleId, this.currentOffset, this.limit).subscribe({
       next: (newComments) => {
+        // ... (muu logiikka pysyy samana)
         this.comments = [...this.comments, ...newComments];
         this.currentOffset += this.limit;
 
@@ -45,7 +56,6 @@ export class CommentListComponent implements OnInit {
           this.hasMoreComments = false;
         }
 
-        // ⭐ Tärkeä: merkitse nickname heti kun kommentteja tulee lisää
         if (this.nicknameFilter.trim().length > 0) {
           this.commentService.markNickname(this.comments, this.nicknameFilter);
         }
@@ -53,9 +63,20 @@ export class CommentListComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Kommenttien lataus epäonnistui:', err);
-        this.isLoading = false;
+        // ⭐ VIRHEEN HALLINTA TÄHÄN ⭐
+        console.error('Kommenttien lataus epäonnistui (404 tms.):', err.status, err.message);
+        
+        // Nollaa tila, jotta uudet kutsut ovat mahdollisia
+        this.isLoading = false; 
+        this.hasMoreComments = false;
+        
+        // Tyhjennä vanhat kommentit, jotta virhe ei jää näkyviin
+        if (reset) {
+           this.comments = [];
+        }
+        // console.log("Tilaus palautettu virheen jälkeen.");
       }
+      // ... (error handling)
     });
   }
 
@@ -69,4 +90,30 @@ export class CommentListComponent implements OnInit {
     this.nicknameFilter = value;
     this.commentService.markNickname(this.comments, value);
   }
+
+  get filteredComments(): Comment[] {
+    if (!this.hideUnmarkedTopLevel) {
+        return this.comments; // Jos suodatin ei ole päällä, näytä kaikki
+    }
+
+    // Jos suodatin on päällä, palauta vain ne juurikommentit, jotka on merkitty
+    return this.comments.filter(comment => {
+        // hasNickname on true vain, jos se itse tai jokin lapsi täsmää filtteriin
+        return comment.hasNickname === true;
+    });
+  }  
+
+
+
+  onArticleIdChanged(value: string): void {
+    this.articleId = value;
+    
+    // Nollaa vanhat kommentit ja aloita lataus uudella ID:llä, jos kentässä on arvo
+    if (this.articleId.trim().length > 0) {
+        this.loadComments(true); 
+    } else {
+        this.comments = [];
+        this.hasMoreComments = false;
+    }
+  }  
 }

@@ -1,15 +1,43 @@
 <div class="comment-container">
   <h2>Kommentit</h2>
-    <input
-        type="text"
-        placeholder="Filter by nickname..."
-        (input)="onNicknameChanged($any($event.target).value)"
-    />
+    
+    <div class="filter-controls">
+        
+        <div class="filter-row">
+            
+            <input
+                type="text"
+                placeholder="Artikkelin ID (esim. 74-20195254)"
+                [value]="articleId"
+                (input)="onArticleIdChanged($any($event.target).value)"
+                class="articleid-input"
+            />
+            
+            <input
+                type="text"
+                placeholder="Suodata nimimerkillä..."
+                [value]="nicknameFilter"
+                (input)="onNicknameChanged($any($event.target).value)"
+                class="nickname-input"
+            />
+
+            <div class="hide-control">
+                <input 
+                    type="checkbox" 
+                    id="hideUnmarked" 
+                    [checked]="hideUnmarkedTopLevel"
+                    (change)="hideUnmarkedTopLevel = $any($event.target).checked"
+                >
+                <label for="hideUnmarked">Piilota merkitsemättömät juurikommentit</label>
+            </div>
+        </div>
+    </div>
+    
   <hr>
 
   <ng-container *ngIf="comments.length > 0; else noComments">
     <app-comment-item 
-      *ngFor="let comment of comments" 
+      *ngFor="let comment of filteredComments" 
       [comment]="comment"
       [level]="0">
     </app-comment-item>
@@ -25,6 +53,7 @@
   </ng-container>
 
   <ng-template #noComments>
-    </ng-template>
+    <p>Ei kommentteja.</p>
+  </ng-template>
 
 </div>

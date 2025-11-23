@@ -27,19 +27,13 @@ export interface Comment {
 export class CommentService {
 
   private apiBaseUrl =       '/v2/topics/74-20195254/comments/accepted?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D&order=relevance:desc';
+  private apiBaseTemplate = '/v2/topics/{articleId}/comments/accepted?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D&order=relevance:desc';
 
   private apiPathAndParams = '/v2/topics/74-20195254/comments/accepted?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D&order=relevance:desc&limit=10&offset=0';
   private apiUrl = `/yle-api${this.apiPathAndParams}`;
 
   constructor(private http: HttpClient) { }
 
-  /**
-   * Hakee kommentit API:sta.
-   * @returns Observable-virran Comment[] -tyyppisestä datasta.
-   */
-  getComments_old(): Observable<Comment[]> {
-    return this.http.get<Comment[]>(this.apiUrl);
-  }
 
 
   /**
@@ -48,12 +42,21 @@ export class CommentService {
    * @param limit Ladattavien kommenttien maksimimäärä
    * @returns Observable-virran Comment[] -tyyppisestä datasta.
    */
-  getComments(offset: number, limit: number): Observable<Comment[]> {
-    // Rakennetaan URL dynaamisesti
-    const apiUrl = `/yle-api${this.apiBaseUrl}&limit=${limit}&offset=${offset}`;
+  getComments(articleId: string, offset: number, limit: number): Observable<Comment[]> {
+    console.log(`Fetching comments for articleId=${articleId}, offset=${offset}, limit=${limit}`);  
+    // Varmistus
+    if (!articleId || articleId.trim().length === 0) {
+        return new Observable(observer => observer.next([])).pipe(map(() => []));
+    }
+
+    // ⭐ Rakenna URL korvaamalla {articleId} dynaamisesti
+    const baseUrl = this.apiBaseTemplate.replace('{articleId}', articleId);
+    
+    // Rakennetaan lopullinen URL
+    const apiUrl = `/yle-api${baseUrl}&limit=${limit}&offset=${offset}`;
 
     return this.http.get<Comment[]>(apiUrl).pipe(
-      map(data => this.buildCommentTree(data)) // buildCommentTree-funktio huolehtii edelleen hierarkiasta
+      map(data => this.buildCommentTree(data))
     );
   }
 

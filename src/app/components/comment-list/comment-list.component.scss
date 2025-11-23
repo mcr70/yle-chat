@@ -89,3 +89,26 @@
   background-color: #a0a0a0;
   cursor: not-allowed;
 }
+
+
+.filter-row {
+    display: flex; /* Aktivoi Flexbox */
+    gap: 20px;     /* Lisää väliä elementtien väliin */
+    align-items: center; /* Keskittää pystysuunnassa */
+    margin-bottom: 10px;
+}
+
+.nickname-input {
+    flex-grow: 1; /* Antaa syötekentän käyttää kaiken ylimääräisen tilan */
+    padding: 8px;
+}
+
+.hide-control {
+    /* Varmistaa, että valintaruutu ja teksti ovat linjassa */
+    display: flex; 
+    align-items: center; 
+}
+
+.hide-control input {
+    margin-right: 5px;
+}
