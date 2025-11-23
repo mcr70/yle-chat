@@ -16,7 +16,8 @@
   display: flex;
   justify-content: space-between;
   font-size: 1.0em;
-  margin-bottom: 5px;
+  /* LISÄÄ TÄMÄ, jos haluat välin sisällön yläpuolelle */
+  margin-bottom: 5px; 
 }
 
 .likes {

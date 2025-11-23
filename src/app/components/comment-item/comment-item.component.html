@@ -1,14 +1,17 @@
 <div class="comment-item" [style.paddingLeft.px]="level * 20">
   
   <div class="comment-box">
-    <p class="comment-header">
-      <strong>{{ comment.author }}</strong> 
+    <div class="comment-header"> 
+      <div>
+        <strong>{{ comment.author }}</strong> 
+        <span class="author-date"> {{ formatDate(comment.createdAt) }}</span>
+      </div>
+      
       <span class="likes">👍 {{ comment.likes }}</span>
-    </p>
-
+    </div>
+    
     <p class="comment-text">{{ comment.content }}</p>
-    <p class="comment-date">{{ formatDate(comment.createdAt) }}</p>
-
+    
     <button 
       *ngIf="comment.children && comment.children.length > 0"
       (click)="toggleReplies()"
