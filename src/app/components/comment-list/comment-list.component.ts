@@ -15,26 +15,46 @@ import { CommentItemComponent } from '../comment-item/comment-item.component';
 })
 export class CommentListComponent implements OnInit {
   comments: Comment[] = [];
-  errorMessage: string = '';
+  currentOffset: number = 0; // Seuraavan haun aloituskohta
+  readonly limit: number = 10; // Vakio ladattavien kommenttien määrälle
+  hasMoreComments: boolean = true; // Näytetäänkö "Lataa lisää" -nappi
+  isLoading: boolean = false; // Ladataanko tietoja parhaillaan (käyttöliittymäpalaute)
 
   constructor(private commentService: CommentService) { }
 
   ngOnInit(): void {
-    this.fetchComments();
+    this.loadComments(); // Lataa ensimmäinen erä käynnistyksessä
   }
 
-  fetchComments(): void {
-    this.commentService.getComments().subscribe({
-      next: (data) => {
-        // Data on nyt valmiiksi oikeassa puumuodossa!
-        this.comments = data; 
+  loadComments(): void {
+    if (this.isLoading) return;
+    this.isLoading = true;
+
+    this.commentService.getComments(this.currentOffset, this.limit).subscribe({
+      next: (newComments) => {
+        // Yhdistetään uudet kommentit olemassa oleviin
+        this.comments = [...this.comments, ...newComments];
+        
+        // Kasvatetaan offsetia seuraavaa hakua varten
+        this.currentOffset += this.limit;
+        
+        // Jos palautettuja kommentteja oli vähemmän kuin pyydetty limit, 
+        // oletetaan, että kaikki kommentit on ladattu.
+        if (newComments.length < this.limit) {
+          this.hasMoreComments = false;
+        }
+        
+        this.isLoading = false;
       },
-      // ... (error handling)
+      error: (err) => {
+        console.error('Kommenttien lataus epäonnistui:', err);
+        this.isLoading = false;
+        // Voit lisätä tässä virheviestin käyttäjälle
+      }
     });
   }
 
-  // Muotoilee päivämäärän luettavaan muotoon
-  formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleString('fi-FI');
+  loadMoreComments(): void {
+    this.loadComments();
   }
 }

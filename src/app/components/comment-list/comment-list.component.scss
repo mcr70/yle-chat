@@ -61,3 +61,31 @@
   color: red;
   font-weight: bold;
 }
+
+
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.load-more-button {
+  padding: 10px 20px;
+  font-size: 1.0em;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.load-more-button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.load-more-button:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}

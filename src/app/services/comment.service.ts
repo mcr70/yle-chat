@@ -24,6 +24,8 @@ export interface Comment {
 })
 export class CommentService {
 
+  private apiBaseUrl =       '/v2/topics/74-20195254/comments/accepted?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D&order=relevance:desc';
+
   private apiPathAndParams = '/v2/topics/74-20195254/comments/accepted?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D&order=relevance:desc&limit=10&offset=0';
   private apiUrl = `/yle-api${this.apiPathAndParams}`;
 
@@ -38,9 +40,18 @@ export class CommentService {
   }
 
 
-getComments(): Observable<Comment[]> {
-    return this.http.get<Comment[]>(this.apiUrl).pipe(
-      map(data => this.buildCommentTree(data))
+  /**
+   * Hakee kommentit API:sta dynaamisilla sivutusparametreilla.
+   * @param offset Aloituskohta (esim. 0, 10, 20)
+   * @param limit Ladattavien kommenttien maksimimäärä
+   * @returns Observable-virran Comment[] -tyyppisestä datasta.
+   */
+  getComments(offset: number, limit: number): Observable<Comment[]> {
+    // Rakennetaan URL dynaamisesti
+    const apiUrl = `/yle-api${this.apiBaseUrl}&limit=${limit}&offset=${offset}`;
+
+    return this.http.get<Comment[]>(apiUrl).pipe(
+      map(data => this.buildCommentTree(data)) // buildCommentTree-funktio huolehtii edelleen hierarkiasta
     );
   }
 

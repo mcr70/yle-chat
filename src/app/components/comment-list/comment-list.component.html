@@ -2,14 +2,21 @@
   <h2>Kommentit</h2>
   <hr>
 
-  <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
-
   <ng-container *ngIf="comments.length > 0; else noComments">
     <app-comment-item 
       *ngFor="let comment of comments" 
       [comment]="comment"
       [level]="0">
     </app-comment-item>
+
+    <div class="load-more-container" *ngIf="hasMoreComments">
+    <button 
+        (click)="loadMoreComments()" 
+        [disabled]="isLoading" 
+        class="load-more-button">
+        {{ isLoading ? 'Ladataan...' : 'Lataa lisää kommentteja' }}
+    </button>
+    </div>    
   </ng-container>
 
   <ng-template #noComments>
