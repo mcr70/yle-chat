@@ -2,13 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { Comment, CommentService } from '../../services/comment.service';
 import { CommonModule } from '@angular/common'; // <-- TUO TÄMÄ
 import { HttpClientModule } from '@angular/common/http';
+import { CommentItemComponent } from '../comment-item/comment-item.component';
 // import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-comment-list',
   templateUrl: './comment-list.component.html',
   styleUrls: ['./comment-list.component.scss'],
-  imports: [CommonModule, HttpClientModule]
+  imports: [CommonModule, HttpClientModule,
+    CommentItemComponent
+  ]
 })
 export class CommentListComponent implements OnInit {
   comments: Comment[] = [];
@@ -23,13 +26,10 @@ export class CommentListComponent implements OnInit {
   fetchComments(): void {
     this.commentService.getComments().subscribe({
       next: (data) => {
-        // Suoraan saamasi JSON on ylätason kommenttien lista
-        this.comments = data;
+        // Data on nyt valmiiksi oikeassa puumuodossa!
+        this.comments = data; 
       },
-      error: (err) => {
-        console.error('Virhe kommenttien latauksessa:', err);
-        this.errorMessage = 'Kommenttien lataus epäonnistui. Yritä myöhemmin uudelleen.';
-      }
+      // ... (error handling)
     });
   }
 

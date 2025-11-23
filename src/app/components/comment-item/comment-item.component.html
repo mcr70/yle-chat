@@ -1,0 +1,21 @@
+<div class="comment-item" [style.paddingLeft.px]="level * 20">
+  
+  <div class="comment-box">
+    <p class="comment-header">
+      <strong>{{ comment.author }}</strong> 
+      <span class="likes">👍 {{ comment.likes }}</span>
+    </p>
+
+    <p class="comment-text">{{ comment.content }}</p>
+
+    <p class="comment-date">{{ formatDate(comment.createdAt) }}</p>
+  </div>
+  
+  <ng-container *ngIf="comment.children && comment.children.length > 0">
+    <app-comment-item 
+      *ngFor="let child of comment.children"
+      [comment]="child"
+      [level]="level + 1"> </app-comment-item>
+  </ng-container>
+
+</div>
