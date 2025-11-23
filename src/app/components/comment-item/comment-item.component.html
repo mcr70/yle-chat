@@ -5,6 +5,9 @@
       <div>
         <strong>{{ comment.author }}</strong> 
         <span class="author-date"> {{ formatDate(comment.createdAt) }}</span>
+        <span *ngIf="isSpecialComment()" class="star-icon" title="Erikoiskommentti">
+            ⭐ 
+        </span>
       </div>
       
       <span class="likes">👍 {{ comment.likes }}</span>

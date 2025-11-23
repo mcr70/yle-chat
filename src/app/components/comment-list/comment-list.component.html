@@ -1,5 +1,10 @@
 <div class="comment-container">
   <h2>Kommentit</h2>
+    <input
+        type="text"
+        placeholder="Filter by nickname..."
+        (input)="onNicknameChanged($any($event.target).value)"
+    />
   <hr>
 
   <ng-container *ngIf="comments.length > 0; else noComments">

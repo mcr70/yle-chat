@@ -32,4 +32,17 @@ export class CommentItemComponent {
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleString('fi-FI');
   }
+
+
+  isSpecialComment(): boolean {
+    return this.comment.hasNickname === true;
+    // ESIMERKKI 1: Merkitään "Kontulan oraakkeli" -kirjoittajan kommentit
+    // return this.comment.author === 'Kontulan oraakkeli';
+
+    // ESIMERKKI 2: Merkitään kommentit, joilla on vähintään 50 tykkäystä
+    //return this.comment.likes >= 50;
+
+    // ESIMERKKI 3: Merkitään tietty ID
+    // return this.comment.id === '33-c72a5e90-3a23-4d72-91c2-bb19ea8c352a';
+  }  
 }

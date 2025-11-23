@@ -17,6 +17,8 @@ export interface Comment {
   parentId: string | null; 
   topCommentId: string; // Tämä on tärkeä, apitunniste kaikille säikeen kommenteille
   isExpanded?: boolean;
+
+  hasNickname?: boolean; // Lisätty kenttä tarkistamaan onko nimimerkki asetettu
 }
 
 @Injectable({
@@ -117,5 +119,67 @@ export class CommentService {
     });
 
     return tree;
+  }
+
+
+  /**
+   * Marks comments that match the given nickname.
+   * 
+   * @param comments 
+   * @param nickname 
+   * @returns 
+   */
+  markNickname(comments: Comment[], nickname: string | null): void {
+    // tyhjennä kaikki vanhat merkinnät
+    this.clearNicknameFlags(comments);
+
+    if (!nickname || nickname.trim().length === 0) {
+      return;
+    }
+
+    this.markRecursive(comments, nickname.trim());
+  }
+
+
+  private clearNicknameFlags(nodes: Comment[]): void {
+    for (const node of nodes) {
+      node.hasNickname = false;
+      if (node.children?.length) {
+        this.clearNicknameFlags(node.children);
+      }
+    }
+  }
+
+  private markRecursive(nodes: Comment[], nickname: string): boolean {
+    let foundInSubTree = false;
+
+    // Varmistus: Älä suorita vertailua, jos nimimerkki on tyhjä
+    const lowercasedNickname = nickname ? nickname.toLowerCase() : '';
+
+    for (const node of nodes) {
+        
+        // 1. Tarkista osuma itsessä
+        //const ownMatch = node.author.toLowerCase() === lowercasedNickname;
+
+        const ownMatch = node.author
+            && node.author.toLowerCase().startsWith(lowercasedNickname);
+
+        // 2. Tarkista rekursiivisesti lapset
+        const childMatch = node.children?.length
+            ? this.markRecursive(node.children, nickname)
+            : false;
+            
+        // 3. Aseta merkki: Lippu nousee ylös, jos osuma löytyy itsestä TAI lapsista
+        node.hasNickname = ownMatch || childMatch;
+
+        // 4. Päivitä nykyisen haun lippu
+        if (node.hasNickname) {
+            // Jos yksikin solmu merkitään tällä tasolla, koko alipuu on merkkauksessa.
+            foundInSubTree = true; 
+        }
+    }
+
+    // Palauttaa true, jos lapsissa oli osuma, joka merkkasi myös vanhemman.
+    return foundInSubTree; 
   }
 }
