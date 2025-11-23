@@ -1,0 +1,41 @@
+<div class="comment-container">
+  <h2>Kommentit</h2>
+  <hr>
+
+  <p *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </p>
+
+  <ng-container *ngIf="comments.length > 0; else noComments">
+    <div *ngFor="let comment of comments" class="top-level-comment">
+
+      <div class="comment-content-box">
+        <p class="comment-header">
+          <strong>{{ comment.author }}</strong> ({{ comment.likes }} 👍)
+        </p>
+        <p class="comment-date">{{ formatDate(comment.createdAt) }}</p>
+        <p class="comment-text">{{ comment.content }}</p>
+      </div>
+
+      <div *ngIf="comment.children && comment.children.length > 0" class="replies">
+        <p class="replies-header">{{ comment.children.length }} vastausta:</p>
+        
+        <div *ngFor="let child of comment.children" class="reply-comment">
+          <p class="reply-header">
+            ➡️ {{ child.author }} ({{ child.likes }} 👍)
+          </p>
+          <p class="reply-date">{{ formatDate(child.createdAt) }}</p>
+          <p class="reply-text">{{ child.content }}</p>
+        </div>
+        
+      </div>
+
+    </div>
+  </ng-container>
+
+  <ng-template #noComments>
+    <p *ngIf="!errorMessage">Ladataan kommentteja...</p>
+    <p *ngIf="comments.length === 0 && !errorMessage">Ei kommentteja näytettävänä.</p>
+  </ng-template>
+
+</div>

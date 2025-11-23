@@ -1,0 +1,11 @@
+{
+  "/yle-api": {
+    "target": "https://comments.api.yle.fi",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/yle-api": ""
+    },
+    "logLevel": "debug"
+  }
+}

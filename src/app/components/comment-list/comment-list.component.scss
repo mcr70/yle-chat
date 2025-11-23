@@ -1,0 +1,63 @@
+.comment-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.top-level-comment {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.comment-content-box {
+  margin-bottom: 15px;
+}
+
+.comment-header {
+  font-size: 1.1em;
+  margin-bottom: 5px;
+}
+
+.comment-date, .reply-date {
+  font-size: 0.8em;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.comment-text, .reply-text {
+  white-space: pre-line; /* Säilyttää rivinvaihdot sisällössä */
+}
+
+.replies {
+  margin-top: 15px;
+  padding-left: 20px;
+  border-left: 3px solid #eee;
+}
+
+.replies-header {
+  font-weight: bold;
+  font-size: 0.9em;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.reply-comment {
+  background-color: #fff;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px dashed #ddd;
+  border-radius: 4px;
+}
+
+.reply-header {
+  font-weight: bold;
+  font-size: 1em;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+}
