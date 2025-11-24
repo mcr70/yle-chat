@@ -10,15 +10,15 @@
                 placeholder="Artikkelin ID (esim. 74-20195254)"
                 [value]="articleId"
                 (input)="onArticleIdChanged($any($event.target).value)"
-                class="articleid-input"
+                class="filter-input"
             />
-            
+
             <input
                 type="text"
                 placeholder="Suodata nimimerkillä..."
                 [value]="nicknameFilter"
                 (input)="onNicknameChanged($any($event.target).value)"
-                class="nickname-input"
+                class="filter-input"
             />
 
             <div class="hide-control">
@@ -28,7 +28,7 @@
                     [checked]="hideUnmarkedTopLevel"
                     (change)="hideUnmarkedTopLevel = $any($event.target).checked"
                 >
-                <label for="hideUnmarked">Piilota merkitsemättömät juurikommentit</label>
+                <label for="hideUnmarked">Piilota muut</label>
             </div>
         </div>
     </div>
