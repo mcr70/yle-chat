@@ -27,8 +27,12 @@
                     id="hideUnmarked" 
                     [checked]="hideUnmarkedTopLevel"
                     (change)="hideUnmarkedTopLevel = $any($event.target).checked"
+                    
+                    [disabled]="!isHideUnmarkedEnabled" 
                 >
-                <label for="hideUnmarked">Piilota muut</label>
+                <label 
+                    for="hideUnmarked"
+                    [class.disabled-label]="!isHideUnmarkedEnabled">Piilota muut</label>
             </div>
         </div>
     </div>

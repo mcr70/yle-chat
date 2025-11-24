@@ -22,12 +22,12 @@ export class CommentListComponent implements OnInit {
 
   comments: Comment[] = [];
   hideUnmarkedTopLevel: boolean = false;
-
   hasMoreComments: boolean = true;
   isLoading: boolean = false;
 
-  // ⭐ UUSI: nickname-filtteri
   nicknameFilter: string = '';
+
+  private filterFoundMatches: boolean = false;
 
   constructor(private commentService: CommentService) {}
 
@@ -86,9 +86,20 @@ export class CommentListComponent implements OnInit {
 
   // ⭐ Tämä metodi kutsutaan kun käyttäjä syöttää nicknamea
   onNicknameChanged(value: string): void {
-    console.log('Nickname filter changed to:', value);
     this.nicknameFilter = value;
+    
+    // Suorita merkkaus (joka nollaa liput, jos 'value' on tyhjä)
     this.commentService.markNickname(this.comments, value);
+
+    // ⭐ TARKISTA ONSUMAT: Etsi, onko merkittyjä kommentteja olemassa
+    this.filterFoundMatches = this.comments.some(comment => 
+        comment.hasNickname === true
+    );
+    
+    // Jos osumia ei enää ole, pakota piilotustila pois päältä.
+    if (!this.filterFoundMatches) {
+        this.hideUnmarkedTopLevel = false;
+    }
   }
 
   get filteredComments(): Comment[] {
@@ -103,7 +114,10 @@ export class CommentListComponent implements OnInit {
     });
   }  
 
-
+  get isHideUnmarkedEnabled(): boolean {
+      // Valintaruutu on käytettävissä (enabled) vain, jos löydettiin osumia
+      return this.filterFoundMatches;
+  }  
 
   onArticleIdChanged(value: string): void {
     this.articleId = value;

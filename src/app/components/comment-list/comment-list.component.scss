@@ -112,3 +112,14 @@
 .hide-control input {
     margin-right: 5px;
 }
+
+.hide-control input:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Tee myös teksti haaleammaksi, kun se on poissa käytöstä */
+.disabled-label {
+    color: #999;
+    cursor: not-allowed;
+}
