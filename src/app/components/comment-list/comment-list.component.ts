@@ -120,14 +120,29 @@ export class CommentListComponent implements OnInit {
   }  
 
   onArticleIdChanged(value: string): void {
-    this.articleId = value;
+    const rawInput = value.trim();
+    let newArticleId = rawInput;
+
+    if (rawInput.includes('yle.fi/a/')) {
+        const match = rawInput.match(/(\d+-\d+)(?:#.*)?$/);
+        
+        if (match && match[1]) {
+            newArticleId = match[1]; 
+        } else {
+            newArticleId = ''; 
+        }
+    }
+
+    this.articleId = newArticleId;
     
-    // Nollaa vanhat kommentit ja aloita lataus uudella ID:llä, jos kentässä on arvo
     if (this.articleId.trim().length > 0) {
         this.loadComments(true); 
     } else {
         this.comments = [];
         this.hasMoreComments = false;
+        this.isLoading = false;
     }
-  }  
+  }
+
+
 }

@@ -1,3 +1,14 @@
+/**
+ * Service for fetching and processing comments from Yle Comments API.
+ * 
+ * API Example Call with curl:
+ *   curl "https://comments.api.yle.fi/v2/topics/74-20194923/comments/accepted?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D&order=relevance:desc&limit=10&offset=0"
+ * 
+ * Restrictions
+ *   - "Order must be one the following created_at:desc, created_at:asc, relevance:desc"
+ *   - "Limit must be between 1 and 20"
+ */
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
