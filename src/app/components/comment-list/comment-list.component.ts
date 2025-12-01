@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { Comment, CommentService } from '../../services/comment.service';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 
+import { Comment, CommentService } from '../../services/comment.service';
 import { CommentItemComponent } from '../comment-item/comment-item.component';
-import { HistoryService } from '../../services/history.service';
+import { ArticleHistoryItem, HistoryService } from '../../services/history.service';
 import { HistoryListComponent } from '../history-list/history-list.component';
 
 @Component({
@@ -20,7 +20,9 @@ import { HistoryListComponent } from '../history-list/history-list.component';
 })
 export class CommentListComponent implements OnInit {
 
-  articleId: string = '74-20195254'; // default article ID
+  @ViewChild(HistoryListComponent) historyListComponent!: HistoryListComponent;
+
+  articleId: string = ''// '74-20195254'; // default article ID
   currentOffset: number = 0;
   readonly limit: number = 20;
 
@@ -41,7 +43,14 @@ export class CommentListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadComments();
+    const history = this.historyService.getHistory();
+    
+    if (history && history.length > 0) {
+      const latestArticle = history[0];
+      this.articleId = latestArticle.id;
+      
+      this.loadComments(true); 
+    }    
   }
 
   loadComments(reset: boolean = false): void {
@@ -77,6 +86,9 @@ export class CommentListComponent implements OnInit {
         const articleTitle = this.articleId; // Placeholder for actual title retrieval
         this.historyService.addOrUpdateArticle(this.articleId, articleTitle);
 
+        if (this.historyListComponent) { 
+           this.historyListComponent.reloadHistory(); 
+        }
 
         setTimeout(() => { // Make sure loading spinner is visible for minimum time
           this.isLoading = false;
@@ -99,19 +111,15 @@ export class CommentListComponent implements OnInit {
     this.loadComments();
   }
 
-  // ⭐ Tämä metodi kutsutaan kun käyttäjä syöttää nicknamea
+
   onNicknameChanged(value: string): void {
     this.nicknameFilter = value;
-    
-    // Suorita merkkaus (joka nollaa liput, jos 'value' on tyhjä)
     this.commentService.markNickname(this.comments, value);
 
-    // ⭐ TARKISTA ONSUMAT: Etsi, onko merkittyjä kommentteja olemassa
     this.filterFoundMatches = this.comments.some(comment => 
         comment.hasNickname === true
     );
     
-    // Jos osumia ei enää ole, pakota piilotustila pois päältä.
     if (!this.filterFoundMatches) {
         this.hideUnmarkedTopLevel = false;
     }
@@ -119,49 +127,28 @@ export class CommentListComponent implements OnInit {
 
   get filteredComments(): Comment[] {
     if (!this.hideUnmarkedTopLevel) {
-        return this.comments; // Jos suodatin ei ole päällä, näytä kaikki
+        return this.comments; 
     }
 
-    // Jos suodatin on päällä, palauta vain ne juurikommentit, jotka on merkitty
     return this.comments.filter(comment => {
-        // hasNickname on true vain, jos se itse tai jokin lapsi täsmää filtteriin
         return comment.hasNickname === true;
     });
   }  
 
   get isHideUnmarkedEnabled(): boolean {
-      // Valintaruutu on käytettävissä (enabled) vain, jos löydettiin osumia
       return this.filterFoundMatches;
   }  
 
-  onArticleIdChanged(value: string): void {
-    const rawInput = value.trim();
-    let newArticleId = rawInput;
+ 
 
-    if (rawInput.includes('yle.fi/a/')) {
-        const match = rawInput.match(/(\d+-\d+)(?:#.*)?$/);
-        
-        if (match && match[1]) {
-            newArticleId = match[1]; 
-        } else {
-            newArticleId = ''; 
-        }
-    }
-
+  onArticleIdChanged(newArticleId: string) {
     this.articleId = newArticleId;
-    
-    if (this.articleId.trim().length > 0) {
-        this.loadComments(true); 
-    } else {
-        this.comments = [];
-        this.hasMoreComments = false;
-        this.isLoading = false;
-    }
+    this.loadComments(true); 
   }
 
   // Called when an article is selected from history
-  handleArticleSelected(newId: string): void {
-      this.articleId = newId; 
-      this.loadComments(true); 
+  handleArticleSelected(articleData: ArticleHistoryItem): void {
+    this.articleId = articleData.id; 
+    this.loadComments(true);
   }
 }

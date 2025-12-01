@@ -1,11 +1,26 @@
-<h3>Viimeksi katsotut</h3>
-<p *ngIf="!historyItems.length" class="empty-message">Ei historiaa.</p>
+<div class="history-controls">
+    <h3>Artikkelit</h3>
+    <input
+        type="text"
+        placeholder="esim. 74-20195254 tai URL..."
+        [value]="articleIdFilter"
+        (input)="onArticleIdChanged($any($event.target).value)"
+        class="filter-input history-input"
+    />
+</div>
 
-<ul class="history-list">
-  <li *ngFor="let item of historyItems">
-    <a href="#" (click)="selectArticle(item.id); $event.preventDefault()" 
-        title="{{ item.title }}">
-      {{ item.title }}
-    </a>
-  </li>
-</ul>
+<hr>
+
+<div class="history-list-container">
+    
+    <p *ngIf="!historyItems.length">Ei katsottua historiaa.</p>
+
+    <ul class="history-list">
+        <li *ngFor="let item of historyItems">
+            <a href="#" (click)="selectArticle(item); $event.preventDefault()" 
+               title="{{ item.title }}">
+              {{ item.title }}
+            </a>
+        </li>
+    </ul>
+</div>

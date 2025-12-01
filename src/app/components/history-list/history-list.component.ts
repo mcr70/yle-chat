@@ -1,32 +1,59 @@
+// src/app/components/history-list/history-list.component.ts
+
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { HistoryService, ArticleHistoryItem } from '../../services/history.service';
+import { HistoryService, ArticleHistoryItem } from '../../services/history.service'; // ⭐ LISÄÄ TUONTI
+import { FormsModule } from '@angular/forms'; // Tarvitaan ngFor-rakenteen toimintaan
 
 @Component({
   selector: 'app-history-list',
   templateUrl: './history-list.component.html',
   styleUrls: ['./history-list.component.scss'],
-  imports: [CommonModule]
+  standalone: true, 
+  imports: [CommonModule, FormsModule] // ⭐ LISÄÄ FormsModule
 })
 export class HistoryListComponent implements OnInit {
-  
-  historyItems: ArticleHistoryItem[] = [];
+    
+    // ⭐ UUSI PROPERTIE: Tähän tallennetaan historia
+    historyItems: ArticleHistoryItem[] = []; 
 
-  @Output() articleSelected = new EventEmitter<string>(); // sends selected article ID to parent component
+    @Input() articleIdFilter: string = ''; 
+    @Output() articleIdFilterChange = new EventEmitter<string>(); 
+    @Output() articleSelected = new EventEmitter<ArticleHistoryItem>(); 
 
-  constructor(private historyService: HistoryService) {}
+    constructor(private historyService: HistoryService) {} 
 
-  ngOnInit(): void {
-    this.loadHistory();
-  }
-  
+    ngOnInit(): void {
+        this.loadHistory(); 
+    }
+    
+    // Called to reload history from storage
+    public reloadHistory(): void {
+        this.loadHistory();
+    }
 
-  loadHistory(): void {
-    this.historyItems = this.historyService.getHistory();
-  }
+    loadHistory(): void {
+        this.historyItems = this.historyService.getHistory();
+    }
 
-  selectArticle(articleId: string): void {
-    this.articleSelected.emit(articleId);
-    this.loadHistory(); // Refresh history to reflect the updated order
-  }
+    selectArticle(item: ArticleHistoryItem): void {
+        this.articleSelected.emit(item);
+    }
+
+    onArticleIdChanged(newValue: string): void {
+        const rawInput = newValue.trim();
+        let newArticleId = rawInput;
+        
+        if (rawInput.includes('yle.fi/a/')) {
+            const match = rawInput.match(/(\d+-\d+)(?:#.*)?$/);
+            if (match && match[1]) {
+                newArticleId = match[1]; 
+            } else {
+                newArticleId = ''; 
+            }
+        }
+        
+        this.articleIdFilter = newArticleId;
+        this.articleIdFilterChange.emit(this.articleIdFilter);
+    }
 }

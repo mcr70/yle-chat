@@ -1,17 +1,17 @@
 <div class="main-layout-container">
     
   <div class="sidebar">
-      <app-history-list 
-          (articleSelected)="handleArticleSelected($event)">
-      </app-history-list>
+    <app-history-list 
+        [articleIdFilter]="articleId"
+        (articleIdFilterChange)="onArticleIdChanged($event)"
+        (articleSelected)="handleArticleSelected($event)">
+    </app-history-list>
   </div>
 
   <div class="comment-section">
     <div class="comment-container">
-      <h3>Kommentit</h3>
         
         <div class="filter-controls">
-            
             <div class="filter-row">
                 <button 
                   (click)="loadComments(true)" 
@@ -21,14 +21,6 @@
                   
                   <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
                 </button>
-
-                <input
-                    type="text"
-                    placeholder="Artikkelin ID (esim. 74-20195254) tai URL..."
-                    [value]="articleId"
-                    (input)="onArticleIdChanged($any($event.target).value)"
-                    class="filter-input"
-                />
 
                 <input
                     type="text"
