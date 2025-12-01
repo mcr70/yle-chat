@@ -1,0 +1,11 @@
+<h3>Viimeksi katsotut</h3>
+<p *ngIf="!historyItems.length" class="empty-message">Ei historiaa.</p>
+
+<ul class="history-list">
+  <li *ngFor="let item of historyItems">
+    <a href="#" (click)="selectArticle(item.id); $event.preventDefault()" 
+        title="{{ item.title }}">
+      {{ item.title }}
+    </a>
+  </li>
+</ul>

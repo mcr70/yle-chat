@@ -1,72 +1,82 @@
-<div class="comment-container">
-  <h2>Kommentit</h2>
+<div class="main-layout-container">
     
-    <div class="filter-controls">
+  <div class="sidebar">
+      <app-history-list 
+          (articleSelected)="handleArticleSelected($event)">
+      </app-history-list>
+  </div>
+
+  <div class="comment-section">
+    <div class="comment-container">
+      <h3>Kommentit</h3>
         
-        <div class="filter-row">
+        <div class="filter-controls">
+            
+            <div class="filter-row">
+                <button 
+                  (click)="loadComments(true)" 
+                  [disabled]="isLoading"
+                  class="refresh-button"
+                  title="{{ isLoading ? 'Ladataan...' : 'Päivitä kommentit' }}">
+                  
+                  <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
+                </button>
 
-            <button 
-              (click)="loadComments(true)" 
-              [disabled]="isLoading"
-              class="refresh-button"
-              title="{{ isLoading ? 'Ladataan...' : 'Päivitä kommentit' }}">
-              
-              <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
-            </button>
+                <input
+                    type="text"
+                    placeholder="Artikkelin ID (esim. 74-20195254) tai URL..."
+                    [value]="articleId"
+                    (input)="onArticleIdChanged($any($event.target).value)"
+                    class="filter-input"
+                />
 
-            <input
-                type="text"
-                placeholder="Artikkelin ID (esim. 74-20195254) tai URL..."
-                [value]="articleId"
-                (input)="onArticleIdChanged($any($event.target).value)"
-                class="filter-input"
-            />
+                <input
+                    type="text"
+                    placeholder="Suodata nimimerkillä..."
+                    [value]="nicknameFilter"
+                    (input)="onNicknameChanged($any($event.target).value)"
+                    class="filter-input"
+                />
 
-            <input
-                type="text"
-                placeholder="Suodata nimimerkillä..."
-                [value]="nicknameFilter"
-                (input)="onNicknameChanged($any($event.target).value)"
-                class="filter-input"
-            />
-
-            <div class="hide-control">
-                <input 
-                    type="checkbox" 
-                    id="hideUnmarked" 
-                    [checked]="hideUnmarkedTopLevel"
-                    (change)="hideUnmarkedTopLevel = $any($event.target).checked"
-                    
-                    [disabled]="!isHideUnmarkedEnabled" 
-                >
-                <label 
-                    for="hideUnmarked"
-                    [class.disabled-label]="!isHideUnmarkedEnabled">Piilota muut</label>
+                <div class="hide-control">
+                    <input 
+                        type="checkbox" 
+                        id="hideUnmarked" 
+                        [checked]="hideUnmarkedTopLevel"
+                        (change)="hideUnmarkedTopLevel = $any($event.target).checked"
+                        
+                        [disabled]="!isHideUnmarkedEnabled" 
+                    >
+                    <label 
+                        for="hideUnmarked"
+                        [class.disabled-label]="!isHideUnmarkedEnabled">Piilota muut</label>
+                </div>
             </div>
         </div>
+        
+      <hr>
+
+      <ng-container *ngIf="comments.length > 0; else noComments">
+        <app-comment-item 
+          *ngFor="let comment of filteredComments" 
+          [comment]="comment"
+          [level]="0">
+        </app-comment-item>
+
+        <div class="load-more-container" *ngIf="hasMoreComments">
+        <button 
+            (click)="loadMoreComments()" 
+            [disabled]="isLoading" 
+            class="load-more-button">
+            {{ isLoading ? 'Ladataan...' : 'Lataa lisää kommentteja' }}
+        </button>
+        </div>    
+      </ng-container>
+
+      <ng-template #noComments>
+        <p>Ei kommentteja.</p>
+      </ng-template>
+
     </div>
-    
-  <hr>
-
-  <ng-container *ngIf="comments.length > 0; else noComments">
-    <app-comment-item 
-      *ngFor="let comment of filteredComments" 
-      [comment]="comment"
-      [level]="0">
-    </app-comment-item>
-
-    <div class="load-more-container" *ngIf="hasMoreComments">
-    <button 
-        (click)="loadMoreComments()" 
-        [disabled]="isLoading" 
-        class="load-more-button">
-        {{ isLoading ? 'Ladataan...' : 'Lataa lisää kommentteja' }}
-    </button>
-    </div>    
-  </ng-container>
-
-  <ng-template #noComments>
-    <p>Ei kommentteja.</p>
-  </ng-template>
-
+  </div>
 </div>

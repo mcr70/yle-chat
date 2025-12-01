@@ -1,0 +1,17 @@
+.history-list { list-style: none; padding: 0; }
+.history-list li { 
+  margin-bottom: 5px; 
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+.history-list a { 
+  text-decoration: none; 
+  color: #0066cc; 
+  font-size: 0.9em;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Katkaisee pitkän otsikon ... */
+}
+.history-list a:hover { text-decoration: underline; }
+.empty-message { color: #888; font-style: italic; font-size: 0.9em; }

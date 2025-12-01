@@ -2,7 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Comment, CommentService } from '../../services/comment.service';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+
 import { CommentItemComponent } from '../comment-item/comment-item.component';
+import { HistoryService } from '../../services/history.service';
+import { HistoryListComponent } from '../history-list/history-list.component';
 
 @Component({
   selector: 'app-comment-list',
@@ -11,7 +14,8 @@ import { CommentItemComponent } from '../comment-item/comment-item.component';
   imports: [
     CommonModule, 
     HttpClientModule,
-    CommentItemComponent
+    CommentItemComponent,
+    HistoryListComponent
   ]
 })
 export class CommentListComponent implements OnInit {
@@ -31,7 +35,10 @@ export class CommentListComponent implements OnInit {
 
   private filterFoundMatches: boolean = false;
 
-  constructor(private commentService: CommentService) {}
+  constructor(
+    private commentService: CommentService,
+    private historyService: HistoryService
+  ) {}
 
   ngOnInit(): void {
     this.loadComments();
@@ -66,6 +73,10 @@ export class CommentListComponent implements OnInit {
         const endTime = Date.now();
         const elapsedTime = endTime - startTime;
         const remainingDelay = Math.max(0, this.MIN_LOADING_TIME_MS - elapsedTime);
+
+        const articleTitle = this.articleId; // Placeholder for actual title retrieval
+        this.historyService.addOrUpdateArticle(this.articleId, articleTitle);
+
 
         setTimeout(() => { // Make sure loading spinner is visible for minimum time
           this.isLoading = false;
@@ -148,5 +159,9 @@ export class CommentListComponent implements OnInit {
     }
   }
 
-
+  // Called when an article is selected from history
+  handleArticleSelected(newId: string): void {
+      this.articleId = newId; 
+      this.loadComments(true); 
+  }
 }

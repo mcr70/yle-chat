@@ -1,3 +1,31 @@
+// ------------------------------------------------------
+
+.main-layout-container {
+    display: flex;
+    
+    gap: 30px; /* Väli sarakkeiden välillä */
+    padding: 20px;
+    
+    max-width: 1200px; /* Esimerkki maksimileveydestä */
+    margin: 0 auto; /* Keskittää koko pääkontin sivuittain */
+}
+
+.sidebar {
+    width: 250px; /* Kiinteä, kapea leveys historia-listalle */
+    flex-shrink: 0; /* Estää sivupalkkia kutistumasta */
+    border-right: 1px solid #ddd;
+    padding-right: 20px;
+    
+    /* Varmista, että sidebar on ylhäällä, ei veny koko ruudun korkuiseksi */
+    align-self: flex-start; 
+}
+
+.comment-section {
+    flex-grow: 1; // Fill the remaining space
+}
+
+// ------------------------------------------------------
+
 .comment-container {
   max-width: 800px;
   margin: 0 auto;
