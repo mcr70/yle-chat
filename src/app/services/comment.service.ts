@@ -1,12 +1,31 @@
 /**
  * Service for fetching and processing comments from Yle Comments API.
  * 
- * API Example Call with curl:
- *   curl "https://comments.api.yle.fi/v2/topics/74-20194923/comments/accepted?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D&order=relevance:desc&limit=10&offset=0"
  * 
  * Restrictions
  *   - "Order must be one the following created_at:desc, created_at:asc, relevance:desc"
  *   - "Limit must be between 1 and 20"
+ *   - "Only authenticated users can like comments"
+ * 
+ * 
+ * API endpoint examples:
+ *   - accepted:
+ *     curl "https://comments.api.yle.fi/v2/topics/74-20194923/comments/accepted?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D&order=relevance:desc&limit=10&offset=0"
+ *       - order: relevance:desc | created_at:desc | created_at:asc
+ *       - limit: 1-20
+ *       - offset: 0+
+ * 
+ *   - login, sets cookie: "ylelogin=...", which is needed for like/unlike
+ *     curl -v -X POST "https://login.api.yle.fi/v1/user/login?app_id=tunnus_shared_ui_202004_prod&app_key=0aded2b7c4387042dbfb19cfcf152663&initiating_app=uutiset" -d 'username=...&password=...'
+ * 
+ *   - logout, invalidates cookie:
+ *     curl -v -b "ylelogin=9a379db791bd1599913c60f261f7afa6fb6d811dad76b4cc6b6fe3b0f9cd86f1" \
+ *          -X DELETE "https://login.api.yle.fi/v1/user/login?app_id=tunnus_shared_ui_202004_prod&app_key=0aded2b7c4387042dbfb19cfcf152663&initiating_app=uutiset"
+ * 
+ *   - like:
+ *     curl -b "ylelogin=9a379db791bd1599913c60f261f7afa6fb6d811dad76b4cc6b6fe3b0f9cd86f1" \
+ *          -X POST "https://comments.api.yle.fi/v1/topics/74-20196472/comments/33-6031200c-0d86-4409-8cb6-73ab512ba94e/like?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D"
+ * 
  */
 
 import { Injectable } from '@angular/core';
@@ -14,8 +33,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-// Määritellään datan tyypit (käytännössä vain ne kentät, joita tarvitaan)
-// comment.service.ts
 
 export interface Comment {
   id: string;
@@ -23,13 +40,12 @@ export interface Comment {
   content: string;
   likes: number;
   createdAt: string;
-  // HUOM: Tämä saattaa sisältää litteitä lapsia API:sta, tai olla tyhjä
   children: Comment[]; 
   parentId: string | null; 
-  topCommentId: string; // Tämä on tärkeä, apitunniste kaikille säikeen kommenteille
+  topCommentId: string; 
   isExpanded?: boolean;
 
-  hasNickname?: boolean; // Lisätty kenttä tarkistamaan onko nimimerkki asetettu
+  hasNickname?: boolean; // Marks if comment matches nickname filter
 }
 
 @Injectable({
@@ -37,33 +53,28 @@ export interface Comment {
 })
 export class CommentService {
 
-  private apiBaseUrl =       '/v2/topics/74-20195254/comments/accepted?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D&order=relevance:desc';
   private apiBaseTemplate = '/v2/topics/{articleId}/comments/accepted?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D&order=relevance:desc';
-
-  private apiPathAndParams = '/v2/topics/74-20195254/comments/accepted?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D&order=relevance:desc&limit=10&offset=0';
-  private apiUrl = `/yle-api${this.apiPathAndParams}`;
 
   constructor(private http: HttpClient) { }
 
 
 
   /**
-   * Hakee kommentit API:sta dynaamisilla sivutusparametreilla.
-   * @param offset Aloituskohta (esim. 0, 10, 20)
-   * @param limit Ladattavien kommenttien maksimimäärä
-   * @returns Observable-virran Comment[] -tyyppisestä datasta.
+   * Gets comments for a specific article with pagination.
+   * 
+   * @param articleId article identifier
+   * @param offset starting offset 
+   * @param limit  number of comments to fetch (max 20)
+   * @returns 
    */
   getComments(articleId: string, offset: number, limit: number): Observable<Comment[]> {
     console.log(`Fetching comments for articleId=${articleId}, offset=${offset}, limit=${limit}`);  
-    // Varmistus
+
     if (!articleId || articleId.trim().length === 0) {
         return new Observable(observer => observer.next([])).pipe(map(() => []));
     }
 
-    // ⭐ Rakenna URL korvaamalla {articleId} dynaamisesti
     const baseUrl = this.apiBaseTemplate.replace('{articleId}', articleId);
-    
-    // Rakennetaan lopullinen URL
     const apiUrl = `/yle-api${baseUrl}&limit=${limit}&offset=${offset}`;
 
     return this.http.get<Comment[]>(apiUrl).pipe(
@@ -72,21 +83,16 @@ export class CommentService {
   }
 
   /**
-   * Apufunktio: Kerää rekursiivisesti kaikki kommentit yhteen litteään listaan.
+   * Flattens a nested comment structure into a flat list.
    */
   private flattenComments(comments: Comment[]): Comment[] {
     const flatList: Comment[] = [];
 
     comments.forEach(comment => {
-      // Lisää nykyinen kommentti
       flatList.push(comment);
-      
-      // Jos kommentilla on lapsia, litistä ne ja lisää listaan
       if (comment.children && comment.children.length > 0) {
         flatList.push(...this.flattenComments(comment.children));
       }
-      // TÄRKEÄÄ: Tyhjennetään lapset alkuperäisestä objektista, 
-      // jotta hierarkia voidaan rakentaa puhtaasti parentId:n mukaan.
       comment.children = []; 
     });
 
@@ -94,41 +100,31 @@ export class CommentService {
   }
 
   /**
-   * Rakentaa litteästä listasta puumaisen hierarkian parentId:n perusteella.
-   * Tämä on sama peruslogiikka kuin aiemmin, mutta toimii nyt varmasti litteällä listalla.
+   * Builds a hierarchical comment tree from a flat list of comments.
    */
   private buildCommentTree(apiData: Comment[]): Comment[] {
-    // 1. Litistä koko API:sta saatu data
     const allComments = this.flattenComments(apiData);
     
     const commentMap = new Map<string, Comment>();
     const tree: Comment[] = [];
 
-    // 2. Tallenna kaikki kommentit mappiin ID:n mukaan
     allComments.forEach(comment => {
       commentMap.set(comment.id, comment);
     });
 
-    // 3. Järjestä kommentit hierarkiaan
     allComments.forEach(comment => {
       const parentId = comment.parentId;
 
       if (parentId) {
-        // Kyseessä on vastaus (lapsi)
         const parent = commentMap.get(parentId);
         
         if (parent) {
-          // Siirrä lapsi oikean vanhemman children-taulukkoon
           parent.children.push(comment);
         } else {
-          // Vanhempaa ei löydy (esim. se ei ollut mukana tässä haussa),
-          // mutta meidän tapauksessamme tämä ei pitäisi tapahtua, 
-          // koska latasimme kaikki kommentit.
-          tree.push(comment); 
+          tree.push(comment); // parent not found, treat as top-level
         }
       } else {
-        // Ylätason kommentti (parentId on null)
-        tree.push(comment);
+        tree.push(comment); // no parentId, top-level comment
       }
     });
 
@@ -144,7 +140,6 @@ export class CommentService {
    * @returns 
    */
   markNickname(comments: Comment[], nickname: string | null): void {
-    // tyhjennä kaikki vanhat merkinnät
     this.clearNicknameFlags(comments);
 
     if (!nickname || nickname.trim().length === 0) {
@@ -155,45 +150,37 @@ export class CommentService {
   }
 
 
-  private clearNicknameFlags(nodes: Comment[]): void {
-    for (const node of nodes) {
-      node.hasNickname = false;
-      if (node.children?.length) {
-        this.clearNicknameFlags(node.children);
+  private clearNicknameFlags(comments: Comment[]): void {
+    for (const comment of comments) {
+      comment.hasNickname = false;
+
+      if (comment.children?.length) {
+        this.clearNicknameFlags(comment.children);
       }
     }
   }
 
-  private markRecursive(nodes: Comment[], nickname: string): boolean {
+
+  private markRecursive(comments: Comment[], nickname: string): boolean {
     let foundInSubTree = false;
 
-    // Varmistus: Älä suorita vertailua, jos nimimerkki on tyhjä
     const lowercasedNickname = nickname ? nickname.toLowerCase() : '';
 
-    for (const node of nodes) {
-        
-        // 1. Tarkista osuma itsessä
-        //const ownMatch = node.author.toLowerCase() === lowercasedNickname;
+    for (const comment of comments) {
+        const ownMatch = comment.author
+            && comment.author.toLowerCase().startsWith(lowercasedNickname);
 
-        const ownMatch = node.author
-            && node.author.toLowerCase().startsWith(lowercasedNickname);
-
-        // 2. Tarkista rekursiivisesti lapset
-        const childMatch = node.children?.length
-            ? this.markRecursive(node.children, nickname)
+        const childMatch = comment.children?.length
+            ? this.markRecursive(comment.children, nickname)
             : false;
             
-        // 3. Aseta merkki: Lippu nousee ylös, jos osuma löytyy itsestä TAI lapsista
-        node.hasNickname = ownMatch || childMatch;
+        comment.hasNickname = ownMatch || childMatch; // set flag if current comment or child matches
 
-        // 4. Päivitä nykyisen haun lippu
-        if (node.hasNickname) {
-            // Jos yksikin solmu merkitään tällä tasolla, koko alipuu on merkkauksessa.
+        if (comment.hasNickname) {
             foundInSubTree = true; 
         }
     }
 
-    // Palauttaa true, jos lapsissa oli osuma, joka merkkasi myös vanhemman.
     return foundInSubTree; 
   }
 }

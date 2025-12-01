@@ -4,7 +4,16 @@
     <div class="filter-controls">
         
         <div class="filter-row">
-            
+
+            <button 
+              (click)="loadComments(true)" 
+              [disabled]="isLoading"
+              class="refresh-button"
+              title="{{ isLoading ? 'Ladataan...' : 'Päivitä kommentit' }}">
+              
+              <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
+            </button>
+
             <input
                 type="text"
                 placeholder="Artikkelin ID (esim. 74-20195254) tai URL..."

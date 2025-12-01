@@ -18,7 +18,9 @@ export class CommentListComponent implements OnInit {
 
   articleId: string = '74-20195254'; // default article ID
   currentOffset: number = 0;
-  readonly limit: number = 10;
+  readonly limit: number = 20;
+
+  private MIN_LOADING_TIME_MS = 500; // 0.5 seconds
 
   comments: Comment[] = [];
   hideUnmarkedTopLevel: boolean = false;
@@ -45,10 +47,11 @@ export class CommentListComponent implements OnInit {
         this.hasMoreComments = true;
     }
     
-    // ⭐ KUTSU PALVELUA UUDELLA ARTICLE ID:LLÄ
+    const startTime = Date.now();
+
     this.commentService.getComments(this.articleId, this.currentOffset, this.limit).subscribe({
       next: (newComments) => {
-        // ... (muu logiikka pysyy samana)
+
         this.comments = [...this.comments, ...newComments];
         this.currentOffset += this.limit;
 
@@ -60,23 +63,24 @@ export class CommentListComponent implements OnInit {
           this.commentService.markNickname(this.comments, this.nicknameFilter);
         }
 
-        this.isLoading = false;
+        const endTime = Date.now();
+        const elapsedTime = endTime - startTime;
+        const remainingDelay = Math.max(0, this.MIN_LOADING_TIME_MS - elapsedTime);
+
+        setTimeout(() => { // Make sure loading spinner is visible for minimum time
+          this.isLoading = false;
+        }, remainingDelay);
       },
       error: (err) => {
-        // ⭐ VIRHEEN HALLINTA TÄHÄN ⭐
         console.error('Kommenttien lataus epäonnistui (404 tms.):', err.status, err.message);
         
-        // Nollaa tila, jotta uudet kutsut ovat mahdollisia
         this.isLoading = false; 
         this.hasMoreComments = false;
         
-        // Tyhjennä vanhat kommentit, jotta virhe ei jää näkyviin
         if (reset) {
            this.comments = [];
         }
-        // console.log("Tilaus palautettu virheen jälkeen.");
       }
-      // ... (error handling)
     });
   }
 
