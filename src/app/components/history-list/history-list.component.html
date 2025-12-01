@@ -21,6 +21,14 @@
                title="{{ item.title }}">
               {{ item.title }}
             </a>
+            <a 
+              [href]="getArticleLink(item.id)" 
+              target="_blank"
+              title="Avaa artikkeli Yle-sivuilla"
+              class="article-link-icon">
+              
+              ↗️
+            </a>            
         </li>
     </ul>
 </div>

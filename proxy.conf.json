@@ -7,5 +7,15 @@
       "^/yle-api": ""
     },
     "logLevel": "debug"
+  },
+  "/yle-news": {
+    "target": "https://yle.fi",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/yle-news": "/"  
+    },
+    "logLevel": "debug"
   }
+
 }

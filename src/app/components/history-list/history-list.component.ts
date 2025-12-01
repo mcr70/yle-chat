@@ -56,4 +56,9 @@ export class HistoryListComponent implements OnInit {
         this.articleIdFilter = newArticleId;
         this.articleIdFilterChange.emit(this.articleIdFilter);
     }
+
+    getArticleLink(articleId: string) {
+        return `https://yle.fi/a/${articleId}#comments`;
+    }
+
 }
