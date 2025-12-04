@@ -2,8 +2,12 @@
   <h3>Kirjautuminen</h3>
 
   <ng-container *ngIf="(isLoggedIn$ | async)">
-    <p class="logged-in-message">Olet kirjautunut sisään!</p>
-    <button (click)="onLogout()" class="logout-button">Kirjaudu ulos</button>
+    <button 
+      (click)="onLogout()" 
+      class="logout-button"
+      title="Kirjaudu ulos Yle Tunnuksesta">
+      Kirjaudu ulos
+    </button>
   </ng-container>
 
   <ng-container *ngIf="!(isLoggedIn$ | async)">

@@ -1,0 +1,73 @@
+// Yhteiset perusominaisuudet molemmille napeille
+.login-button, .logout-button {
+    padding: 8px 15px; // Kompakti padding
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #ccc; // Kevyt harmaa reuna
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    margin-top: 15px; 
+
+    display: block; 
+    width: 100%; 
+    background-color: #eee;
+    color: #003780;
+    //box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+        background-color: #ccc; 
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    &:disabled {
+        background-color: #ccc;
+        color: #666;
+        cursor: not-allowed;
+        box-shadow: none;
+    }   
+    &:focus {
+        border-color: var(--yle-blue, #003780); // Korostetaan Yle-sinisellä
+        outline: none; // Poistaa selaimen oletusarvoisen "focus ringin"
+        box-shadow: 0 0 0 3px rgba(0, 55, 128, 0.2); // Pehmeä sininen hehku
+    }
+
+}
+
+.logout-button {
+    margin-bottom: 8px;
+}
+
+// ------------------------------------------------------------------------------
+
+.login-form {
+    display: flex;
+    flex-direction: column; // Asettaa kentät ja napin allekkain
+    gap: 10px; // Lisää pienen välin kenttien väliin
+    margin-top: 15px; // Tilaa Kirjautuminen-otsikon jälkeen
+}
+
+.login-input {
+    box-sizing: border-box; // Sisältää paddingin ja reunat leveyteen
+    width: 100%; // Kenttä vie koko leveytensä
+    padding: 10px 12px;
+    font-size: 1em;
+    border: 1px solid #ccc; // Kevyt harmaa reuna
+    border-radius: 4px; // Kevyt pyöristys
+    transition: border-color 0.2s, box-shadow 0.2s; // Smooth-efekti
+
+    // Kun kenttä on valittu/aktiivinen
+    &:focus {
+        border-color: var(--yle-blue, #003780); // Korostetaan Yle-sinisellä
+        outline: none; // Poistaa selaimen oletusarvoisen "focus ringin"
+        box-shadow: 0 0 0 3px rgba(0, 55, 128, 0.2); // Pehmeä sininen hehku
+    }
+
+    // placeholder-tekstin tyylittely
+    &::placeholder {
+        color: #999;
+    }
+}
+
+// ... (login-button ja logout-button tyylit jatkuvat)
