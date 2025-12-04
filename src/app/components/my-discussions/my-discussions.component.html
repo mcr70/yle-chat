@@ -21,27 +21,41 @@
       
     <p *ngIf="!discussions.length">Ei kommentoitua historiaa.</p>
 
-    <ul class="history-list">
+<ul class="history-list">
       <li *ngFor="let item of discussions">
-        <div class="list-item-header"> 
-            <a href="#" 
-                (click)="selectDiscussion(item); $event.preventDefault()" 
-                title="{{ item.title }}"                           
-                [class.truncated-title]="true"                     
-                class="article-title-link">                        
-              {{ item.title }}
-            </a>
-            <a 
-              [href]="item.url" 
-              target="_blank"
-              title="Avaa artikkeli Yle-sivuilla"
-              class="article-link-icon">
-              ↗️
-            </a>  
-        </div>
-        <p class="comment-preview">
-          "{{ item.commentContent | slice:0:50 }}..."
-        </p>
+          
+          <div class="list-item-header"> 
+              
+              <a href="#" 
+                 (click)="selectDiscussion(item); $event.preventDefault()" 
+                 title="{{ item.title }}"                           
+                 [class.truncated-title]="true"                     
+                 class="article-title-link">                        
+                {{ item.title }}
+              </a>
+
+              <a 
+                [href]="item.url" 
+                target="_blank"
+                title="Avaa artikkeli Yle-sivuilla"
+                class="article-link-icon">
+                ↗️
+              </a>  
+          </div>
+<!--
+          <p class="comment-preview">
+            Viimeisin kommentti: "{{ item.latestCommentContent | slice:0:50 }}..." 
+            <span *ngIf="item.comments.length > 1" class="comment-count">
+              (yhteensä {{ item.comments.length }} kommenttia)
+            </span>
+          </p>
+-->
+          <p class="comment-preview"
+             title="{{ getTooltipForComments(item.comments) }}"> 
+            <span class="comment-count">
+              {{ item.comments.length }} kommentti{{item.comments.length > 1 ? 'a' : ''}}
+            </span>
+          </p>
       </li>
     </ul>
 

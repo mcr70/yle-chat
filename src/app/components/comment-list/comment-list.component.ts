@@ -11,7 +11,7 @@ import { HistoryListComponent } from '@components/history-list/history-list.comp
 import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
 import { TitleFetchService } from '@services/title-fetch.service';
 import { forkJoin, of } from 'rxjs';
-import { MyDiscussion } from '@app/services/yle-history.service';
+import { GroupedDiscussion, MyDiscussion } from '@app/services/yle-history.service';
 
 @Component({
   selector: 'app-comment-list',
@@ -171,10 +171,10 @@ loadComments(reset: boolean = false): void {
     this.loadComments(true);
   }
 
-  handleDiscussionSelected(discussion: MyDiscussion): void {
+  handleDiscussionSelected(discussion: GroupedDiscussion): void {
     console.log('Käsitellään valittu keskustelu:', discussion);
     
-    this.articleId = discussion.id;
+    this.articleId = discussion.articleId;
     this.loadComments(true);
   }  
 }

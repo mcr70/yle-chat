@@ -53,7 +53,6 @@ const PROXY_CONFIG = [
     configure: (proxy) => {
       // Tämä funktio suoritetaan, kun Yle API palauttaa vastauksen
       proxy.on("proxyRes", (proxyRes, req, res) => {
-        console.log('>>> ON PROXY RES CALLED FOR LOGIN. URL:', req.url);
 
         const setCookieHeaders = proxyRes.headers['set-cookie'];
         
@@ -66,7 +65,7 @@ const PROXY_CONFIG = [
           });
           
           proxyRes.headers['set-cookie'] = modifiedCookies;
-          console.log('Modified Cookie Header (SUCCESS):', modifiedCookies);
+          //console.log('Modified Cookie Header (SUCCESS):', modifiedCookies);
         }
       });
     },
