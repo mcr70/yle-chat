@@ -2,7 +2,11 @@
     
   <div class="sidebar">
     <app-login-panel></app-login-panel>
-    
+
+    <app-my-discussions
+      (discussionSelected)="handleDiscussionSelected($event)"      (articleIdFilterChange)="onArticleIdChanged($event)">
+    </app-my-discussions>
+
     <app-history-list 
         [articleIdFilter]="articleId"
         (articleIdFilterChange)="onArticleIdChanged($event)"

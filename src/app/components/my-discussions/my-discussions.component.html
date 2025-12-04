@@ -1,0 +1,49 @@
+<div *ngIf="isLoggedIn$ | async" class="history-list-container">
+  
+  <div class="discussions-header">
+      
+    <h3>Omat keskustelut</h3>
+
+    <button 
+        (click)="refreshDiscussions()" 
+        [disabled]="isLoading$ | async"
+        class="refresh-button"
+        title="{{ (isLoading$ | async) ? 'Ladataan...' : 'Päivitä keskustelut' }}">
+        
+        <span *ngIf="!(isLoading$ | async)">🔄</span> 
+
+        <span *ngIf="isLoading$ | async" class="spinner">🔄</span> 
+    </button>
+  </div>
+
+  
+  <ng-container *ngIf="!(isLoading$ | async) && (myDiscussions$ | async) as discussions">
+      
+    <p *ngIf="!discussions.length">Ei kommentoitua historiaa.</p>
+
+    <ul class="history-list">
+      <li *ngFor="let item of discussions">
+        <div class="list-item-header"> 
+            <a href="#" 
+                (click)="selectDiscussion(item); $event.preventDefault()" 
+                title="{{ item.title }}"                           
+                [class.truncated-title]="true"                     
+                class="article-title-link">                        
+              {{ item.title }}
+            </a>
+            <a 
+              [href]="item.url" 
+              target="_blank"
+              title="Avaa artikkeli Yle-sivuilla"
+              class="article-link-icon">
+              ↗️
+            </a>  
+        </div>
+        <p class="comment-preview">
+          "{{ item.commentContent | slice:0:50 }}..."
+        </p>
+      </li>
+    </ul>
+
+  </ng-container>
+</div>

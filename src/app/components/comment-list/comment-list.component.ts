@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { switchMap, tap, catchError } from 'rxjs/operators'; 
 
-import { Comment, CommentService } from '../../services/comment.service';
-import { CommentItemComponent } from '../comment-item/comment-item.component';
-import { ArticleHistoryItem, HistoryService } from '../../services/history.service';
-import { HistoryListComponent } from '../history-list/history-list.component';
-import { LoginPanelComponent } from '../login-panel/login-panel.component';
-import { TitleFetchService } from '../../services/title-fetch.service';
+import { Comment, CommentService } from '@services/comment.service';
+import { CommentItemComponent } from '@components/comment-item/comment-item.component';
+import { MyDiscussionsComponent } from '@components/my-discussions/my-discussions.component';
+import { ArticleHistoryItem, HistoryService } from '@services/history.service';
+import { HistoryListComponent } from '@components/history-list/history-list.component';
+import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
+import { TitleFetchService } from '@services/title-fetch.service';
 import { forkJoin, of } from 'rxjs';
+import { MyDiscussion } from '@app/services/yle-history.service';
 
 @Component({
   selector: 'app-comment-list',
@@ -18,7 +20,7 @@ import { forkJoin, of } from 'rxjs';
   imports: [
     CommonModule, 
     HttpClientModule,
-    CommentItemComponent, HistoryListComponent, LoginPanelComponent
+    CommentItemComponent, HistoryListComponent, LoginPanelComponent, MyDiscussionsComponent
   ]
 })
 export class CommentListComponent implements OnInit {
@@ -168,4 +170,11 @@ loadComments(reset: boolean = false): void {
     this.articleId = articleData.id; 
     this.loadComments(true);
   }
+
+  handleDiscussionSelected(discussion: MyDiscussion): void {
+    console.log('Käsitellään valittu keskustelu:', discussion);
+    
+    this.articleId = discussion.id;
+    this.loadComments(true);
+  }  
 }

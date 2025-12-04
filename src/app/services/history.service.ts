@@ -1,9 +1,6 @@
 /**
  * Service to manage article reading history using local storage.
  * 
- * https://datacloud.api.yle.fi/v2/tv/history?limit=20&exclude_sub_accounts=true&fetch_comments=true
- *   - GET
- *   - Cookie: -b 'ylelogin=1b0b4764b6cce6b85265597dcd64f9cde89d30bb9476a7582af86c69919d9c87'
  */
 import { Injectable } from '@angular/core';
 

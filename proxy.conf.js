@@ -26,6 +26,17 @@ const PROXY_CONFIG = [
     },
     logLevel: "debug"
   },
+
+  {
+    context: ["/yle-history"],
+    target: "https://datacloud.api.yle.fi", // TÄMÄ ON TÄRKEÄ
+    secure: true,
+    changeOrigin: true,
+    pathRewrite: {
+        "^/yle-history": "" // TÄMÄ ON TÄRKEÄ
+    },
+    logLevel: "debug"
+  },
   
   // 3. Yle Login API (Käytämme nyt configure-funktiota)
   {
