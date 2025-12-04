@@ -1,6 +1,8 @@
 <div class="main-layout-container">
     
   <div class="sidebar">
+    <app-login-panel></app-login-panel>
+    
     <app-history-list 
         [articleIdFilter]="articleId"
         (articleIdFilterChange)="onArticleIdChanged($event)"

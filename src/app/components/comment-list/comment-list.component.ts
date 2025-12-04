@@ -7,6 +7,7 @@ import { Comment, CommentService } from '../../services/comment.service';
 import { CommentItemComponent } from '../comment-item/comment-item.component';
 import { ArticleHistoryItem, HistoryService } from '../../services/history.service';
 import { HistoryListComponent } from '../history-list/history-list.component';
+import { LoginPanelComponent } from '../login-panel/login-panel.component';
 import { TitleFetchService } from '../../services/title-fetch.service';
 import { forkJoin, of } from 'rxjs';
 
@@ -17,8 +18,7 @@ import { forkJoin, of } from 'rxjs';
   imports: [
     CommonModule, 
     HttpClientModule,
-    CommentItemComponent,
-    HistoryListComponent
+    CommentItemComponent, HistoryListComponent, LoginPanelComponent
   ]
 })
 export class CommentListComponent implements OnInit {

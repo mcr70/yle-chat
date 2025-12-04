@@ -16,6 +16,15 @@
       "^/yle-news": "/"  
     },
     "logLevel": "debug"
-  }
+  },
+  "/yle-login": {
+    "target": "https://login.api.yle.fi",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/yle-login": ""
+    },
+    "logLevel": "debug"
+  }  
 
 }
