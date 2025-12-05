@@ -1,9 +1,12 @@
 // Yhteiset perusominaisuudet molemmille napeille
 .login-button, .logout-button {
     padding: 8px 15px; // Kompakti padding
+
     font-size: 1em;
     font-weight: bold;
     text-align: center;
+    color: #003780;
+
     border: 1px solid #ccc; // Kevyt harmaa reuna
     border-radius: 4px;
     cursor: pointer;
@@ -13,7 +16,6 @@
     display: block; 
     width: 100%; 
     background-color: #eee;
-    color: #003780;
     //box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
     &:hover {

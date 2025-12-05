@@ -3,15 +3,15 @@
 .main-layout-container {
     display: flex;
     
-    gap: 30px; /* Väli sarakkeiden välillä */
+    gap: 30px;     /* Väli sarakkeiden välillä */
     padding: 20px;
     
-    max-width: 1200px; /* Esimerkki maksimileveydestä */
+    max-width: 1200px; 
     margin: 0 auto; /* Keskittää koko pääkontin sivuittain */
 }
 
 .sidebar {
-    width: 250px; /* Kiinteä, kapea leveys historia-listalle */
+    width: 250px;   /* Kiinteä, kapea leveys historia-listalle */
     flex-shrink: 0; /* Estää sivupalkkia kutistumasta */
     border-right: 1px solid #ddd;
     padding-right: 20px;
@@ -20,8 +20,39 @@
     align-self: flex-start; 
 }
 
+
+.comment-header, .filter-controls {
+    width: 100%; 
+}
+
+.comment-header {
+    display: flex;             
+    align-items: center;       
+    gap: 30px;                 
+    margin-bottom: 15px;       
+}
+
+.filter-row {
+    display: flex; 
+    gap: 20px;     
+    align-items: center; 
+    margin-bottom: 10px;
+}
+
+.filter-input {
+    flex-grow: 1; /* Antaa syötekentän käyttää kaiken ylimääräisen tilan */
+    padding: 8px;
+}
+
+
+.comment-header h3 {
+    margin: 0;
+    flex-grow: 1; /* Vie mahdollisimman paljon tilaa otsikolle */
+}
+
+
 .comment-section {
-    flex-grow: 1; // Fill the remaining space
+    flex-grow: 1; // Vie kaiken jäljellä olevan tilan pääkontissa
 }
 
 // ------------------------------------------------------
@@ -48,10 +79,6 @@
   margin-bottom: 15px;
 }
 
-.comment-header {
-  font-size: 1.1em;
-  margin-bottom: 5px;
-}
 
 .comment-date, .reply-date {
   font-size: 0.8em;
@@ -104,17 +131,22 @@
 
 .load-more-button {
   padding: 10px 20px;
+
   font-size: 1.0em;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  font-weight: bold;
+  text-align: center;
+  color: #003780;
+
+  background-color: #eee;
+  border: 1px solid #ccc; // Kevyt harmaa reuna;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s, box-shadow 0.2s;
 }
 
 .load-more-button:hover:not(:disabled) {
-  background-color: #0056b3;
+  background-color: #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .load-more-button:disabled {
@@ -123,17 +155,6 @@
 }
 
 
-.filter-row {
-    display: flex; /* Aktivoi Flexbox */
-    gap: 20px;     /* Lisää väliä elementtien väliin */
-    align-items: center; /* Keskittää pystysuunnassa */
-    margin-bottom: 10px;
-}
-
-.filter-input {
-    flex-grow: 1; /* Antaa syötekentän käyttää kaiken ylimääräisen tilan */
-    padding: 8px;
-}
 
 .hide-control {
     /* Varmistaa, että valintaruutu ja teksti ovat linjassa */
@@ -163,7 +184,7 @@
     /* Muutetaan napin ulkoasua */
     width: 40px; /* Kiinteä leveys */
     height: 40px; /* Kiinteä korkeus */
-    padding: 0;
+    padding: 4px 8px;;
     cursor: pointer;
     background-color: #f0f0f0; /* Vaalea tausta */
     color: #333; /* Tumma ikoni */
@@ -200,6 +221,7 @@
     /* Käytetään animaatiota, kun lataus on käynnissä */
     animation: spin 1.2s linear infinite;
     display: inline-block;
+    padding: 4px 8px;;
 }
 
 // ------------------------------------------------------
