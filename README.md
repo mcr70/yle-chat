@@ -1,59 +1,31 @@
 # YleChat
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.6.
+## Installing
 
-## Development server
+There is a simple Terraform scripts in `terraform/` directory, which will make a
+simple S3 bucket and CloudFront distribution, that can be used for simple installations.
 
-To start a local development server, run:
-
+In `terraform/` folder, change `variables.tf` and give your bucket a globally unique name.
+After that, run 
 ```bash
-ng serve
+terraform apply
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+Once the bucket and CloudFront distribution is created, build and copy the files into bucket.
+You need to setup your cli so that it can upload into s3 bucket
 ```bash
-ng generate component component-name
+ng build --configuration=production
+aws s3 sync ./dist/yle-chat/browser s3://yle-chat-app-bucket --delete
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+If you need to update the service to S3 bucket, remember that there may be some caching 
+involved with Cloudfront. To invalidate Cloudfront cache, you need to figure out your 
+distribution ID, and then trigger the invalidation, like this
 
 ```bash
-ng generate --help
+aws cloudfront list-distributions --query "DistributionList.Items[*].Id"
+[
+    "..."
+]
+aws cloudfront create-invalidation --paths "/*" --distribution-id ...
 ```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

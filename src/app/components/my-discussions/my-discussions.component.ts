@@ -24,6 +24,7 @@ export class MyDiscussionsComponent implements OnInit {
 
   @Output() discussionSelected = new EventEmitter<GroupedDiscussion>(); 
   @Output() articleIdFilterChange = new EventEmitter<string>();
+  @Output() discussionsLoaded = new EventEmitter<GroupedDiscussion[]>();
 
   constructor(
     private authService: AuthService,
@@ -57,6 +58,11 @@ export class MyDiscussionsComponent implements OnInit {
         );
       })
     );
+
+    // @Output discussions loaded
+    this.myDiscussions$.subscribe(discussions => {
+      this.discussionsLoaded.emit(discussions);
+    });    
   }
 
   

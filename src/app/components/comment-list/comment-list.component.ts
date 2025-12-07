@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { catchError } from 'rxjs/operators'; 
 
 import { Comment, CommentService } from '@services/comment.service';
 import { CommentItemComponent } from '@components/comment-item/comment-item.component';
@@ -9,8 +8,6 @@ import { MyDiscussionsComponent } from '@components/my-discussions/my-discussion
 import { ArticleHistoryItem, HistoryService } from '@services/history.service';
 import { HistoryListComponent } from '@components/history-list/history-list.component';
 import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
-import { TitleFetchService } from '@services/title-fetch.service';
-import { forkJoin, of } from 'rxjs';
 import { GroupedDiscussion } from '@app/services/yle-history.service';
 
 @Component({
@@ -47,7 +44,6 @@ export class CommentListComponent implements OnInit {
   constructor(
     private commentService: CommentService,
     private historyService: HistoryService,
-    private titleFetchService: TitleFetchService
   ) {}
 
   ngOnInit(): void {
@@ -56,7 +52,8 @@ export class CommentListComponent implements OnInit {
     if (history && history.length > 0) {
       const latestArticle = history[0];
       this.articleId = latestArticle.id;
-      
+      this.articleTitle = latestArticle.title || '';
+
       this.loadComments(true); 
     }    
   }
@@ -73,21 +70,9 @@ loadComments(reset: boolean = false): void {
 
     const startTime = Date.now();
 
-    // Get comments and title in parallel
-    const comments$ = this.commentService.getComments(this.articleId, this.currentOffset, this.limit);
-    const title$ = this.titleFetchService.fetchTitle(this.articleId).pipe(
-      catchError(() => of(`${this.articleId}`)) // Fallback to articleId on error
-    );
-
-    // Use forkJoin to run both requests in parallel and wait for both to complete
-    forkJoin({
-      newComments: comments$,
-      title: title$
-    }).subscribe({
-      next: (result) => {
-        const newComments = result.newComments;
-        this.articleTitle = result.title; 
-
+    this.commentService.getComments(this.articleId, this.currentOffset, this.limit).subscribe({
+      next: (newComments) => {
+        
         this.comments = [...this.comments, ...newComments];
         this.currentOffset += this.limit;
 
@@ -104,8 +89,7 @@ loadComments(reset: boolean = false): void {
         const elapsedTime = endTime - startTime;
         const remainingDelay = Math.max(0, this.MIN_LOADING_TIME_MS - elapsedTime);
 
-        // Update history
-        this.historyService.addOrUpdateArticle(this.articleId, this.articleTitle);
+        this.historyService.addOrUpdateArticle(this.articleId, (this.articleTitle || this.articleId));
 
         // reload
         if (this.historyListComponent) { 
@@ -123,6 +107,7 @@ loadComments(reset: boolean = false): void {
         if (reset) { this.comments = []; }
       }
     });
+
   }
 
   loadMoreComments(): void {
@@ -161,18 +146,40 @@ loadComments(reset: boolean = false): void {
 
   onArticleIdChanged(newArticleId: string) {
     this.articleId = newArticleId;
+    this.articleTitle = '';
     this.loadComments(true); 
   }
 
   // Called when an article is selected from history
   handleArticleSelected(articleData: ArticleHistoryItem): void {
     this.articleId = articleData.id; 
+    this.articleTitle = articleData.title || '';
     this.loadComments(true);
   }
 
   // Called when an article is selected from own discussion list
   handleDiscussionSelected(discussion: GroupedDiscussion): void {
     this.articleId = discussion.articleId;
+    this.articleTitle = discussion.title;
     this.loadComments(true);
+  }  
+
+  handleDiscussionsLoaded(discussions: GroupedDiscussion[]): void {
+    let historyUpdated = false;
+
+    discussions.forEach(discussion => {
+      if (discussion.articleId && discussion.title) {
+        this.historyService.addOrUpdateArticle(discussion.articleId, discussion.title);
+        historyUpdated = true;
+
+        if (discussion.articleId === this.articleId && this.articleTitle === this.articleId) {
+          this.articleTitle = discussion.title;
+        }
+      }
+    });
+
+    if (historyUpdated && this.historyListComponent) {
+      this.historyListComponent.reloadHistory();
+    }
   }  
 }
