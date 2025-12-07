@@ -1,52 +1,36 @@
 .history-list { list-style: none; padding: 0; }
 
 .history-list li {
-    display: flex; /* Asettaa sisällön (kaksi <a>) rinnakkain */
-    align-items: center; /* Keskittää elementit pystysuunnassa */
-    gap: 8px; /* Pieni tila elementtien välillä */
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
     
-    /* Varmista, että listan itemillä on edelleen jokin visuaalinen raja, jos haluat */
     margin-bottom: 5px; 
     padding-bottom: 5px;
     border-bottom: 1px solid #eee;
 }
 
-/* Ensimmäinen linkki (Artikkelin otsikko) */
 .history-list li a:not(.article-link-icon) {
-    //flex-grow: 1; /* Antaa otsikolle kaiken käytettävissä olevan tilan */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis; 
 }
 
-/* Ikonilinkki */
 .article-link-icon {
     flex-shrink: 0; /* Estää ikonia kutistumasta */
     font-size: 1.1em;
     text-decoration: none;
     color: #0066cc;
-    
-    /* ⭐ TÄMÄ SIIRTÄÄ IKONIN OIKEALLE, jos tarpeen ⭐ */
-    /* Jos haluat sen kiinni otsikkoon, poista tämä.
-       Jos haluat sen liimautuvan oikeaan reunaan: */
-    /* margin-left: auto; */ 
 }
 .history-input {
-    flex-grow: 1; /* Antaa syötekentän käyttää kaiken ylimääräisen tilan */
+    flex-grow: 1; 
     padding: 8px;
 }
 
 .history-controls .filter-input {
-    /* Määritellään input-kenttä lohkotason elementiksi */
     display: block; 
-    
-    /* Pakotetaan input venymään 100% leveydelle */
     width: 100%; 
-    
-    /* Lisää hieman tilaa ylä- ja alapuolelle */
     margin-bottom: 10px; 
-    
-    /* Varmista, että padding on määritelty, jotta input näyttää hyvältä */
     padding: 8px;
     box-sizing: border-box; /* Sisältää paddingin ja reunat leveyteen, jotta se ei ylitä 100% */
 }

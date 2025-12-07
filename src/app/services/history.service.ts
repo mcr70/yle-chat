@@ -1,6 +1,5 @@
 /**
  * Service to manage article reading history using local storage.
- * 
  */
 import { Injectable } from '@angular/core';
 

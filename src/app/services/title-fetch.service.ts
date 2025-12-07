@@ -1,4 +1,3 @@
-// src/app/services/title-fetch.service.ts
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -11,7 +10,7 @@ export class TitleFetchService {
 
   constructor(private http: HttpClient) {}
 
-  private readonly PROXY_PREFIX = '/yle-news';
+  private readonly PROXY_PREFIX = '';//'/yle-news';
   private readonly TITLE_REGEX = /<title>(.*?)<\/title>/i;
 
   fetchTitle(articleId: string): Observable<string> {

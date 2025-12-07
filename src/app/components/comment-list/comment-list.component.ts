@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { switchMap, tap, catchError } from 'rxjs/operators'; 
+import { catchError } from 'rxjs/operators'; 
 
 import { Comment, CommentService } from '@services/comment.service';
 import { CommentItemComponent } from '@components/comment-item/comment-item.component';
@@ -11,7 +11,7 @@ import { HistoryListComponent } from '@components/history-list/history-list.comp
 import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
 import { TitleFetchService } from '@services/title-fetch.service';
 import { forkJoin, of } from 'rxjs';
-import { GroupedDiscussion, MyDiscussion } from '@app/services/yle-history.service';
+import { GroupedDiscussion } from '@app/services/yle-history.service';
 
 @Component({
   selector: 'app-comment-list',
@@ -27,7 +27,7 @@ export class CommentListComponent implements OnInit {
 
   @ViewChild(HistoryListComponent) historyListComponent!: HistoryListComponent;
 
-  articleId: string = ''// '74-20195254'; // default article ID
+  articleId: string = ''
   articleTitle: string = '';
 
   currentOffset: number = 0;
@@ -107,7 +107,7 @@ loadComments(reset: boolean = false): void {
         // Update history
         this.historyService.addOrUpdateArticle(this.articleId, this.articleTitle);
 
-        // Päivitys listaan
+        // reload
         if (this.historyListComponent) { 
           this.historyListComponent.reloadHistory(); 
         }
@@ -166,14 +166,12 @@ loadComments(reset: boolean = false): void {
 
   // Called when an article is selected from history
   handleArticleSelected(articleData: ArticleHistoryItem): void {
-    console.log('History selected ID:', articleData.id);
     this.articleId = articleData.id; 
     this.loadComments(true);
   }
 
+  // Called when an article is selected from own discussion list
   handleDiscussionSelected(discussion: GroupedDiscussion): void {
-    console.log('Käsitellään valittu keskustelu:', discussion);
-    
     this.articleId = discussion.articleId;
     this.loadComments(true);
   }  

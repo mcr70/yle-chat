@@ -1,13 +1,11 @@
 .comment-item {
-  /* Sisennys hoidetaan [style.paddingLeft.px]="level * 20" -asetuksella */
   margin-top: 10px;
-  //border-left: 2px solid #ddd;
-  padding-left: 30px; /* Perus sisennys */
+  padding-left: 30px;
 }
 
 .comment-box {
-  background-color: #eee; //#ffffff;
-  border: 1px solid #666; // black; // #eee;
+  background-color: #eee;
+  border: 1px solid #666;
   padding: 10px;
   border-radius: 10px;
 }
@@ -16,7 +14,6 @@
   display: flex;
   justify-content: space-between;
   font-size: 1.0em;
-  /* LISÄÄ TÄMÄ, jos haluat välin sisällön yläpuolelle */
   margin-bottom: 5px; 
 }
 
@@ -35,7 +32,7 @@
   white-space: pre-line;
 }
 
-/* Tämä voi auttaa erottamaan ketjut toisistaan */
+
 .child-comment-wrapper {
   margin-top: 5px;
 }

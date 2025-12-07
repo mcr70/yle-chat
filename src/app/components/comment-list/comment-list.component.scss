@@ -3,7 +3,7 @@
 .main-layout-container {
     display: flex;
     
-    gap: 30px;     /* Väli sarakkeiden välillä */
+    gap: 30px;
     padding: 20px;
     
     max-width: 1200px; 
@@ -16,8 +16,7 @@
     border-right: 1px solid #ddd;
     padding-right: 20px;
     
-    /* Varmista, että sidebar on ylhäällä, ei veny koko ruudun korkuiseksi */
-    align-self: flex-start; 
+    align-self: flex-start; /* Varmista, että sidebar on ylhäällä, ei veny koko ruudun korkuiseksi */
 }
 
 
@@ -40,19 +39,19 @@
 }
 
 .filter-input {
-    flex-grow: 1; /* Antaa syötekentän käyttää kaiken ylimääräisen tilan */
+    flex-grow: 1; 
     padding: 8px;
 }
 
 
 .comment-header h3 {
     margin: 0;
-    flex-grow: 1; /* Vie mahdollisimman paljon tilaa otsikolle */
+    flex-grow: 1; 
 }
 
 
 .comment-section {
-    flex-grow: 1; // Vie kaiken jäljellä olevan tilan pääkontissa
+    flex-grow: 1; 
 }
 
 // ------------------------------------------------------
@@ -157,7 +156,6 @@
 
 
 .hide-control {
-    /* Varmistaa, että valintaruutu ja teksti ovat linjassa */
     display: flex; 
     align-items: center; 
 }
@@ -171,29 +169,26 @@
     opacity: 0.6;
 }
 
-/* Tee myös teksti haaleammaksi, kun se on poissa käytöstä */
 .disabled-label {
     color: #999;
     cursor: not-allowed;
 }
 
 
-
 // ------------------------------------------------------
 .refresh-button {
-    /* Muutetaan napin ulkoasua */
-    width: 40px; /* Kiinteä leveys */
-    height: 40px; /* Kiinteä korkeus */
+    width: 40px; 
+    height: 40px; 
     padding: 4px 8px;;
     cursor: pointer;
-    background-color: #f0f0f0; /* Vaalea tausta */
-    color: #333; /* Tumma ikoni */
+    background-color: #f0f0f0; 
+    color: #333; 
     border: 1px solid #ccc;
-    border-radius: 50%; /* Pyöreä muoto */
+    border-radius: 50%; 
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2em; /* Isompi ikoni */
+    font-size: 1.2em; 
     transition: background-color 0.2s;
 }
 
@@ -208,7 +203,6 @@
     opacity: 0.7;
 }
 
-/* ⭐ Latausanimaatio (Spinner) ⭐ */
 
 /* Keyframes animaatiolle */
 @keyframes spin {

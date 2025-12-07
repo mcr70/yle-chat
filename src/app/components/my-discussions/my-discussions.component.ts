@@ -2,9 +2,10 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BehaviorSubject, merge, Observable, of, Subject } from 'rxjs';
-import { delay, filter, finalize, switchMap } from 'rxjs/operators';
-import { AuthService } from '../../services/auth.service';
-import { YleHistoryService, MyDiscussion, GroupedDiscussion } from '../../services/yle-history.service';
+import { filter, finalize, switchMap } from 'rxjs/operators';
+
+import { AuthService } from '@services/auth.service';
+import { YleHistoryService, MyDiscussion, GroupedDiscussion } from '@services/yle-history.service';
 
 @Component({
   selector: 'app-my-discussions',
@@ -19,7 +20,7 @@ export class MyDiscussionsComponent implements OnInit {
 
   private refreshTrigger = new Subject<void>();
   private discussionsLoading = new BehaviorSubject<boolean>(false);
-  isLoading$: Observable<boolean> = this.discussionsLoading.asObservable(); // Käytetään tätä templatessa
+  isLoading$: Observable<boolean> = this.discussionsLoading.asObservable();
 
   @Output() discussionSelected = new EventEmitter<GroupedDiscussion>(); 
   @Output() articleIdFilterChange = new EventEmitter<string>();
@@ -60,44 +61,29 @@ export class MyDiscussionsComponent implements OnInit {
 
   
   selectDiscussion(discussion: GroupedDiscussion): void {
-    console.log('Avataan keskustelu ID:lle:', discussion.articleId,);
-
     this.discussionSelected.emit(discussion);
-
     this.articleIdFilterChange.emit(discussion.articleId);
   }  
 
-  // Tämä funktio ohjaa keskusteluun
+
   openDiscussion(discussion: MyDiscussion): void {
-    // TÄRKEÄÄ: Ota huomioon aiempi logiikkasi, kuinka artikkelinäkymä päivittyy.
-    // Koska tavoite on, että "kaikki toimii niin kuin tähänkin asti",
-    // tarvitset ehkä output-emitterin tai jaetun palvelun päivittämään näkymän.
-    
-    // Nyt avataan linkki suoraan (yksinkertaisin tapa):
     window.open(discussion.url, '_blank');
   }
 
   refreshDiscussions(): void {
-    // Lähetä arvo Subjectiin, joka laukaisee koko latausketjun uudelleen.
     this.refreshTrigger.next(); 
   }  
 
-  /**
-   * Muotoilee listan kommenteista yhdeksi merkkijonoksi rivinvaihtojen (&#13; &#10;) kera
-   * käytettäväksi HTML title-attribuutissa (tooltip).
-   */
   getTooltipForComments(comments: { content: string, date?: Date }[]): string {
     if (!comments || comments.length === 0) {
       return 'Ei kommentteja.';
     }
     
-    // Käytä map-operaatiota jokaiseen kommenttiin (esim. max 100 merkkiä) ja liitä ne yhteen \r\n:llä.
-    // HTML-tooltipit eivät tue \n, joten käytetään \r\n tai entityä (&#13;&#10;), mutta \r\n toimii useimmissa selaimissa.
     return comments
       .map((comment, index) => {
         const snippet = comment.content.slice(0, 100).trim();
         return `- ${snippet}${comment.content.length > 100 ? '...' : ''}`;
       })
-      .join('\r\n\r\n'); // Kaksi rivinvaihtoa erottamiseen
+      .join('\r\n\r\n'); // two linebreaks 
   }  
 }

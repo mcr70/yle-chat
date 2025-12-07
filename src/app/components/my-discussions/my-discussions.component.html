@@ -42,14 +42,7 @@
                 ↗️
               </a>  
           </div>
-<!--
-          <p class="comment-preview">
-            Viimeisin kommentti: "{{ item.latestCommentContent | slice:0:50 }}..." 
-            <span *ngIf="item.comments.length > 1" class="comment-count">
-              (yhteensä {{ item.comments.length }} kommenttia)
-            </span>
-          </p>
--->
+
           <p class="comment-preview"
              title="{{ getTooltipForComments(item.comments) }}"> 
             <span class="comment-count">

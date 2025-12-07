@@ -19,11 +19,11 @@
  *     curl -v -X POST "https://login.api.yle.fi/v1/user/login?app_id=tunnus_shared_ui_202004_prod&app_key=0aded2b7c4387042dbfb19cfcf152663&initiating_app=uutiset" -d 'username=...&password=...'
  * 
  *   - logout, invalidates cookie:
- *     curl -v -b "ylelogin=9a379db791bd1599913c60f261f7afa6fb6d811dad76b4cc6b6fe3b0f9cd86f1" \
+ *     curl -v -b "ylelogin=9a379db791bd15999..." \
  *          -X DELETE "https://login.api.yle.fi/v1/user/login?app_id=tunnus_shared_ui_202004_prod&app_key=0aded2b7c4387042dbfb19cfcf152663&initiating_app=uutiset"
  * 
  *   - like:
- *     curl -b "ylelogin=9a379db791bd1599913c60f261f7afa6fb6d811dad76b4cc6b6fe3b0f9cd86f1" \
+ *     curl -b "ylelogin=9a379db791bd15999..." \
  *          -X POST "https://comments.api.yle.fi/v1/topics/74-20196472/comments/33-6031200c-0d86-4409-8cb6-73ab512ba94e/like?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D"
  * 
  */
@@ -52,7 +52,7 @@ export interface Comment {
   providedIn: 'root'
 })
 export class CommentService {
-
+  private PROXY_PREFIX = '';//'/yle-api';
   private apiBaseTemplate = '/v2/topics/{articleId}/comments/accepted?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D&order=relevance:desc';
 
   constructor(private http: HttpClient) { }
@@ -75,7 +75,7 @@ export class CommentService {
     }
 
     const baseUrl = this.apiBaseTemplate.replace('{articleId}', articleId);
-    const apiUrl = `/yle-api${baseUrl}&limit=${limit}&offset=${offset}`;
+    const apiUrl = `${this.PROXY_PREFIX}${baseUrl}&limit=${limit}&offset=${offset}`;
 
     return this.http.get<Comment[]>(apiUrl).pipe(
       map(data => this.buildCommentTree(data))

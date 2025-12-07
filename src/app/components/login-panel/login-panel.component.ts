@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '@services/auth.service';
 
 @Component({
   selector: 'app-login-panel',
@@ -30,7 +30,7 @@ export class LoginPanelComponent {
         if (!response) {
             this.loginError = 'Kirjautuminen epäonnistui. Tarkista tunnus/salasana.';
         } else {
-            this.password = ''; // Tyhjennä salasana onnistuneen kirjautumisen jälkeen
+            this.password = ''; 
         }
       }
     );

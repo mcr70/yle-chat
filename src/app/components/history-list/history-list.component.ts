@@ -2,19 +2,19 @@
 
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HistoryService, ArticleHistoryItem } from '../../services/history.service'; // ⭐ LISÄÄ TUONTI
-import { FormsModule } from '@angular/forms'; // Tarvitaan ngFor-rakenteen toimintaan
+import { FormsModule } from '@angular/forms';
+
+import { HistoryService, ArticleHistoryItem } from '@services/history.service'; 
 
 @Component({
   selector: 'app-history-list',
   templateUrl: './history-list.component.html',
   styleUrls: ['./history-list.component.scss'],
   standalone: true, 
-  imports: [CommonModule, FormsModule] // ⭐ LISÄÄ FormsModule
+  imports: [CommonModule, FormsModule] 
 })
 export class HistoryListComponent implements OnInit {
     
-    // ⭐ UUSI PROPERTIE: Tähän tallennetaan historia
     historyItems: ArticleHistoryItem[] = []; 
 
     @Input() articleIdFilter: string = ''; 
