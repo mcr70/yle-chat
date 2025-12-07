@@ -45,7 +45,7 @@ import { map, catchError } from 'rxjs/operators';
 })
 export class YleHistoryService {
   private readonly PROXY_PREFIX = '';//'/yle-history';
-  private readonly API_URL = '/v2/tv/history?limit=20&exclude_sub_accounts=true&fetch_comments=true';
+  private readonly API_URL = '/v2/tv/history?limit=40&exclude_sub_accounts=true&fetch_comments=true';
 
   constructor(private http: HttpClient) { }
 

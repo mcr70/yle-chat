@@ -5,10 +5,9 @@
 
     <app-my-discussions
       (discussionSelected)="handleDiscussionSelected($event)"      
-      (articleIdFilterChange)="onArticleIdChanged($event)"
-      (discussionsLoaded)="handleDiscussionsLoaded($event)"> 
+      (articleIdFilterChange)="onArticleIdChanged($event)">
     </app-my-discussions>
-    
+
     <app-history-list 
         [articleIdFilter]="articleId"
         (articleIdFilterChange)="onArticleIdChanged($event)"

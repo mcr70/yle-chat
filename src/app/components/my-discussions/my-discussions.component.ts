@@ -6,6 +6,7 @@ import { filter, finalize, switchMap } from 'rxjs/operators';
 
 import { AuthService } from '@services/auth.service';
 import { YleHistoryService, MyDiscussion, GroupedDiscussion } from '@services/yle-history.service';
+import { HistoryService } from '@app/services/history.service';
 
 @Component({
   selector: 'app-my-discussions',
@@ -18,17 +19,19 @@ export class MyDiscussionsComponent implements OnInit {
   myDiscussions$!: Observable<GroupedDiscussion[]>;
   isLoggedIn$!: Observable<boolean>;
 
+
   private refreshTrigger = new Subject<void>();
   private discussionsLoading = new BehaviorSubject<boolean>(false);
   isLoading$: Observable<boolean> = this.discussionsLoading.asObservable();
 
   @Output() discussionSelected = new EventEmitter<GroupedDiscussion>(); 
   @Output() articleIdFilterChange = new EventEmitter<string>();
-  @Output() discussionsLoaded = new EventEmitter<GroupedDiscussion[]>();
+
 
   constructor(
     private authService: AuthService,
-    private historyService: YleHistoryService
+    private yleHistory: YleHistoryService,
+    private historyService: HistoryService
   ) {}
 
   ngOnInit(): void {
@@ -50,7 +53,7 @@ export class MyDiscussionsComponent implements OnInit {
           this.discussionsLoading.next(true);
         }, 0); 
         
-        return this.historyService.fetchMyDiscussions().pipe(
+        return this.yleHistory.fetchMyDiscussions().pipe(
             // Lataus pois päältä, kun valmis
             finalize(() => {
               this.discussionsLoading.next(false);
@@ -58,11 +61,7 @@ export class MyDiscussionsComponent implements OnInit {
         );
       })
     );
-
-    // @Output discussions loaded
-    this.myDiscussions$.subscribe(discussions => {
-      this.discussionsLoaded.emit(discussions);
-    });    
+ 
   }
 
   
@@ -92,4 +91,5 @@ export class MyDiscussionsComponent implements OnInit {
       })
       .join('\r\n\r\n'); // two linebreaks 
   }  
+
 }

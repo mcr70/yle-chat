@@ -88,9 +88,7 @@ loadComments(reset: boolean = false): void {
         const endTime = Date.now();
         const elapsedTime = endTime - startTime;
         const remainingDelay = Math.max(0, this.MIN_LOADING_TIME_MS - elapsedTime);
-
-        this.historyService.addOrUpdateArticle(this.articleId, (this.articleTitle || this.articleId));
-
+        
         // reload
         if (this.historyListComponent) { 
           this.historyListComponent.reloadHistory(); 
@@ -146,40 +144,36 @@ loadComments(reset: boolean = false): void {
 
   onArticleIdChanged(newArticleId: string) {
     this.articleId = newArticleId;
-    this.articleTitle = '';
+    //this.articleTitle = '';
     this.loadComments(true); 
   }
+
 
   // Called when an article is selected from history
   handleArticleSelected(articleData: ArticleHistoryItem): void {
     this.articleId = articleData.id; 
-    this.articleTitle = articleData.title || '';
+    
+    this.articleTitle = articleData.title || articleData.id; 
+    
+    const titleToSave = articleData.title || articleData.id; 
+    this.historyService.addOrUpdateArticle(this.articleId, titleToSave);
+    
+    if (this.historyListComponent) { 
+        this.historyListComponent.reloadHistory(); 
+    }
+    
     this.loadComments(true);
   }
+
 
   // Called when an article is selected from own discussion list
   handleDiscussionSelected(discussion: GroupedDiscussion): void {
     this.articleId = discussion.articleId;
-    this.articleTitle = discussion.title;
+    const finalTitle = discussion.title || discussion.articleId;
+    this.articleTitle = finalTitle; 
+    
     this.loadComments(true);
-  }  
+  }
 
-  handleDiscussionsLoaded(discussions: GroupedDiscussion[]): void {
-    let historyUpdated = false;
 
-    discussions.forEach(discussion => {
-      if (discussion.articleId && discussion.title) {
-        this.historyService.addOrUpdateArticle(discussion.articleId, discussion.title);
-        historyUpdated = true;
-
-        if (discussion.articleId === this.articleId && this.articleTitle === this.articleId) {
-          this.articleTitle = discussion.title;
-        }
-      }
-    });
-
-    if (historyUpdated && this.historyListComponent) {
-      this.historyListComponent.reloadHistory();
-    }
-  }  
 }

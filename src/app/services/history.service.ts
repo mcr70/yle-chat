@@ -56,4 +56,21 @@ export class HistoryService {
 
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(history));
   }
+
+
+  /**
+   * Clears history items matching the given article IDs.
+   * @param ids Article IDs to remove from history.
+   */
+  clear(ids: string[]): void {
+    if (!ids || ids.length === 0) {
+      return;
+    }
+
+    let history = this.getHistory();
+    
+    history = history.filter(item => !ids.includes(item.id));
+    
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(history));
+  }
 }

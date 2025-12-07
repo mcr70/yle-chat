@@ -93,17 +93,6 @@
 
 
 
-// ⭐ ANIMAATION MÄÄRITTELY (@keyframes) ⭐
-@keyframes spin {
-    // Aloitustila: ei pyörimistä
-    from {
-        transform: rotate(0deg);
-    }
-    // Lopputila: täysi kierros (360 astetta)
-    to {
-        transform: rotate(360deg);
-    }
-}
 
 @keyframes spin {
     0% { transform: rotate(0deg); }
