@@ -1,53 +1,66 @@
-.comment-item {
-  margin-top: 10px;
-  padding-left: 30px;
+:host {
+    display: block; 
+    margin-bottom: 10px; 
+}
+
+.top-comment-item {
+    margin-top: 0; 
+    padding-left: 0;
+}
+
+.child-comment-item {
+    padding-left: 30px; // indentation
+    margin-top: 0; 
+}
+
+.replies-wrapper {
+    margin-top: 10px; 
 }
 
 .comment-box {
-  background-color: #eee;
-  border: 1px solid #666;
-  padding: 10px;
-  border-radius: 10px;
+    background-color: #eee;
+    border: 1px solid #666;
+    padding: 10px; 
+    border-radius: 10px;
 }
 
-.comment-header {
-  display: flex;
-  justify-content: space-between;
-  font-size: 1.0em;
-  margin-bottom: 5px; 
+.special-comment-box { /* Emphasize special comments */
+    background-color: #ddd;
+    // border-color: #ff9800; 
+    // border: 2px solid #666;
 }
+
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.0em;
+    padding-bottom: 5px; 
+}
+
 
 .likes {
   font-weight: bold;
   color: green;
 }
 
-.comment-date {
+.author-date {
   font-size: 0.7em;
   color: #888;
-  margin-top: 5px;
 }
 
 .comment-text {
   white-space: pre-line;
 }
 
-
-.child-comment-wrapper {
-  margin-top: 5px;
-}
-
-
-
 .toggle-button {
   background: none;
   border: none;
-  //color: #007bff; /* Esim. sininen linkkiväri */
   cursor: pointer;
   padding: 0;
   font-size: 0.9em;
   margin-top: 10px;
-  display: block; /* Varmistaa, että vie oman rivinsä */
+  display: block; 
 }
 
 .toggle-button:hover {
