@@ -1,86 +1,92 @@
 <div class="main-layout-container">
-    
-  <div class="sidebar">
+
+  <header class="main-toolbar">
+    <h1 class="app-title">Yle kommentointi</h1>
     <app-login-panel></app-login-panel>
+  </header>  
 
-    <app-my-discussions
-      (discussionSelected)="handleDiscussionSelected($event)"      
-      (articleIdFilterChange)="onArticleIdChanged($event)">
-    </app-my-discussions>
+  <div class="content-wrapper">
+    <div class="sidebar">
 
-    <app-history-list 
-        [articleIdFilter]="articleId"
-        (articleIdFilterChange)="onArticleIdChanged($event)"
-        (articleSelected)="handleArticleSelected($event)">
-    </app-history-list>
-  </div>
+      <app-my-discussions
+        (discussionSelected)="handleDiscussionSelected($event)"      
+        (articleIdFilterChange)="onArticleIdChanged($event)">
+      </app-my-discussions>
 
-  <div class="comment-section">
-    <div class="comment-container">
+      <app-history-list 
+          [articleIdFilter]="articleId"
+          (articleIdFilterChange)="onArticleIdChanged($event)"
+          (articleSelected)="handleArticleSelected($event)">
+      </app-history-list>
+    </div>
 
-      <div class="comment-header">
-        <h3>{{ articleTitle || articleId }}</h3>
-        
-        <button 
-          (click)="loadComments(true)" 
-          [disabled]="isLoading"
-          class="refresh-button"
-          title="{{ isLoading ? 'Ladataan...' : 'Päivitä kommentit' }}">
+    <div class="comment-section">
+      <div class="comment-container">
+
+        <div class="comment-header">
+          <h3>{{ articleTitle || articleId }}</h3>
           
-          <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
-        </button>
-      </div>        
+          <button 
+            (click)="loadComments(true)" 
+            [disabled]="isLoading"
+            class="refresh-button"
+            title="{{ isLoading ? 'Ladataan...' : 'Päivitä kommentit' }}">
+            
+            <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
+          </button>
+        </div>        
 
-        <div class="filter-controls">
-            <div class="filter-row">
+          <div class="filter-controls">
+              <div class="filter-row">
 
-                <input
-                    type="text"
-                    placeholder="Suodata nimimerkillä..."
-                    [value]="nicknameFilter"
-                    (input)="onNicknameChanged($any($event.target).value)"
-                    class="filter-input"
-                />
+                  <input
+                      type="text"
+                      placeholder="Suodata nimimerkillä..."
+                      [value]="nicknameFilter"
+                      (input)="onNicknameChanged($any($event.target).value)"
+                      class="filter-input"
+                  />
 
-                <div class="hide-control">
-                    <input 
-                        type="checkbox" 
-                        id="hideUnmarked" 
-                        [checked]="hideUnmarkedTopLevel"
-                        (change)="hideUnmarkedTopLevel = $any($event.target).checked"
-                        
-                        [disabled]="!isHideUnmarkedEnabled" 
-                    >
-                    <label 
-                        for="hideUnmarked"
-                        [class.disabled-label]="!isHideUnmarkedEnabled">Piilota muut</label>
-                </div>
-            </div>
-        </div>
-        
-      <hr>
+                  <div class="hide-control">
+                      <input 
+                          type="checkbox" 
+                          id="hideUnmarked" 
+                          [checked]="hideUnmarkedTopLevel"
+                          (change)="hideUnmarkedTopLevel = $any($event.target).checked"
+                          
+                          [disabled]="!isHideUnmarkedEnabled" 
+                      >
+                      <label 
+                          for="hideUnmarked"
+                          [class.disabled-label]="!isHideUnmarkedEnabled">Piilota muut</label>
+                  </div>
+              </div>
+          </div>
+          
+        <hr>
 
-      <ng-container *ngIf="comments.length > 0; else noComments">
-        <app-comment-item 
-          *ngFor="let comment of filteredComments" 
-          [comment]="comment"
-          [level]="0">
-        </app-comment-item>
+        <ng-container *ngIf="comments.length > 0; else noComments">
+          <app-comment-item 
+            *ngFor="let comment of filteredComments" 
+            [comment]="comment"
+            [level]="0">
+          </app-comment-item>
 
-        <div class="load-more-container" *ngIf="hasMoreComments">
-        <button 
-            (click)="loadMoreComments()" 
-            [disabled]="isLoading" 
-            class="load-more-button">
-            {{ isLoading ? 'Ladataan...' : 'Lataa lisää kommentteja' }}
-        </button>
-        </div>    
-      </ng-container>
+          <div class="load-more-container" *ngIf="hasMoreComments">
+          <button 
+              (click)="loadMoreComments()" 
+              [disabled]="isLoading" 
+              class="load-more-button">
+              {{ isLoading ? 'Ladataan...' : 'Lataa lisää kommentteja' }}
+          </button>
+          </div>    
+        </ng-container>
 
-      <ng-template #noComments>
-        <p>Ei kommentteja.</p>
-      </ng-template>
+        <ng-template #noComments>
+          <p>Ei kommentteja.</p>
+        </ng-template>
 
+      </div>
     </div>
   </div>
 </div>

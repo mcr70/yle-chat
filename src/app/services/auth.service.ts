@@ -11,6 +11,9 @@ export class AuthService {
   
   private readonly APP_PARAMS = 'app_id=tunnus_shared_ui_202004_prod&app_key=0aded2b7c4387042dbfb19cfcf152663&initiating_app=uutiset';
 
+  private userSubject = new BehaviorSubject<string | null>(null); 
+  user$: Observable<any | null> = this.userSubject.asObservable();
+
   private loggedInSubject = new BehaviorSubject<boolean>(false);
   isLoggedIn$ = this.loggedInSubject.asObservable();
   
@@ -37,6 +40,11 @@ export class AuthService {
         if (response.status === 200 || response.status === 204) {
           this.loggedInSubject.next(true);
           console.log('logged in');
+
+          this.userSubject.next(username)
+        }
+        else {
+          console.log("Problems in login", response.status);
         }
       }),
       catchError(error => {

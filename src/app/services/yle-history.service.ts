@@ -89,7 +89,7 @@ export class YleHistoryService {
             });
           }
         });
-
+        
         // Map -> Array
         return Array.from(groupedDiscussionsMap.values());
       }),      

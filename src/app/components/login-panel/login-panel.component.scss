@@ -1,3 +1,8 @@
+:host {
+    display: block; 
+    margin-bottom: 10px; 
+}
+
 // Yhteiset perusominaisuudet molemmille napeille
 .login-button, .logout-button {
     padding: 8px 15px; // Kompakti padding
@@ -37,9 +42,6 @@
 
 }
 
-.logout-button {
-    margin-bottom: 8px;
-}
 
 // ------------------------------------------------------------------------------
 
@@ -68,4 +70,102 @@
     &::placeholder {
         color: #999;
     }
+}
+
+
+.user-info-container {
+    position: relative; /* Tarvitaan, jotta pudotusvalikko asettuu oikein */
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%; /* Sijoita painikkeen alapuolelle */
+    right: 0; /* Kohdista oikealle */
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100; /* Varmista, että näkyy muiden elementtien päällä */
+    min-width: 150px;
+}
+
+.dropdown-menu button {
+    width: 100%;
+    text-align: left;
+    padding: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+}
+
+.dropdown-menu button:hover {
+    background-color: #f0f0f0;
+}
+
+
+/* login-panel.component.scss */
+
+// ... (muut tyylit) ...
+
+.login-modal-overlay {
+    position: fixed; /* Pysyy näytöllä scrollatessa */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Tumma, läpinäkyvä tausta */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200; /* Varmista, että on kaiken muun päällä */
+}
+
+.login-form-container {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    min-width: 300px;
+}
+
+.login-form-container h3 {
+    margin-top: 0;
+}
+
+.login-form-container form input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #333;
+}
+
+.submit-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.list-item-header {
+    /* Pakota väri ja koko näkymään testausta varten */
+    color: black !important;
+    font-size: 16px !important;
+    /* Tarkista, näkyykö teksti nyt. Jos näkyy, jokin muu luokka ylikirjoittaa sen. */
 }

@@ -1,29 +1,30 @@
-<div *ngIf="isLoggedIn$ | async" class="history-list-container">
+<div class="history-list-container">
   
   <div class="discussions-header">
       
     <h3>Omat keskustelut</h3>
 
     <button 
+        *ngIf="isLoggedIn$ | async" 
         (click)="refreshDiscussions()" 
         [disabled]="isLoading$ | async"
         class="refresh-button"
         title="{{ (isLoading$ | async) ? 'Ladataan...' : 'Päivitä keskustelut' }}">
         
         <span *ngIf="!(isLoading$ | async)">🔄</span> 
-
         <span *ngIf="isLoading$ | async" class="spinner">🔄</span> 
     </button>
   </div>
 
   
-  <ng-container *ngIf="!(isLoading$ | async) && (myDiscussions$ | async) as discussions">
+  <ng-container *ngIf="isLoggedIn$ | async; else notLoggedIn">
       
-    <p *ngIf="!discussions.length">Ei kommentoitua historiaa.</p>
+    <ng-container *ngIf="!(isLoading$ | async) && (myDiscussions$ | async) as discussions">
+        
+      <p *ngIf="!discussions.length">Ei kommentoitua historiaa.</p>
 
-    <ul class="history-list">
-      <li *ngFor="let item of discussions">
-          
+      <ul class="history-list">
+        <li *ngFor="let item of discussions">
           <div class="list-item-header"> 
               
               <a href="#" 
@@ -31,8 +32,7 @@
                  title="{{ item.title }}"                           
                  [class.truncated-title]="true"                     
                  class="article-title-link">                        
-                {{ item.title }}
-              </a>
+                {{ item.title }} </a>
 
               <a 
                 [href]="item.url + '#comments'"
@@ -48,9 +48,15 @@
             <span class="comment-count">
               {{ item.comments.length }} kommentti{{item.comments.length > 1 ? 'a' : ''}}
             </span>
-          </p>
-      </li>
-    </ul>
+          </p>          
+        </li>
+      </ul>
 
+    </ng-container>
   </ng-container>
+  
+  <ng-template #notLoggedIn>
+      <p class="login-prompt">Kirjaudu sisään nähdäksesi omat keskustelusi.</p>
+  </ng-template>
+
 </div>

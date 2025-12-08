@@ -12,9 +12,16 @@ import { AuthService } from '@services/auth.service';
   styleUrls: ['./login-panel.component.scss'] 
 })
 export class LoginPanelComponent {
+  usernameDisplay = 'Käyttäjä'; 
+  // Käytä olemassa olevia muuttujia vain lomakkeelle:
+  loginUsername = ''; 
+  loginPassword = '';
+
   username = '';
   password = '';
-  loginError: string | null = null;
+  isLoginFormVisible: boolean = false;
+
+  loginError: string | null = null;  
   
   isLoggedIn$;
 
@@ -22,24 +29,59 @@ export class LoginPanelComponent {
     this.isLoggedIn$ = this.authService.isLoggedIn$;
   }
 
-  onLogin(): void {
-    this.loginError = null;
-
-    this.authService.login(this.username, this.password).subscribe(
-      response => {
-        if (!response) {
-            this.loginError = 'Kirjautuminen epäonnistui. Tarkista tunnus/salasana.';
-        } else {
-            this.password = ''; 
-        }
+  ngOnInit(): void {
+    this.isLoggedIn$ = this.authService.isLoggedIn$;
+    
+    this.authService.user$.subscribe(usernameFromService => {
+      if (usernameFromService && typeof usernameFromService === 'string') {
+          this.usernameDisplay = usernameFromService; 
+      } 
+      else {
+          this.usernameDisplay = 'Käyttäjä'; 
       }
-    );
-  }
-
-  onLogout(): void {
-    this.authService.logout().subscribe(() => {
-        this.username = '';
-        this.password = '';
     });
   }
+
+  openLoginForm(): void {
+    this.isLoginFormVisible = true;
+  }
+
+  closeLoginForm(): void {
+    this.isLoginFormVisible = false;
+    this.username = '';
+    this.password = '';
+  }
+
+  submitLogin(): void {
+    if (this.loginUsername && this.loginPassword) {
+      
+      this.authService.login(this.loginUsername, this.loginPassword)
+        .subscribe({
+          next: (response) => {
+            this.closeLoginForm();
+          },
+          error: (error) => {
+            console.error("Kirjautuminen epäonnistui komponenteissa:", error);
+          }
+        });
+
+    } 
+    else {
+      console.error('Tunnus tai salasana puuttuu.');
+    }
+  }
+
+
+
+  
+  logout(): void {
+    this.authService.logout().subscribe(() => {
+      this.loginUsername = '';
+      this.loginPassword = '';
+    });
+  }
+
+  logoutAndCloseMenu(): void {
+    this.logout(); 
+  }  
 }
