@@ -126,7 +126,8 @@ resource "aws_cloudfront_distribution" "cdn" {
 
   restrictions {
     geo_restriction {
-      restriction_type = "none"
+      restriction_type = "whitelist" // To allow from everywhere, type "none"
+      locations        = ["FI"] // Allow only Finland
     }
   }
 
