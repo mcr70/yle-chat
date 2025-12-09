@@ -13,7 +13,7 @@ import { HistoryService, ArticleHistoryItem } from '@services/history.service';
 })
 export class HistoryListComponent implements OnInit {
     
-    historyItems: ArticleHistoryItem[] = []; 
+    historyItems: (ArticleHistoryItem & { isEditing?: boolean, editableTitle?: string })[] = [];
 
     @Input() articleIdFilter: string = ''; 
     @Output() articleSelected = new EventEmitter<ArticleHistoryItem>(); 
@@ -24,13 +24,21 @@ export class HistoryListComponent implements OnInit {
         this.loadHistory(); 
     }
     
+
+
     // Called to reload history from storage
     public reloadHistory(): void {
         this.loadHistory();
     }
 
     loadHistory(): void {
-        this.historyItems = this.historyService.getHistory();
+        const rawItems = this.historyService.getHistory();
+        
+        this.historyItems = rawItems.map(item => ({
+            ...item,
+            isEditing: false, 
+            editableTitle: item.title || item.id 
+        }));
     }
 
     selectArticle(item: ArticleHistoryItem): void {
@@ -41,5 +49,22 @@ export class HistoryListComponent implements OnInit {
     getArticleLink(articleId: string) {
         return `https://yle.fi/a/${articleId}#comments`;
     }
+
+
+    toggleEditMode(item: any): void {
+        item.isEditing = true;
+        item.editableTitle = item.title || item.id;
+    }
+    
+    saveTitle(item: any): void {
+        const newTitle = item.editableTitle.trim();
+        
+        if (newTitle && newTitle !== item.title) {
+            this.historyService.addOrUpdateArticle(item.id, newTitle)
+        }
+        
+        item.isEditing = false;
+        this.reloadHistory(); 
+    }    
 
 }

@@ -19,14 +19,47 @@
 
 .history-list { list-style: none; padding: 0; }
 
+/* history-list.component.scss */
+
 .history-list li {
-    display: flex; 
-    align-items: center; 
-    gap: 8px; 
+    display: flex;        /* Käytä Flexboxia asetteluun */
+    align-items: center;  /* Keskittää pystysuunnassa */
+    padding: 5px 0;
     
-    margin-bottom: 5px; 
-    padding-bottom: 5px;
-    border-bottom: 1px solid #eee;
+    /* Tämä koskee LUKUTILAA */
+    a:first-child { 
+        flex-grow: 1;     /* Sallii otsikon viedä mahdollisimman paljon tilaa */
+        overflow: hidden; /* Estää linkkiä venyttämästä riviä */
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+}
+
+.edit-icon {
+    cursor: pointer;      /* Osoita, että se on klikattava */
+    font-size: 0.8em;
+    margin: 0 5px;        /* Pieni marginaali linkin ja ulkoisen linkin välissä */
+    flex-shrink: 0;       /* Estää kuvakkeen kutistumisen */
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    transform: scaleX(-1); // Mirror on X-axis
+    color: #003780;
+
+    &:hover {
+        opacity: 1.0;
+    }
+}
+
+
+.article-link-icon {
+    flex-shrink: 0;       /* Estää kuvakkeen kutistumisen */
+}
+
+/* Tyyli muokkaustilaan */
+.edit-title-input {
+    flex-grow: 1;
+    padding: 4px;
+    margin-right: 5px;
 }
 
 .history-list li a:not(.article-link-icon) {

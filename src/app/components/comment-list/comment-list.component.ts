@@ -212,7 +212,7 @@ export class CommentListComponent implements OnInit {
     this.articleTitle = finalTitle; 
     this.articleId = discussion.articleId;
     
-    // this.loadComments(true); loadComments gets automatically called due to [(ngModel)] in html
+    this.loadComments(true); //loadComments gets automatically called due to [(ngModel)] in html
   }
 
 

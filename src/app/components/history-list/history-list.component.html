@@ -14,14 +14,38 @@
 
     <ul class="history-list">
         <li *ngFor="let item of historyItems">
-            <a href="#" (click)="selectArticle(item); $event.preventDefault()" 
-               title="{{ item.title }}">
-              {{ item.title }}
-            </a>
-            <a [href]="getArticleLink(item.id)" target="_blank" class="article-link-icon"
-               title="Avaa artikkeli Yle-sivuilla" >
-              ↗️
-            </a>            
+            
+            <ng-container *ngIf="item.isEditing; else readMode">
+                <input 
+                    type="text" 
+                    [(ngModel)]="item.editableTitle" 
+                    (keyup.enter)="saveTitle(item)" 
+                    (blur)="saveTitle(item)"
+                    class="edit-title-input"
+                    autofocus>
+                <button (click)="saveTitle(item)" class="save-button" title="Tallenna nimi">✅</button>
+            </ng-container>
+
+            <ng-template #readMode>
+                
+                <a href="#" 
+                (click)="selectArticle(item); $event.preventDefault()" 
+                title="{{ item.title || item.id }}">
+                {{ item.title || item.id }}
+                </a>
+                
+                <span (click)="toggleEditMode(item)" 
+                    class="edit-icon"
+                    title="Muokkaa nimeä">
+                    ✏️
+                </span>
+                
+                <a [href]="getArticleLink(item.id)" target="_blank" class="article-link-icon"
+                title="Avaa artikkeli Yle-sivuilla" >
+                ↗️
+                </a>            
+            </ng-template>
+            
         </li>
     </ul>
 </div>
