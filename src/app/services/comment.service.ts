@@ -68,8 +68,6 @@ export class CommentService {
    * @returns 
    */
   getComments(articleId: string, offset: number, limit: number): Observable<Comment[]> {
-    console.log(`Fetching comments for articleId=${articleId}, offset=${offset}, limit=${limit}`);  
-
     if (!articleId || articleId.trim().length === 0) {
         return new Observable(observer => observer.next([])).pipe(map(() => []));
     }

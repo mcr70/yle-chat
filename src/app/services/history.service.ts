@@ -35,7 +35,8 @@ export class HistoryService {
    * Add or update an article in the history.
    */
   addOrUpdateArticle(id: string, title: string): void {
-    console.log(`Updating history for article id=${id}, title=${title}`);
+    //console.log(`addOrUpdateArticle(${id}, ${title})`)
+
     if (!id || !title) return;
 
     let history = this.getHistory();

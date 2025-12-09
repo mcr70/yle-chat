@@ -15,7 +15,6 @@
 
       <app-history-list 
           [articleIdFilter]="articleId"
-          (articleIdFilterChange)="onArticleIdChanged($event)"
           (articleSelected)="handleArticleSelected($event)">
       </app-history-list>
     </div>
@@ -23,45 +22,56 @@
     <div class="comment-section">
       <div class="comment-container">
 
-        <div class="comment-header">
-          <h3>{{ articleTitle || articleId }}</h3>
-          
-          <button 
-            (click)="loadComments(true)" 
-            [disabled]="isLoading"
-            class="refresh-button"
-            title="{{ isLoading ? 'Ladataan...' : 'Päivitä kommentit' }}">
-            
-            <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
-          </button>
-        </div>        
+        <div class="comment-controls-top">
 
-          <div class="filter-controls">
-              <div class="filter-row">
-
-                  <input
-                      type="text"
-                      placeholder="Suodata nimimerkillä..."
-                      [value]="nicknameFilter"
-                      (input)="onNicknameChanged($any($event.target).value)"
-                      class="filter-input"
-                  />
-
-                  <div class="hide-control">
-                      <input 
-                          type="checkbox" 
-                          id="hideUnmarked" 
-                          [checked]="hideUnmarkedTopLevel"
-                          (change)="hideUnmarkedTopLevel = $any($event.target).checked"
-                          
-                          [disabled]="!isHideUnmarkedEnabled" 
-                      >
-                      <label 
-                          for="hideUnmarked"
-                          [class.disabled-label]="!isHideUnmarkedEnabled">Piilota muut</label>
-                  </div>
-              </div>
+          <div class="article-id-filter-control">
+            <input type="text" placeholder="esim. 74-20195254 tai URL..." class="filter-input article-id-input"
+              [(ngModel)]="articleId" 
+              (ngModelChange)="onArticleIdChanged($event)"            />
           </div>
+          
+          <div class="comment-header">
+            <h3>{{ articleTitle || articleId }}</h3>
+          </div>
+          
+        </div>
+
+
+        <div class="filter-controls">
+          <div class="filter-row">
+
+            <input
+              type="text"
+              placeholder="Suodata nimimerkillä..."
+              [value]="nicknameFilter"
+              (input)="onNicknameChanged($any($event.target).value)"
+              class="filter-input"
+            />
+
+            <div class="hide-control">
+              <input 
+                type="checkbox" 
+                id="hideUnmarked" 
+                [checked]="hideUnmarkedTopLevel"
+                (change)="hideUnmarkedTopLevel = $any($event.target).checked"
+                
+                [disabled]="!isHideUnmarkedEnabled" 
+              >
+              <label 
+                for="hideUnmarked"
+                [class.disabled-label]="!isHideUnmarkedEnabled">Piilota muut</label>
+            </div>
+            <button 
+              (click)="loadComments(true)" 
+              [disabled]="isLoading"
+              class="refresh-button"
+              title="{{ isLoading ? 'Ladataan...' : 'Päivitä kommentit' }}">
+              
+              <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
+            </button>
+
+          </div>
+        </div>
           
         <hr>
 

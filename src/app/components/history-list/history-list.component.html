@@ -1,15 +1,12 @@
-<div class="history-controls">
-    <h3>Historia</h3>
-    <input
-        type="text"
-        placeholder="esim. 74-20195254 tai URL..."
-        [value]="articleIdFilter"
-        (input)="onArticleIdChanged($any($event.target).value)"
-        class="filter-input history-input"
-    />
-</div>
 
-<hr>
+<div class="history-header">
+    <h3>Historia</h3>
+    
+    <span class="info-icon" 
+          title="Omat keskustelut -osio ei tallennu historiaan.">
+          ℹ️
+    </span>
+</div>
 
 <div class="history-list-container">
     
@@ -21,12 +18,8 @@
                title="{{ item.title }}">
               {{ item.title }}
             </a>
-            <a 
-              [href]="getArticleLink(item.id)" 
-              target="_blank"
-              title="Avaa artikkeli Yle-sivuilla"
-              class="article-link-icon">
-              
+            <a [href]="getArticleLink(item.id)" target="_blank" class="article-link-icon"
+               title="Avaa artikkeli Yle-sivuilla" >
               ↗️
             </a>            
         </li>

@@ -1,3 +1,22 @@
+.history-header {
+    display: flex;
+    align-items: center; 
+    gap: 8px; 
+    margin-bottom: 10px; 
+}
+
+.history-header h3 {
+    margin: 0; 
+}
+
+.info-icon {
+    cursor: help; 
+    font-size: 0.8em; 
+    color: #555; 
+}
+
+// -------------------------------------
+
 .history-list { list-style: none; padding: 0; }
 
 .history-list li {

@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+
 
 import { Comment, CommentService } from '@services/comment.service';
 import { CommentItemComponent } from '@components/comment-item/comment-item.component';
@@ -15,7 +17,7 @@ import { GroupedDiscussion } from '@app/services/yle-history.service';
   templateUrl: './comment-list.component.html',
   styleUrls: ['./comment-list.component.scss'],
   imports: [
-    CommonModule, 
+    CommonModule, FormsModule,
     HttpClientModule,
     CommentItemComponent, HistoryListComponent, LoginPanelComponent, MyDiscussionsComponent
   ]
@@ -23,6 +25,8 @@ import { GroupedDiscussion } from '@app/services/yle-history.service';
 export class CommentListComponent implements OnInit {
 
   @ViewChild(HistoryListComponent) historyListComponent!: HistoryListComponent;
+
+  private isManualInput = false; // Controls for how the article id has been set in ui
 
   articleId: string = ''
   articleTitle: string = '';
@@ -58,7 +62,7 @@ export class CommentListComponent implements OnInit {
     }    
   }
 
-loadComments(reset: boolean = false): void {
+  loadComments(reset: boolean = false): void {
     if (this.isLoading) return;
     this.isLoading = true;
 
@@ -67,6 +71,8 @@ loadComments(reset: boolean = false): void {
       this.currentOffset = 0;
       this.hasMoreComments = true;
     }
+
+    console.log(`Loading ${this.articleId}, ${this.articleTitle}, offset=${this.currentOffset}, limit=${this.limit}`)
 
     const startTime = Date.now();
 
@@ -102,7 +108,10 @@ loadComments(reset: boolean = false): void {
         console.error('Kommenttien lataus epäonnistui (404 tms.):', err.status, err.message);
         this.isLoading = false; 
         this.hasMoreComments = false;
-        if (reset) { this.comments = []; }
+
+        if (reset) { 
+          this.comments = []; 
+        }
       }
     });
 
@@ -141,22 +150,47 @@ loadComments(reset: boolean = false): void {
   }  
 
  
+  // Callend when user is typing into article-id inpout field
+  onArticleIdChanged(newValue: string) {
+    const rawInput = newValue.trim();
+    let newArticleId = rawInput;
+    
+    if (rawInput.includes('yle.fi/a/')) {
+        const match = rawInput.match(/(\d+-\d+)(?:#.*)?$/);
+        if (match && match[1]) {
+            newArticleId = match[1]; 
+        } else {
+            newArticleId = ''; 
+        }
+    }
 
-  onArticleIdChanged(newArticleId: string) {
-    this.articleId = newArticleId;
-    //this.articleTitle = '';
-    this.loadComments(true); 
+    if (newArticleId !== this.articleId || (newArticleId === '' && this.articleId !== '')) {
+      this.isManualInput = true;
+      this.articleTitle = ''; 
+      
+      this.articleId = newArticleId;
+      this.loadComments(true); 
+
+      this.historyService.addOrUpdateArticle(this.articleId, this.articleId);
+
+      setTimeout(() => {
+          this.isManualInput = false;
+      }, 0); 
+    }
   }
 
 
   // Called when an article is selected from history
   handleArticleSelected(articleData: ArticleHistoryItem): void {
-    this.articleId = articleData.id; 
-    
+    if (this.isManualInput) {
+      this.articleId = articleData.id;
+      this.articleTitle = articleData.title || articleData.id;
+      return; 
+    }    
+
     this.articleTitle = articleData.title || articleData.id; 
-    
-    const titleToSave = articleData.title || articleData.id; 
-    this.historyService.addOrUpdateArticle(this.articleId, titleToSave);
+    this.articleId = articleData.id; 
+    this.historyService.addOrUpdateArticle(this.articleId, this.articleTitle);
     
     if (this.historyListComponent) { 
         this.historyListComponent.reloadHistory(); 
@@ -168,11 +202,17 @@ loadComments(reset: boolean = false): void {
 
   // Called when an article is selected from own discussion list
   handleDiscussionSelected(discussion: GroupedDiscussion): void {
-    this.articleId = discussion.articleId;
+    if (this.isManualInput) {
+      this.articleTitle = discussion.title || discussion.articleId; 
+      this.articleId = discussion.articleId;
+      return; 
+    }
+
     const finalTitle = discussion.title || discussion.articleId;
     this.articleTitle = finalTitle; 
+    this.articleId = discussion.articleId;
     
-    this.loadComments(true);
+    // this.loadComments(true); loadComments gets automatically called due to [(ngModel)] in html
   }
 
 

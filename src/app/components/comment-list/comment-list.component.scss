@@ -44,15 +44,42 @@
 }
 
 
-.comment-header, .filter-controls {
-    width: 100%; 
+.comment-controls-top {
+    display: flex;
+    flex-direction: row; 
+    align-items: center;
+    gap: 15px; 
+    margin-bottom: 10px;
+}
+
+.article-id-filter-control {
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: 7em; 
+}
+
+.article-id-input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; 
+    transition: border-color 0.2s;
+    
+    &:focus {
+        border-color: var(--yle-blue, #003780); 
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 55, 128, 0.2);
+    }
 }
 
 .comment-header {
-    display: flex;             
-    align-items: center;       
-    gap: 30px;                 
-    margin-bottom: 15px;       
+
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    margin: 0; 
 }
 
 .filter-row {
@@ -161,7 +188,7 @@
   color: #003780;
 
   background-color: #eee;
-  border: 1px solid #ccc; // Kevyt harmaa reuna;
+  border: 1px solid #ccc; 
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s, box-shadow 0.2s;
@@ -228,7 +255,7 @@
 }
 
 
-/* Keyframes animaatiolle */
+/* Animation */
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -236,7 +263,6 @@
 
 .spinner {
     font-weight: bold;
-    /* Käytetään animaatiota, kun lataus on käynnissä */
     animation: spin 1.2s linear infinite;
     display: inline-block;
     padding: 0px 4px;    

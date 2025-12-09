@@ -26,8 +26,6 @@ export class AuthService {
     body.set('username', username);
     body.set('password', password);
 
-    console.log('Sending login request to URL:', url);  
-
     return this.http.post(url, body.toString(), {
       headers: new HttpHeaders({
         'Content-Type': 'application/x-www-form-urlencoded'
