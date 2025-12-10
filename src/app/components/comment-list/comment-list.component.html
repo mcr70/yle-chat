@@ -79,7 +79,8 @@
           <app-comment-item 
             *ngFor="let comment of filteredComments" 
             [comment]="comment"
-            [level]="0">
+            [level]="0"
+            [articleId]="articleId">
           </app-comment-item>
 
           <div class="load-more-container" *ngIf="hasMoreComments">

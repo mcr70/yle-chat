@@ -26,11 +26,13 @@
  *     curl -b "ylelogin=9a379db791bd15999..." \
  *          -X POST "https://comments.api.yle.fi/v1/topics/74-20196472/comments/33-6031200c-0d86-4409-8cb6-73ab512ba94e/like?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D"
  * 
+ *   - liked:
+ *     curl -b "ylelogin=...." "https://comments.api.yle.fi/v1/topics/74-20197463/comments/liked?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D"
  */
 
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { forkJoin, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 
@@ -44,6 +46,7 @@ export interface Comment {
   parentId: string | null; 
   topCommentId: string; 
   isExpanded?: boolean;
+  isLiked: boolean
 
   hasNickname?: boolean; // Marks if comment matches nickname filter
 }
@@ -52,8 +55,19 @@ export interface Comment {
   providedIn: 'root'
 })
 export class CommentService {
-  private PROXY_PREFIX = '';//'/yle-api';
-  private apiBaseTemplate = '/v2/topics/{articleId}/comments/accepted?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D&order=relevance:desc';
+  private commonParams = {
+    app_id: 'yle-comments-plugin',
+    app_key: 'sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D'
+  };
+  private defaultGetParams = {
+    ...this.commonParams, 
+    accepted: 'true', 
+    order: 'relevance:desc'
+  };
+
+  private BASE_URL_TEMPLATE = '/v2/topics/{articleId}/comments';
+  private LIKE_BASE_URL_TEMPLATE = '/v1/topics/{articleId}/comments';
+  private LIKED_COMMENTS_URL_TEMPLATE = `/v1/topics/{articleId}/comments/liked`;
 
   constructor(private http: HttpClient) { }
 
@@ -69,16 +83,75 @@ export class CommentService {
    */
   getComments(articleId: string, offset: number, limit: number): Observable<Comment[]> {
     if (!articleId || articleId.trim().length === 0) {
-        return new Observable(observer => observer.next([])).pipe(map(() => []));
+        return of([]); 
     }
 
-    const baseUrl = this.apiBaseTemplate.replace('{articleId}', articleId);
-    const apiUrl = `${this.PROXY_PREFIX}${baseUrl}&limit=${limit}&offset=${offset}`;
 
-    return this.http.get<Comment[]>(apiUrl).pipe(
-      map(data => this.buildCommentTree(data))
+    const commentsUrl = this.BASE_URL_TEMPLATE.replace('{articleId}', articleId) + '/accepted';
+    
+    let commentsParams = new HttpParams({ fromObject: this.defaultGetParams });
+    commentsParams = commentsParams.set('limit', limit.toString());
+    commentsParams = commentsParams.set('offset', offset.toString());
+
+    const commentsApi$ = this.http.get<Comment[]>(commentsUrl, { 
+        params: commentsParams, 
+        withCredentials: true 
+    });
+
+    const likedIds$ = this.getLikedCommentIds(articleId);
+
+    return forkJoin({
+        commentsData: commentsApi$,  // actual comments
+        likedIds: likedIds$          // liked comments
+    }).pipe(
+        map((results) => {
+            const likedSet = new Set(results.likedIds);
+            
+            let commentsTree = this.buildCommentTree(results.commentsData);
+
+            const markCommentsAsLiked = (cmts: Comment[]): Comment[] => {
+                return cmts.map(comment => {
+                    comment.isLiked = likedSet.has(comment.id); 
+                    
+                    if (comment.children && comment.children.length > 0) {
+                        comment.children = markCommentsAsLiked(comment.children);
+                    }
+                    return comment;
+                });
+            };
+
+            return markCommentsAsLiked(commentsTree); 
+        })
     );
   }
+
+
+/**
+   * @param articleId
+   * @param topicId 
+   * @param commentId 
+   */
+  public likeComment(articleId: string, commentId: string) {
+    const baseUrl = this.LIKE_BASE_URL_TEMPLATE.replace('{articleId}', articleId); 
+    const url = `${baseUrl}/${commentId}/like`;
+    const params = new HttpParams({ fromObject: this.commonParams });
+
+    return this.http.post(url, null, { params });
+  }
+
+  /**
+   * @param articleId
+   * @param topicId 
+   * @param commentId 
+   */
+  public unlikeComment(articleId: string, commentId: string) {
+    const baseUrl = this.LIKE_BASE_URL_TEMPLATE.replace('{articleId}', articleId);     
+    const url = `${baseUrl}/${commentId}/unlike`;    
+    const params = new HttpParams({ fromObject: this.commonParams });
+
+    return this.http.post(url, null, { params });
+  }
+
 
   /**
    * Flattens a nested comment structure into a flat list.
@@ -181,4 +254,11 @@ export class CommentService {
 
     return foundInSubTree; 
   }
+
+
+  // Get the comment ids User has liked
+  private getLikedCommentIds(articleId: string): Observable<string[]> {
+    const url = this.LIKED_COMMENTS_URL_TEMPLATE.replace('{articleId}', articleId);
+    return this.http.get<string[]>(url, { params: this.defaultGetParams, withCredentials: true });
+  }  
 }

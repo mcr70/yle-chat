@@ -1,13 +1,13 @@
 locals {
   api_origins = {
-    YleCommentsApiOrigin = {
+    YleCommentsV1Origin = {
       domain          = "comments.api.yle.fi"
-      path_pattern    = "/v2/topics/*"
+      path_pattern    = "/v1/topics/*"
       allowed_methods = [ "GET", "HEAD", "OPTIONS" ]
     },
-    YleNewsWebOrigin = {
-      domain          = "yle.fi",
-      path_pattern    = "/a/*"
+    YleCommentsV2Origin = {
+      domain          = "comments.api.yle.fi"
+      path_pattern    = "/v2/topics/*"
       allowed_methods = [ "GET", "HEAD", "OPTIONS" ]
     },
     YleHistoryApiOrigin = {

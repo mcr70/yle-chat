@@ -2,15 +2,25 @@
     
     <div class="comment-box" [ngClass]="{'special-comment-box': isSpecialComment()}">
         <div class="comment-header"> 
+            
             <div>
                 <strong>{{ comment.author }}</strong> 
                 <span class="author-date"> {{ formatDate(comment.createdAt) }}</span>
-                <span *ngIf="isSpecialComment()" class="star-icon" title="Erikoiskommentti">
-                    ⭐ 
-                </span>
             </div>
             
-            <span class="likes">👍 {{ comment.likes }}</span>
+            <div class="like-container">
+                <button 
+                    *ngIf="isLoggedIn$ | async"
+                    (click)="toggleLike()" 
+                    [class.liked]="comment.isLiked"
+                    class="like-button"
+                    title="{{ comment.isLiked ? 'Poista tykkäys' : 'Tykkää kommentista' }}">
+                    
+                    <span class="thumb-icon">★</span> 
+                </button>
+
+                <span class="likes">{{ comment.likes || 0 }}</span>
+            </div>
         </div>
         
         <p class="comment-text">{{ comment.content }}</p>
@@ -28,8 +38,8 @@
         <app-comment-item 
             *ngFor="let child of comment.children"
             [comment]="child"
-            [level]="level + 1">
-        </app-comment-item>
+            [level]="level + 1"
+            [articleId]="articleId"> </app-comment-item>
       </div>  
     </ng-container>
 

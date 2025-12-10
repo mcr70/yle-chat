@@ -37,8 +37,6 @@ export class AuthService {
         // 'ylelogin' should be stored in cookies
         if (response.status === 200 || response.status === 204) {
           this.loggedInSubject.next(true);
-          console.log('logged in');
-
           this.userSubject.next(username)
         }
         else {

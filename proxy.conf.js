@@ -5,7 +5,7 @@
 console.log('--- PROXY CONFIG HAS BEEN READ ---'); 
 
 const PROXY_CONFIG = [
-  // 1. Yle Comments API
+  // 1. Yle Comments API, v2
   {
     context: ["/v2/topics/"],
     target: "https://comments.api.yle.fi",
@@ -14,15 +14,15 @@ const PROXY_CONFIG = [
     logLevel: "debug"
   },
   
-  // 2. Yle News
+  // 2. Yle Comments API, v1
   {
-    context: ["/a/"],
-    target: "https://yle.fi",
+    context: ["/v1/topics/"],
+    target: "https://comments.api.yle.fi",
     secure: true,
     changeOrigin: true,
     logLevel: "debug"
   },
-
+  
   // 3. User history
   {
     context: ["/v2/tv/history"],

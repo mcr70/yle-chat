@@ -11,6 +11,7 @@ import { ArticleHistoryItem, HistoryService } from '@services/history.service';
 import { HistoryListComponent } from '@components/history-list/history-list.component';
 import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
 import { GroupedDiscussion } from '@app/services/yle-history.service';
+import { AuthService } from '@app/services/auth.service';
 
 @Component({
   selector: 'app-comment-list',
@@ -48,6 +49,7 @@ export class CommentListComponent implements OnInit {
   constructor(
     private commentService: CommentService,
     private historyService: HistoryService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -59,8 +61,14 @@ export class CommentListComponent implements OnInit {
       this.articleTitle = latestArticle.title || '';
 
       this.loadComments(true); 
-    }    
+    }
+
+    // Reload comments, in case of auth change, to update like/unlike statuses
+    this.authService.isLoggedIn$.subscribe(isLoggedIn => {
+      this.loadComments(true); 
+    });    
   }
+
 
   loadComments(reset: boolean = false): void {
     if (this.isLoading) return;
@@ -78,7 +86,6 @@ export class CommentListComponent implements OnInit {
 
     this.commentService.getComments(this.articleId, this.currentOffset, this.limit).subscribe({
       next: (newComments) => {
-        
         this.comments = [...this.comments, ...newComments];
         this.currentOffset += this.limit;
 
