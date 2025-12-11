@@ -28,6 +28,9 @@
  * 
  *   - liked:
  *     curl -b "ylelogin=...." "https://comments.api.yle.fi/v1/topics/74-20197463/comments/liked?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D"
+ * 
+ *   - topics:
+ *     curl "https://comments.api.yle.fi/v1/topics/74-20197463?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D"
  */
 
 import { Injectable } from '@angular/core';
@@ -35,6 +38,13 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { forkJoin, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+
+export interface TopicDetails {
+  title: string;
+  isLocked: boolean;
+  acceptedCommentsCount: number;
+  externalId: string;
+}
 
 export interface Comment {
   id: string;
@@ -68,10 +78,36 @@ export class CommentService {
   private BASE_URL_TEMPLATE = '/v2/topics/{articleId}/comments';
   private LIKE_BASE_URL_TEMPLATE = '/v1/topics/{articleId}/comments';
   private LIKED_COMMENTS_URL_TEMPLATE = `/v1/topics/{articleId}/comments/liked`;
+  private readonly TOPIC_DETAILS_URL_TEMPLATE = `/v1/topics/{articleId}`;
 
   constructor(private http: HttpClient) { }
 
 
+  /**
+   * Gets topic (article) details, like title and whether it has been locked or not.
+   * 
+   * @param articleId 
+   * @returns 
+   */
+  getTopicDetails(articleId: string): Observable<TopicDetails> {
+      if (!articleId || articleId.trim().length === 0) {
+          return of({ title: '', isLocked: true, acceptedCommentsCount: 0, externalId: '' });
+      }
+      
+      const url = this.TOPIC_DETAILS_URL_TEMPLATE.replace('{articleId}', articleId);
+      
+      return this.http.get<any>(url, { params: this.defaultGetParams }).pipe(
+          map(data => {
+              const details: TopicDetails = {
+                  title: data.title,
+                  isLocked: data.isLocked,
+                  acceptedCommentsCount: data.acceptedCommentsCount,
+                  externalId: data.externalId 
+              };
+              return details;
+          })
+      );
+  }  
 
   /**
    * Gets comments for a specific article with pagination.
@@ -126,9 +162,10 @@ export class CommentService {
   }
 
 
-/**
+  /**
+   * Likes an article
+   * 
    * @param articleId
-   * @param topicId 
    * @param commentId 
    */
   public likeComment(articleId: string, commentId: string) {
@@ -140,8 +177,9 @@ export class CommentService {
   }
 
   /**
+   * Removes a previously liked flag from comment, i.e. unlike.
+   * 
    * @param articleId
-   * @param topicId 
    * @param commentId 
    */
   public unlikeComment(articleId: string, commentId: string) {
@@ -151,6 +189,27 @@ export class CommentService {
 
     return this.http.post(url, null, { params });
   }
+
+  // ---------------------------------------------------------------------
+
+  /**
+   * Marks comments that match the given nickname.
+   * 
+   * @param comments 
+   * @param nickname 
+   * @returns 
+   */
+  markNickname(comments: Comment[], nickname: string | null): void {
+    this.clearNicknameFlags(comments);
+
+    if (!nickname || nickname.trim().length === 0) {
+      return;
+    }
+
+    this.markRecursive(comments, nickname.trim());
+  }
+
+  // ---------------------------------------------------------------------
 
 
   /**
@@ -200,24 +259,6 @@ export class CommentService {
     });
 
     return tree;
-  }
-
-
-  /**
-   * Marks comments that match the given nickname.
-   * 
-   * @param comments 
-   * @param nickname 
-   * @returns 
-   */
-  markNickname(comments: Comment[], nickname: string | null): void {
-    this.clearNicknameFlags(comments);
-
-    if (!nickname || nickname.trim().length === 0) {
-      return;
-    }
-
-    this.markRecursive(comments, nickname.trim());
   }
 
 

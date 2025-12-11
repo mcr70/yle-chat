@@ -4,9 +4,10 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 
-import { Comment, CommentService } from '@services/comment.service';
+import { TopicDetails, Comment, CommentService } from '@services/comment.service';
 import { CommentItemComponent } from '@components/comment-item/comment-item.component';
 import { MyDiscussionsComponent } from '@components/my-discussions/my-discussions.component';
+
 import { ArticleHistoryItem, HistoryService } from '@services/history.service';
 import { HistoryListComponent } from '@components/history-list/history-list.component';
 import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
@@ -31,6 +32,9 @@ export class CommentListComponent implements OnInit {
 
   articleId: string = ''
   articleTitle: string = '';
+
+  topicDetails: TopicDetails | null = null;
+  commentsLocked: boolean = false; 
 
   currentOffset: number = 0;
   readonly limit: number = 20;
@@ -70,9 +74,38 @@ export class CommentListComponent implements OnInit {
   }
 
 
+  loadTopicDetails(): void {
+    if (!this.articleId) {
+      this.topicDetails = null;
+      this.articleTitle = '';
+      this.commentsLocked = false;
+      return;
+    }
+
+    this.commentService.getTopicDetails(this.articleId).subscribe({
+      next: (details: TopicDetails) => {
+        this.topicDetails = details;
+        this.articleTitle = details.title; // Päivitä otsikko API:sta
+        this.commentsLocked = details.isLocked; // Päivitä lukitustila
+      },
+      error: (err) => {
+        // Jos API-kutsu epäonnistuu (esim. topicia ei löydy), nollaa tila.
+        console.error('Artikkelin tietojen lataus epäonnistui:', err);
+        this.topicDetails = null;
+        this.articleTitle = this.articleId; // Käytä ID:tä otsikkona virhetilanteessa
+        this.commentsLocked = true; // Oletetaan lukituksi varmuuden vuoksi
+      }
+    });
+  }
+
+
   loadComments(reset: boolean = false): void {
     if (this.isLoading) return;
     this.isLoading = true;
+
+    if (reset && this.articleId) {
+        this.loadTopicDetails(); 
+    }
 
     if (reset) { // Reset happens if the articleId changes
       this.comments = [];
@@ -172,9 +205,7 @@ export class CommentListComponent implements OnInit {
     }
 
     if (newArticleId !== this.articleId || (newArticleId === '' && this.articleId !== '')) {
-      this.isManualInput = true;
-      this.articleTitle = ''; 
-      
+      this.isManualInput = true;      
       this.articleId = newArticleId;
       this.loadComments(true); 
 
@@ -191,13 +222,11 @@ export class CommentListComponent implements OnInit {
   handleArticleSelected(articleData: ArticleHistoryItem): void {
     if (this.isManualInput) {
       this.articleId = articleData.id;
-      this.articleTitle = articleData.title || articleData.id;
       return; 
     }    
 
-    this.articleTitle = articleData.title || articleData.id; 
     this.articleId = articleData.id; 
-    this.historyService.addOrUpdateArticle(this.articleId, this.articleTitle);
+    this.historyService.addOrUpdateArticle(this.articleId, this.articleTitle || this.articleId);
     
     if (this.historyListComponent) { 
         this.historyListComponent.reloadHistory(); 
@@ -210,17 +239,13 @@ export class CommentListComponent implements OnInit {
   // Called when an article is selected from own discussion list
   handleDiscussionSelected(discussion: GroupedDiscussion): void {
     if (this.isManualInput) {
-      this.articleTitle = discussion.title || discussion.articleId; 
       this.articleId = discussion.articleId;
       return; 
     }
 
-    const finalTitle = discussion.title || discussion.articleId;
-    this.articleTitle = finalTitle; 
     this.articleId = discussion.articleId;
     
     this.loadComments(true); //loadComments gets automatically called due to [(ngModel)] in html
   }
-
 
 }

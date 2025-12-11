@@ -31,7 +31,11 @@
           </div>
           
           <div class="comment-header">
-            <h3>{{ articleTitle || articleId }}</h3>
+            <h3>{{ articleTitle || articleId }}
+              <span *ngIf="topicDetails?.acceptedCommentsCount != null" class="comment-count-info no-wrap">
+                – {{ topicDetails?.acceptedCommentsCount }} kommenttia
+              </span>
+            </h3>
           </div>
           
         </div>
