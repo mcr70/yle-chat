@@ -36,15 +36,22 @@
             <button 
                 class="reply-button" 
                 (click)="toggleReplyForm()" 
-                *ngIf="isLoggedIn$ | async">
+                *ngIf="isLoggedIn$ | async"
+                
+                [disabled]="isLocked"
+                [attr.title]="isLocked ? 'Keskustelu on suljettu' : null">
                 Vastaa ↵
             </button>
         </div>
-        
-        <div *ngIf="isReplying" class="reply-form-wrapper">
+
+        <div *ngIf="isReplying && !isLocked" class="reply-form-wrapper"> 
             <textarea [(ngModel)]="replyText" placeholder="Kirjoita vastauksesi tähän..." rows="4"></textarea>
             <div class="reply-controls">
-                <button (click)="sendReply()">Lähetä vastaus</button>
+                <button 
+                    (click)="sendReply()"
+                    [disabled]="isLocked">
+                    Lähetä vastaus
+                </button>
                 <button (click)="toggleReplyForm()">Peruuta</button>
             </div>
         </div>

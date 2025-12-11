@@ -84,10 +84,15 @@
 }
 
 .comment-count-info {
-    font-size: 0.9em; /* Pienempi fonttikoko suhteessa h3:een */
-    color: #999;     /* Himmeämpi väri (tumman harmaa) */
+    font-size: 0.9em;
+    color: #999;
     font-weight: normal;
-    //margin-left: 8px; /* Pieni väli otsikkoon */
+}
+
+.comment-locked-info {
+    font-size: 0.9em;
+    color: #999;
+    font-weight: normal;
 }
 
 .filter-row {

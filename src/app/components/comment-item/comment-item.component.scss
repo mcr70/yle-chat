@@ -84,9 +84,8 @@
 
 .comment-actions {
     display: flex;
-    justify-content: space-between; /* Oletus: Vasen ja oikea reuna */
-    align-items: center;           
-    //margin-top: 10px;               
+    justify-content: space-between; 
+    align-items: center;                    
 }
 
 .reply-button {
@@ -104,10 +103,10 @@
   }
 }
 
-// .reply-button:hover {
-//     background-color: #fff;
-// }
-
+.reply-button[disabled] {
+    cursor: not-allowed !important;
+    opacity: 0.7; 
+}
 
 .toggle-button {
   background: none;
@@ -120,9 +119,6 @@
 }
 
 
-/* comment-item.component.scss */
-
-// Uusi tyyli, joka tekee lomakkeesta siistin ja leveän
 .reply-form-wrapper { 
     margin-top: 15px;
     padding-top: 10px;
@@ -143,9 +139,9 @@ textarea {
 
 .reply-controls {
     display: flex;
-    justify-content: flex-end; /* Siirrä napit oikeaan reunaan */
+    justify-content: flex-end; 
     gap: 10px; 
-    //margin-top: 10px;
+
 }
 
 .reply-controls button {
@@ -157,25 +153,23 @@ textarea {
     transition: background-color 0.2s, opacity 0.2s;
 }
 
-/* Lähetä nappi */
+
 .reply-controls button { 
-    padding: 8px 15px; // Kompakti padding
+    padding: 8px 15px; 
 
     font-size: 1em;
     font-weight: bold;
     text-align: center;
     color: #003780;
 
-    border: 1px solid #ccc; // Kevyt harmaa reuna
+    border: 1px solid #ccc;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.2s, box-shadow 0.2s;
     margin-top: 15px; 
 
     display: block; 
-    //width: 100%; 
     background-color: #eee;
-    //box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
     &:hover {
         background-color: #ccc; 
@@ -190,17 +184,8 @@ textarea {
     }   
     &:focus {
         border-color: var(--yle-blue, #003780); 
-        outline: none; // Poistaa selaimen oletusarvoisen "focus ringin"
-        box-shadow: 0 0 0 3px rgba(0, 55, 128, 0.2); // Pehmeä sininen hehku
+        outline: none; 
+        box-shadow: 0 0 0 3px rgba(0, 55, 128, 0.2); 
     }
 
 }
-
-// .reply-controls button:last-child { // cancel
-//     background-color: #f0f0f0;
-//     color: #333;
-// }
-
-// .reply-controls button:last-child:hover {
-//     background-color: #e0e0e0;
-// }

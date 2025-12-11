@@ -22,6 +22,7 @@ export class CommentItemComponent {
   @Input() articleId!: string; // Needed to make a like/unlike requests
   @Input() comment!: Comment;
   @Input() level: number = 0; 
+  @Input() isLocked: boolean = false
 
   constructor(
     private commentService: CommentService,
@@ -35,6 +36,12 @@ export class CommentItemComponent {
 
     this.isLoggedIn$ = this.authService.isLoggedIn$;
   }
+
+
+  get isReplyDisabled(): boolean {
+    return this.isLocked;
+  }
+
 
   toggleReplies(): void {
     this.comment.isExpanded = !this.comment.isExpanded;
@@ -79,6 +86,11 @@ export class CommentItemComponent {
 
 
   sendReply(): void {
+    if (this.isReplyDisabled) {
+      console.warn("Attempted to send reply to a locked topic.");
+      return;
+    }
+
     if (!this.replyText.trim()) return; // Don't send an empty comment
 
     const parentId = this.comment.id;

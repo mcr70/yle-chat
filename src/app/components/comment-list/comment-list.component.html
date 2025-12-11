@@ -33,7 +33,11 @@
           <div class="comment-header">
             <h3>{{ articleTitle || articleId }}
               <span *ngIf="topicDetails?.acceptedCommentsCount != null" class="comment-count-info no-wrap">
-                – {{ topicDetails?.acceptedCommentsCount }} kommenttia
+                – {{ topicDetails?.acceptedCommentsCount }} kommenttia 
+              </span>
+
+              <span *ngIf="commentsLocked" class="comment-locked-info no-wrap">
+                (suljettu)
               </span>
             </h3>
           </div>
@@ -84,7 +88,8 @@
             *ngFor="let comment of filteredComments" 
             [comment]="comment"
             [level]="0"
-            [articleId]="articleId">
+            [articleId]="articleId"
+            [isLocked]="commentsLocked">
           </app-comment-item>
 
           <div class="load-more-container" *ngIf="hasMoreComments">
