@@ -1,9 +1,9 @@
 locals {
   api_origins = {
-    YleCommentsV1Origin = {
+    YleCommentsV1Origin = { // Reply, like/unlike needs POST
       domain          = "comments.api.yle.fi"
       path_pattern    = "/v1/topics/*"
-      allowed_methods = [ "GET", "HEAD", "OPTIONS" ]
+      allowed_methods = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
     },
     YleCommentsV2Origin = {
       domain          = "comments.api.yle.fi"
