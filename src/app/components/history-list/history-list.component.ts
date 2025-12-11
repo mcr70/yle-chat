@@ -13,7 +13,7 @@ import { HistoryService, ArticleHistoryItem } from '@services/history.service';
 })
 export class HistoryListComponent implements OnInit {
     
-    historyItems: (ArticleHistoryItem & { isEditing?: boolean, editableTitle?: string })[] = [];
+    historyItems: ArticleHistoryItem[] = [];
 
     @Input() articleIdFilter: string = ''; 
     @Output() articleSelected = new EventEmitter<ArticleHistoryItem>(); 
@@ -49,22 +49,4 @@ export class HistoryListComponent implements OnInit {
     getArticleLink(articleId: string) {
         return `https://yle.fi/a/${articleId}#comments`;
     }
-
-
-    toggleEditMode(item: any): void {
-        item.isEditing = true;
-        item.editableTitle = item.title || item.id;
-    }
-    
-    saveTitle(item: any): void {
-        const newTitle = item.editableTitle.trim();
-        
-        if (newTitle && newTitle !== item.title) {
-            this.historyService.addOrUpdateArticle(item.id, newTitle)
-        }
-        
-        item.isEditing = false;
-        this.reloadHistory(); 
-    }    
-
 }

@@ -85,8 +85,11 @@ export class CommentListComponent implements OnInit {
     this.commentService.getTopicDetails(this.articleId).subscribe({
       next: (details: TopicDetails) => {
         this.topicDetails = details;
-        this.articleTitle = details.title; // Päivitä otsikko API:sta
-        this.commentsLocked = details.isLocked; // Päivitä lukitustila
+        this.articleTitle = details.title; 
+        this.commentsLocked = details.isLocked; 
+
+        const finalTitle = details.title || this.articleId;
+        this.historyService.addOrUpdateArticle(this.articleId, finalTitle);
       },
       error: (err) => {
         // Jos API-kutsu epäonnistuu (esim. topicia ei löydy), nollaa tila.
@@ -208,8 +211,6 @@ export class CommentListComponent implements OnInit {
       this.isManualInput = true;      
       this.articleId = newArticleId;
       this.loadComments(true); 
-
-      this.historyService.addOrUpdateArticle(this.articleId, this.articleId);
 
       setTimeout(() => {
           this.isManualInput = false;
