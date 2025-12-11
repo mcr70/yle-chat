@@ -31,11 +31,16 @@
  * 
  *   - topics:
  *     curl "https://comments.api.yle.fi/v1/topics/74-20197463?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D"
+ * 
+ *   - reply: POST
+ *     https://comments.api.yle.fi/v1/topics/74-20198519/comments?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D
+ *       - payload:
+ *         {"content":"comment text is here","parentId":"33-31402f04-503d-41bc-98cf-35d1a9e47ad0"}
  */
 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { forkJoin, Observable, of } from 'rxjs';
+import { forkJoin, Observable, of, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 
@@ -61,6 +66,12 @@ export interface Comment {
   hasNickname?: boolean; // Marks if comment matches nickname filter
 }
 
+interface ReplyPayload {
+    content: string;
+    parentId: string;
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -75,10 +86,11 @@ export class CommentService {
     order: 'relevance:desc'
   };
 
-  private BASE_URL_TEMPLATE = '/v2/topics/{articleId}/comments';
-  private LIKE_BASE_URL_TEMPLATE = '/v1/topics/{articleId}/comments';
-  private LIKED_COMMENTS_URL_TEMPLATE = `/v1/topics/{articleId}/comments/liked`;
+  private readonly BASE_URL_TEMPLATE = '/v2/topics/{articleId}/comments';
+  private readonly LIKE_BASE_URL_TEMPLATE = '/v1/topics/{articleId}/comments';
+  private readonly LIKED_COMMENTS_URL_TEMPLATE = `/v1/topics/{articleId}/comments/liked`;
   private readonly TOPIC_DETAILS_URL_TEMPLATE = `/v1/topics/{articleId}`;
+  private readonly REPLY_URL_TEMPLATE = `/v1/topics/{articleId}/comments`;
 
   constructor(private http: HttpClient) { }
 
@@ -189,6 +201,35 @@ export class CommentService {
 
     return this.http.post(url, null, { params });
   }
+
+  /**
+   * Posts a reply to a comment
+   * 
+   * @param articleId 
+   * @param content 
+   * @param commentId 
+   * @returns 
+   */
+  postReply(articleId: string, content: string, commentId: string): Observable<any> {
+    
+    if (!articleId || !content || !commentId) {
+        return throwError(() => new Error('Puuttuvat tiedot vastauksen lähettämiseen.'));
+    }
+
+    const url = this.REPLY_URL_TEMPLATE.replace('{articleId}', articleId);   
+    const params = new HttpParams({ fromObject: this.defaultGetParams });
+
+    const payload: ReplyPayload = {
+        content: content,
+        parentId: commentId
+    };
+
+    return this.http.post(url, payload, { 
+        params: params, 
+        withCredentials: true 
+    });
+  }
+
 
   // ---------------------------------------------------------------------
 

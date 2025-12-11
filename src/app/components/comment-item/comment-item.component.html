@@ -25,13 +25,31 @@
         
         <p class="comment-text">{{ comment.content }}</p>
         
-        <button 
-            *ngIf="comment.children && comment.children.length > 0"
-            (click)="toggleReplies()"
-            class="toggle-button">
-            {{ comment.isExpanded ? 'Piilota vastaukset ▲' : 'Näytä ' + comment.children.length + ' vastausta ▼' }}
-        </button>
-    </div>
+        <div class="comment-actions">    
+            <button 
+                *ngIf="comment.children && comment.children.length > 0"
+                (click)="toggleReplies()"
+                class="toggle-button">
+                {{ comment.isExpanded ? 'Piilota vastaukset ▲' : 'Näytä ' + comment.children.length + ' vastausta ▼' }}
+            </button>
+            
+            <button 
+                class="reply-button" 
+                (click)="toggleReplyForm()" 
+                *ngIf="isLoggedIn$ | async">
+                Vastaa ↵
+            </button>
+        </div>
+        
+        <div *ngIf="isReplying" class="reply-form-wrapper">
+            <textarea [(ngModel)]="replyText" placeholder="Kirjoita vastauksesi tähän..." rows="4"></textarea>
+            <div class="reply-controls">
+                <button (click)="sendReply()">Lähetä vastaus</button>
+                <button (click)="toggleReplyForm()">Peruuta</button>
+            </div>
+        </div>
+        
+    </div> 
     
     <ng-container *ngIf="comment.isExpanded">
       <div class="replies-wrapper">

@@ -79,3 +79,93 @@
     color: #c6ad25; 
 }
 
+// --------------
+
+.comment-actions {
+    display: flex;
+    justify-content: space-between; /* Oletus: Vasen ja oikea reuna */
+    align-items: center;           
+    margin-top: 10px;               
+}
+
+.reply-button {
+    background: none; 
+    border: 1px solid #ccc; 
+    cursor: pointer;
+    padding: 5px 10px; 
+    font-size: 0.9em;
+    border-radius: 5px;
+    margin-left: auto;
+}
+
+.reply-button:hover {
+    background-color: #f0f0f0;
+}
+
+
+.toggle-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9em;
+
+  display: block; 
+}
+
+
+/* comment-item.component.scss */
+
+// Uusi tyyli, joka tekee lomakkeesta siistin ja leveän
+.reply-form-wrapper { 
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd; 
+}
+
+textarea {
+    width: 100%; /* TÄYTTÄÄ KOKO TILAN */
+    min-height: 100px; 
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; 
+    resize: vertical; 
+    font-family: inherit;
+    font-size: 0.9em; 
+}
+
+.reply-controls {
+    display: flex;
+    justify-content: flex-end; /* Siirrä napit oikeaan reunaan */
+    gap: 10px; 
+    margin-top: 10px;
+}
+
+.reply-controls button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500; 
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+/* Lähetä nappi */
+.reply-controls button:first-child { 
+    background-color: #007bff; 
+    color: white;
+}
+
+.reply-controls button:first-child:hover {
+    background-color: #0056b3;
+}
+
+.reply-controls button:last-child { // cancel
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.reply-controls button:last-child:hover {
+    background-color: #e0e0e0;
+}
