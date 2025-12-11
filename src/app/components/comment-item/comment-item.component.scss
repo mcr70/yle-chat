@@ -45,6 +45,7 @@
 .author-date {
   font-size: 0.7em;
   color: #888;
+  margin-left: 10px;
 }
 
 .comment-text {
@@ -85,22 +86,27 @@
     display: flex;
     justify-content: space-between; /* Oletus: Vasen ja oikea reuna */
     align-items: center;           
-    margin-top: 10px;               
+    //margin-top: 10px;               
 }
 
 .reply-button {
-    background: none; 
-    border: 1px solid #ccc; 
-    cursor: pointer;
-    padding: 5px 10px; 
-    font-size: 0.9em;
-    border-radius: 5px;
-    margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9em;
+  margin-top: 10px;
+  display: block; 
+  margin-left: auto;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
-.reply-button:hover {
-    background-color: #f0f0f0;
-}
+// .reply-button:hover {
+//     background-color: #fff;
+// }
 
 
 .toggle-button {
@@ -124,7 +130,7 @@
 }
 
 textarea {
-    width: 100%; /* TÄYTTÄÄ KOKO TILAN */
+    width: 100%;
     min-height: 100px; 
     padding: 10px;
     border: 1px solid #ccc;
@@ -132,14 +138,14 @@ textarea {
     box-sizing: border-box; 
     resize: vertical; 
     font-family: inherit;
-    font-size: 0.9em; 
+    font-size: 1em; 
 }
 
 .reply-controls {
     display: flex;
     justify-content: flex-end; /* Siirrä napit oikeaan reunaan */
     gap: 10px; 
-    margin-top: 10px;
+    //margin-top: 10px;
 }
 
 .reply-controls button {
@@ -152,20 +158,49 @@ textarea {
 }
 
 /* Lähetä nappi */
-.reply-controls button:first-child { 
-    background-color: #007bff; 
-    color: white;
+.reply-controls button { 
+    padding: 8px 15px; // Kompakti padding
+
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center;
+    color: #003780;
+
+    border: 1px solid #ccc; // Kevyt harmaa reuna
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    margin-top: 15px; 
+
+    display: block; 
+    //width: 100%; 
+    background-color: #eee;
+    //box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+        background-color: #ccc; 
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    &:disabled {
+        background-color: #ccc;
+        color: #666;
+        cursor: not-allowed;
+        box-shadow: none;
+    }   
+    &:focus {
+        border-color: var(--yle-blue, #003780); 
+        outline: none; // Poistaa selaimen oletusarvoisen "focus ringin"
+        box-shadow: 0 0 0 3px rgba(0, 55, 128, 0.2); // Pehmeä sininen hehku
+    }
+
 }
 
-.reply-controls button:first-child:hover {
-    background-color: #0056b3;
-}
+// .reply-controls button:last-child { // cancel
+//     background-color: #f0f0f0;
+//     color: #333;
+// }
 
-.reply-controls button:last-child { // cancel
-    background-color: #f0f0f0;
-    color: #333;
-}
-
-.reply-controls button:last-child:hover {
-    background-color: #e0e0e0;
-}
+// .reply-controls button:last-child:hover {
+//     background-color: #e0e0e0;
+// }
