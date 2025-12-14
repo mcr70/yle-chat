@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { Comment, CommentService } from '@services/comment.service'; 
-import { Observable } from 'rxjs';
-import { AuthService } from '@app/services/auth.service';
+import { Observable, Subscription } from 'rxjs';
+
+import { AuthService } from '@services/auth.service';
+import { PendingReplyService, PendingReply } from '@services/pending-reply.service'; // ⭐ UUSI IMPORT ⭐
 
 @Component({
   selector: 'app-comment-item',
@@ -14,27 +16,37 @@ import { AuthService } from '@app/services/auth.service';
   imports: [ CommonModule, FormsModule ] 
 })
 export class CommentItemComponent {
-  isLoggedIn$!: Observable<boolean>;
-
+  isLoggedIn: boolean = false;
   isReplying: boolean = false;
   replyText: string = '';
+
+  private authSubscription: Subscription | undefined;
 
   @Input() articleId!: string; // Needed to make a like/unlike requests
   @Input() comment!: Comment;
   @Input() level: number = 0; 
   @Input() isLocked: boolean = false
 
+  isHoveringReplyButton: boolean = false;  
+  pendingReply: PendingReply | null = null;
+
   constructor(
     private commentService: CommentService,
-    private authService: AuthService
+    private authService: AuthService,
+    private pendingReplyService: PendingReplyService
   ) { }
+
 
   ngOnInit(): void {
     if (this.comment.isExpanded === undefined) {
       this.comment.isExpanded = false;
     }
 
-    this.isLoggedIn$ = this.authService.isLoggedIn$;
+    this.checkPendingStatus();
+
+    this.authSubscription = this.authService.isLoggedIn$.subscribe(isLoggedIn => {
+      this.isLoggedIn = isLoggedIn;
+    });
   }
 
 
@@ -79,15 +91,28 @@ export class CommentItemComponent {
     }
   }
 
-  toggleReplyForm(): void {
-    this.isReplying = !this.isReplying;
-    this.replyText = '';
+  getReplyTooltip(): string | null {
+      if (this.isLocked) {
+          return 'Keskustelu on suljettu';
+      }
+      if (this.pendingReply) {
+            return `Vastauksesi on käsittelyssä: "${this.pendingReply.content.substring(0, 50)}..."`;
+      }
+      if (!(this.isLoggedIn)) { 
+          return 'Kirjaudu sisään vastataksesi'; 
+      }
+      return null;
   }
 
+  toggleReplyForm(): void {
+    if (this.isLoggedIn) {
+      this.isReplying = !this.isReplying;
+    }
+  }
 
   sendReply(): void {
     if (this.isReplyDisabled) {
-      console.warn("Attempted to send reply to a locked topic.");
+      console.warn("Attempted to send reply to a locked topic");
       return;
     }
 
@@ -96,14 +121,24 @@ export class CommentItemComponent {
     const parentId = this.comment.id;
     
     this.commentService.postReply(this.articleId, this.replyText, parentId).subscribe({
-      next: (response) => {
-          console.log('Vastaus lähetetty onnistuneesti:', response);
-          
-          this.isReplying = false;
-          this.replyText = '';
+      next: (newCommentData) => {
+        console.log('Reply sent, got response:', newCommentData);
+        
+        const newReply: PendingReply = { // Pending reply
+          parentId: this.comment.id,
+          replyId: newCommentData.id, 
+          content: this.replyText,
+          articleId: this.articleId
+        };
+
+        this.pendingReplyService.addPendingReply(newReply);
+        this.pendingReply = newReply;
+
+        this.isReplying = false;
+        this.replyText = '';
       },
       error: (err) => {
-        console.error('Vastauksen lähetys epäonnistui:', err);
+        console.error('Failed to send reply', err);
       }
     });
   }
@@ -117,4 +152,16 @@ export class CommentItemComponent {
   isSpecialComment(): boolean {
     return this.comment.hasNickname === true;
   }  
+
+  onMouseEnter(): void {
+    if (this.pendingReply) {
+      this.isHoveringReplyButton = true;
+    }
+  }
+
+  // -------------------------------------------------------------------------------------
+  private checkPendingStatus(): void {
+    const pendingReplies = this.pendingReplyService.getPendingRepliesForArticle(this.articleId);
+    this.pendingReply = pendingReplies.find(r => r.parentId === this.comment.id) || null;
+  }
 }

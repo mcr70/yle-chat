@@ -10,7 +10,7 @@
             
             <div class="like-container">
                 <button 
-                    *ngIf="isLoggedIn$ | async"
+                    *ngIf="isLoggedIn"
                     (click)="toggleLike()" 
                     [class.liked]="comment.isLiked"
                     class="like-button"
@@ -33,15 +33,22 @@
                 {{ comment.isExpanded ? 'Piilota vastaukset ▲' : 'Näytä ' + comment.children.length + ' vastausta ▼' }}
             </button>
             
-            <button 
-                class="reply-button" 
-                (click)="toggleReplyForm()" 
-                *ngIf="isLoggedIn$ | async"
+            <div class="reply-group">
+                <span *ngIf="pendingReply" 
+                    class="pending-indicator no-wrap"
+                    [attr.title]="pendingReply.content">
+                    Käsittelyssä...
+                </span>
                 
-                [disabled]="isLocked"
-                [attr.title]="isLocked ? 'Keskustelu on suljettu' : null">
-                Vastaa ↵
-            </button>
+                <button 
+                    class="reply-button" 
+                    (click)="toggleReplyForm()" 
+                    
+                    [disabled]="isLocked || !!pendingReply || !isLoggedIn"
+                    [attr.title]="getReplyTooltip()">
+                    Vastaa ↵
+                </button>
+            </div>
         </div>
 
         <div *ngIf="isReplying && !isLocked" class="reply-form-wrapper"> 

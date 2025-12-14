@@ -11,8 +11,9 @@ import { MyDiscussionsComponent } from '@components/my-discussions/my-discussion
 import { ArticleHistoryItem, HistoryService } from '@services/history.service';
 import { HistoryListComponent } from '@components/history-list/history-list.component';
 import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
-import { GroupedDiscussion } from '@app/services/yle-history.service';
-import { AuthService } from '@app/services/auth.service';
+import { GroupedDiscussion } from '@services/yle-history.service';
+import { AuthService } from '@services/auth.service';
+import { PendingReplyService } from '@services/pending-reply.service';
 
 @Component({
   selector: 'app-comment-list',
@@ -54,6 +55,7 @@ export class CommentListComponent implements OnInit {
     private commentService: CommentService,
     private historyService: HistoryService,
     private authService: AuthService,
+    private pendingReplyService: PendingReplyService
   ) {}
 
   ngOnInit(): void {
@@ -142,6 +144,8 @@ export class CommentListComponent implements OnInit {
         if (this.historyListComponent) { 
           this.historyListComponent.reloadHistory(); 
         }
+
+        this.cleanupPendingReplies(); // Check if pending replies have been published and cleanup
 
         setTimeout(() => { // Make sure loading spinner is visible for minimum time
           this.isLoading = false;
@@ -246,7 +250,34 @@ export class CommentListComponent implements OnInit {
 
     this.articleId = discussion.articleId;
     
-    this.loadComments(true); //loadComments gets automatically called due to [(ngModel)] in html
+    this.loadComments(true); // loadComments gets automatically called due to [(ngModel)] in html
+  }
+
+
+  private cleanupPendingReplies(): void {
+    const pendingReplies = this.pendingReplyService.getPendingRepliesForArticle(this.articleId);
+    if (!pendingReplies.length) return;
+
+    const loadedReplyIds = new Set<string>();
+    
+    const findReplyIds = (comments: Comment[]) => {
+      for (const comment of comments) {
+        loadedReplyIds.add(comment.id);
+        if (comment.children) {
+            findReplyIds(comment.children);
+        }
+      }
+    };
+
+    findReplyIds(this.comments);
+
+
+    for (const pending of pendingReplies) {
+        if (loadedReplyIds.has(pending.replyId)) {
+            console.log(`Pending reply ${pending.replyId} approved`);
+            this.pendingReplyService.removePendingReply(pending.replyId);
+        }
+    }
   }
 
 }
