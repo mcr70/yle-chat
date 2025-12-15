@@ -1,8 +1,9 @@
+
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { Observable, forkJoin } from 'rxjs'; // Tarvitaan forkJoin asynkroniseen lataukseen
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Observable, forkJoin, of } from 'rxjs';
 
 import { TopicDetails, Comment, CommentService } from '@services/comment.service';
 import { CommentItemComponent } from '@components/comment-item/comment-item.component';
@@ -15,14 +16,15 @@ import { GroupedDiscussion } from '@services/yle-history.service';
 import { AuthService } from '@services/auth.service';
 import { PendingReplyService } from '@services/pending-reply.service';
 
+
 @Component({
   selector: 'app-comment-list',
   templateUrl: './comment-list.component.html',
   styleUrls: ['./comment-list.component.scss'],
   imports: [
     CommonModule, FormsModule,
-    HttpClientModule,
-    CommentItemComponent, HistoryListComponent, LoginPanelComponent, MyDiscussionsComponent
+    CommentItemComponent, HistoryListComponent, LoginPanelComponent, MyDiscussionsComponent,
+    RouterModule
   ]
 })
 export class CommentListComponent implements OnInit {
@@ -57,26 +59,40 @@ export class CommentListComponent implements OnInit {
     private commentService: CommentService,
     private historyService: HistoryService,
     private authService: AuthService,
-    private pendingReplyService: PendingReplyService
+    private pendingReplyService: PendingReplyService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
+
   ngOnInit(): void {
-    const history = this.historyService.getHistory();
+    this.route.paramMap.subscribe(params => {
+      const idFromUrl = params.get('id');
+
+      if (idFromUrl) {
+        this.articleId = idFromUrl;
+        this.loadComments(true);
+      } 
+      else {
+        // No ide from url, load latest from history
+        const history = this.historyService.getHistory();
+        
+        if (history && history.length > 0) {
+          const latestArticle = history[0];
+          this.articleId = latestArticle.id;
+          this.articleTitle = latestArticle.title || '';
+
+          this.loadComments(true); 
+        }
+      }
+    });
     
-    if (history && history.length > 0) {
-      const latestArticle = history[0];
-      this.articleId = latestArticle.id;
-      this.articleTitle = latestArticle.title || '';
-
-      this.loadComments(true); 
-    }
-
-    // Reload comments, in case of auth change, to update like/unlike statuses
-    this.authService.isLoggedIn$.subscribe(isLoggedIn => {
-      this.loadComments(true); 
-    });    
-  }
-
+    this.authService.isLoggedIn$.subscribe(() => {
+        if (this.articleId) {
+            this.loadComments(true); 
+        }
+    });
+}
 
   loadTopicDetails(): Observable<TopicDetails> {
     if (!this.articleId) {
@@ -87,6 +103,7 @@ export class CommentListComponent implements OnInit {
     this.articleTitle = '';
     this.commentsLocked = false;
     
+    console.log(`Load topic details for ${this.articleId}`)
     return this.commentService.getTopicDetails(this.articleId);
   }
 
@@ -101,24 +118,21 @@ export class CommentListComponent implements OnInit {
     this.isLoading = true;
     const startTime = Date.now();
 
-    // 1. Määritellään ladattavat elementit
-    // Ladataan Topic Details vain resetoidessa
     let topicDetails$: Observable<TopicDetails | undefined> = reset 
       ? this.loadTopicDetails() 
-      : new Observable<undefined>();
+      : of(undefined);
     
     let comments$: Observable<Comment[]>;
 
-    // Jos reset, nollataan tila ennen latauspyyntöä
     if (reset) {
-        this.comments = [];
-        this.currentOffset = 0;
-        this.hasMoreComments = true;
-    }
+      this.comments = [];
+      this.currentOffset = 0;
+      this.hasMoreComments = true;
+    }    
 
+    console.log(`Load comments for ${this.articleId}, offset ${this.currentOffset}, limit ${this.limit}`);
     comments$ = this.commentService.getComments(this.articleId, this.currentOffset, this.limit);
 
-    // 2. Tehdään lataus yhdessä forkJoinilla
     const combinedLoad$: Observable<any> = forkJoin({
         details: topicDetails$,
         comments: comments$
@@ -127,7 +141,6 @@ export class CommentListComponent implements OnInit {
 
     combinedLoad$.subscribe({
       next: (response) => {
-        // Käsittely Topic Details:
         if (response.details) {
             const details = response.details as TopicDetails;
             this.topicDetails = details;
@@ -137,21 +150,18 @@ export class CommentListComponent implements OnInit {
             this.historyService.addOrUpdateArticle(this.articleId, finalTitle);
         }
 
-        // Käsittely Kommentit:
         const newComments = response.comments as Comment[];
         this.comments = [...this.comments, ...newComments];
-        this.currentOffset += this.limit;
+        this.currentOffset += newComments.length;
 
         if (newComments.length < this.limit) {
           this.hasMoreComments = false;
         }
         
-        // nickname filter
         if (this.nicknameFilter.trim().length > 0) {
           this.commentService.markNickname(this.comments, this.nicknameFilter);
         }        
 
-        // ... (viive ja siivous)
         const endTime = Date.now();
         const elapsedTime = endTime - startTime;
         const remainingDelay = Math.max(0, this.MIN_LOADING_TIME_MS - elapsedTime);
@@ -161,13 +171,13 @@ export class CommentListComponent implements OnInit {
         }
 
         this.cleanupPendingReplies(); 
-
+        
         setTimeout(() => { 
-          this.isLoading = false;
+          this.isLoading = false; 
         }, remainingDelay);
       },
       error: (err: any) => {
-        console.error('Lataus epäonnistui (Topic/Kommentit):', err.status, err.message);
+        console.error('Failed to load (Topic/Comments):', err.status, err.message);
         this.isLoading = false; 
         this.hasMoreComments = false;
 
@@ -188,6 +198,7 @@ export class CommentListComponent implements OnInit {
     this.commentsLocked = false;
     this.filterFoundMatches = false;
     this.hideUnmarkedTopLevel = false;
+    this.isLoading = false;
   }
 
   loadMoreComments(): void {
@@ -224,37 +235,24 @@ export class CommentListComponent implements OnInit {
 
  
   // Called when user is typing into article-id inpout field
-  onArticleIdChanged(newValue: string) {
-    const rawInput = newValue.trim();
-    let newArticleId = rawInput;
+  onArticleIdChanged(rawInput: string): void {
+    const parsedId = this.parseArticleIdFromUrl(rawInput);
     
-    // Tarkistetaan onko syöte URL ja parsitaan siitä ID
-    if (rawInput.includes('yle.fi/a/')) {
-        const match = rawInput.match(/(\d+-\d+)(?:#.*)?$/);
-        if (match && match[1]) {
-            newArticleId = match[1]; 
-        } else {
-            newArticleId = ''; 
+    if (!parsedId) {
+        if (rawInput === '') {
+             this.router.navigate(['/']);
+             this.articleId = '';
         }
+        return; 
+    }
+    
+    const currentUrlId = this.route.snapshot.paramMap.get('id');
+
+    if (currentUrlId !== parsedId) {
+        this.router.navigate(['/comments', parsedId]);
     }
 
-    const isNewValue = newArticleId !== this.articleId || (newArticleId === '' && this.articleId !== '');
-    const isValidId = newArticleId === '' || this.YLE_ID_REGEX.test(newArticleId);
-
-    if (true || isNewValue) {
-      this.isManualInput = true;      
-      this.articleId = newArticleId;
-      
-      if (isValidId) {
-          this.loadComments(true); 
-      } else {
-          this.resetState();
-      }
-
-      setTimeout(() => {
-          this.isManualInput = false;
-      }, 0); 
-    }
+    this.articleId = parsedId;
   }
 
 
@@ -265,14 +263,8 @@ export class CommentListComponent implements OnInit {
       return; 
     }    
 
-    this.articleId = articleData.id; 
-    this.historyService.addOrUpdateArticle(this.articleId, this.articleTitle || this.articleId);
-    
-    if (this.historyListComponent) { 
-        this.historyListComponent.reloadHistory(); 
-    }
-    
-    this.loadComments(true);
+    this.router.navigate(['/comments', articleData.id]);
+
   }
 
 
@@ -282,12 +274,9 @@ export class CommentListComponent implements OnInit {
       this.articleId = discussion.articleId;
       return; 
     }
-
-    this.articleId = discussion.articleId;
     
-    this.loadComments(true); 
-  }
-
+    this.router.navigate(['/comments', discussion.articleId]);
+}
 
   private cleanupPendingReplies(): void {
     const pendingReplies = this.pendingReplyService.getPendingRepliesForArticle(this.articleId);
@@ -306,13 +295,36 @@ export class CommentListComponent implements OnInit {
 
     findReplyIds(this.comments);
 
-
     for (const pending of pendingReplies) {
         if (loadedReplyIds.has(pending.replyId)) {
             console.log(`Pending reply ${pending.replyId} approved`);
             this.pendingReplyService.removePendingReply(pending.replyId);
         }
     }
+  }
+
+
+  /**
+   * Yle article ID is in format XX-XXXXXXXX
+   * @param input 
+   * @returns 
+   */
+  private parseArticleIdFromUrl(input: string): string | null {
+    if (!input) {
+        return null;
+    }
+    
+    const yleIdMatch = input.match(/(\d{2}-\d{8})/);
+    
+    if (yleIdMatch && yleIdMatch[1]) {
+        return yleIdMatch[1];
+    }
+    
+    if (!input.includes(' ')) {
+        return input;
+    }
+
+    return null; 
   }
 
 }

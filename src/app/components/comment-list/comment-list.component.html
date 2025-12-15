@@ -23,13 +23,6 @@
       <div class="comment-container">
 
         <div class="comment-controls-top">
-
-          <div class="article-id-filter-control">
-            <input type="text" placeholder="esim. 74-20195254 tai URL..." 
-              class="filter-input article-id-input yle-input"
-              [(ngModel)]="articleId" 
-              (ngModelChange)="onArticleIdChanged($event)"            />
-          </div>
           
           <div class="comment-header">
             <h3>{{ articleTitle || articleId }}
@@ -46,38 +39,36 @@
         </div>
 
 
-        <div class="filter-controls">
-          <div class="filter-row">
+          <div class="filter-controls">
+            <div class="filter-row">
 
-            <input
-              type="text"
-              placeholder="Suodata nimimerkillä..."
-              [value]="nicknameFilter"
-              (input)="onNicknameChanged($any($event.target).value)"
-              class="yle-input filter-input"
-            />
+              <input type="text" placeholder="esim. 74-20195254 tai URL..." 
+                class="filter-input article-id-input yle-input"
+                [(ngModel)]="articleId" 
+                (ngModelChange)="onArticleIdChanged($event)"
+              />
 
-            <div class="hide-control">
-              <input 
-                type="checkbox" 
-                id="hideUnmarked" 
-                [checked]="hideUnmarkedTopLevel"
-                (change)="hideUnmarkedTopLevel = $any($event.target).checked"
-                
-                [disabled]="!isHideUnmarkedEnabled" 
-              >
-              <label 
-                for="hideUnmarked"
-                [class.disabled-label]="!isHideUnmarkedEnabled">Piilota muut</label>
-            </div>
-            <button 
-              (click)="loadComments(true)" 
-              [disabled]="isLoading"
-              class="refresh-button"
-              title="{{ isLoading ? 'Ladataan...' : 'Päivitä kommentit' }}">
+              <input type="text" placeholder="Suodata nimimerkillä..." class="yle-input filter-input"
+                [value]="nicknameFilter"
+                (input)="onNicknameChanged($any($event.target).value)"
+              />
+
+              <div class="hide-control">
+                <input type="checkbox" id="hideUnmarked" 
+                  [checked]="hideUnmarkedTopLevel"
+                  (change)="hideUnmarkedTopLevel = $any($event.target).checked"
+                  [disabled]="!isHideUnmarkedEnabled" 
+                />
+                <label 
+                  for="hideUnmarked" [class.disabled-label]="!isHideUnmarkedEnabled">Piilota muut</label>
+              </div>
+
+              <button class="refresh-button" title="{{ isLoading ? 'Ladataan...' : 'Päivitä kommentit' }}"
+                (click)="loadComments(true)" 
+                [disabled]="isLoading">
               
-              <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
-            </button>
+                <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
+              </button>
 
           </div>
         </div>

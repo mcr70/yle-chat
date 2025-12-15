@@ -124,6 +124,21 @@ resource "aws_cloudfront_distribution" "cdn" {
     }
   }
 
+
+  custom_error_response { // SPA fallback
+    error_code         = 404
+    response_page_path = "/index.html"
+    response_code      = 200
+    error_caching_min_ttl = 0
+  }
+  
+  custom_error_response { // SPA fallback
+    error_code         = 403
+    response_page_path = "/index.html"
+    response_code      = 200
+    error_caching_min_ttl = 0
+  }
+
   restrictions {
     geo_restriction {
       restriction_type = "whitelist" // To allow from everywhere, type "none"
