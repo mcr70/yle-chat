@@ -25,7 +25,8 @@
         <div class="comment-controls-top">
 
           <div class="article-id-filter-control">
-            <input type="text" placeholder="esim. 74-20195254 tai URL..." class="filter-input article-id-input"
+            <input type="text" placeholder="esim. 74-20195254 tai URL..." 
+              class="filter-input article-id-input yle-input"
               [(ngModel)]="articleId" 
               (ngModelChange)="onArticleIdChanged($event)"            />
           </div>
@@ -53,7 +54,7 @@
               placeholder="Suodata nimimerkillä..."
               [value]="nicknameFilter"
               (input)="onNicknameChanged($any($event.target).value)"
-              class="filter-input"
+              class="yle-input filter-input"
             />
 
             <div class="hide-control">

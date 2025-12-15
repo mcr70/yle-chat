@@ -55,11 +55,12 @@
             <textarea [(ngModel)]="replyText" placeholder="Kirjoita vastauksesi tähän..." rows="4"></textarea>
             <div class="reply-controls">
                 <button 
+                    class="yle-button"
                     (click)="sendReply()"
                     [disabled]="isLocked">
                     Lähetä vastaus
                 </button>
-                <button (click)="toggleReplyForm()">Peruuta</button>
+                <button class="yle-button" (click)="toggleReplyForm()">Peruuta</button>
             </div>
         </div>
         

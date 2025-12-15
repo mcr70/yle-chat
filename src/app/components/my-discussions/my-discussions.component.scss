@@ -1,30 +1,29 @@
 
 .discussions-header {
     display: flex;
-    justify-content: space-between; // Jakaa tilan otsikon ja napin välillä
-    align-items: center; // Keskittää pystysuunnassa
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 10px;
 
     h3 {
-        margin: 0; // Poista h3:n ylimääräiset marginaalit
+        margin: 0; 
         font-size: 1.2em;
     }
 }
 
 .refresh-button {
-    /* Muutetaan napin ulkoasua */
-    width: 40px; /* Kiinteä leveys */
-    height: 40px; /* Kiinteä korkeus */
+    width: 40px; 
+    height: 40px;
     padding: 0;
     cursor: pointer;
-    background-color: #f0f0f0; /* Vaalea tausta */
-    color: #333; /* Tumma ikoni */
+    background-color: #f0f0f0; 
+    color: #333; 
     border: 1px solid #ccc;
-    border-radius: 50%; /* Pyöreä muoto */
+    border-radius: 50%; 
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2em; /* Isompi ikoni */
+    font-size: 1.2em; 
     transition: background-color 0.2s;
 }
 
@@ -34,60 +33,51 @@
 
 .refresh-button:disabled {
     background-color: #ccc;
-    color: #666;
+    color: var(--color-text-secondary);
     cursor: not-allowed;
     opacity: 0.7;
 }
 
 
-// Varmista, että @keyframes spin ja .spinner-icon ovat mukana animaatiota varten
-// ...
 .history-list { list-style: none; padding: 0; }
 
 .history-list li {
-    // Nollaa alkuperäinen flex-asettelu, jos käytät jaettua SCSS:ää,
-    // tai poista se, jos käytät .history-list li -sääntöä toisessa tiedostossa.
     display: block; 
     margin-bottom: 5px; 
     padding-bottom: 5px;
     border-bottom: 1px solid #eee;
 
     .list-item-header {
-        display: flex; // TÄMÄ ASETTAA OTSALINKIN JA KUVAKKEEN SAMALLE RIVILLE
+        display: flex; 
         align-items: center;
         gap: 8px;
     }
     
     .comment-preview {
-        display: block; // Varmistaa, että on omalla rivillä
+        display: block; 
         font-size: 0.85em;
-        color: #666;
+        color: var(--color-text-secondary);
         margin-top: 2px;
         margin-bottom: 5px;
-        margin-left: 0; // Aloita rivi vasemmasta reunasta
+        margin-left: 0; 
     }
 }
 
 .truncated-title {
-    // Pakotetaan elementti olemaan vain yhden rivin korkuinen
     white-space: nowrap; 
-    // Ylivuotava teksti piilotetaan
     overflow: hidden; 
-    // Piilotettu teksti korvataan kolmella pisteellä (...)
     text-overflow: ellipsis; 
-    // TÄRKEÄ: flex-elementin pitää olla rajattu leveydeltään
     max-width: 100%; 
 }
 
-// Määrää, kuinka leveä otsikko voi olla, jotta tilaa jää linkki-ikonille
 .list-item-header {
     display: flex;
     align-items: center;
     gap: 8px;
 
-    a:first-child { // Voi olla myös .article-title-link luokka
-        flex-grow: 1; // Sallii otsikon viedä kaiken vapaan tilan
-        min-width: 0; // TÄRKEÄ: Estää flex-elementtiä ylittämästä säiliötä
+    a:first-child { 
+        flex-grow: 1;
+        min-width: 0;
     }
 }
 
@@ -101,7 +91,6 @@
 
 .spinner {
     font-weight: bold;
-    /* Käytetään animaatiota, kun lataus on käynnissä */
     animation: spin 1.2s linear infinite;
     display: inline-block;
 }

@@ -3,46 +3,6 @@
     margin-bottom: 10px; 
 }
 
-// Yhteiset perusominaisuudet molemmille napeille
-.login-button, .logout-button {
-    padding: 8px 15px; // Kompakti padding
-
-    font-size: 1em;
-    font-weight: bold;
-    text-align: center;
-    color: #003780;
-
-    border: 1px solid #ccc; // Kevyt harmaa reuna
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s, box-shadow 0.2s;
-    margin-top: 15px; 
-
-    display: block; 
-    width: 100%; 
-    background-color: #eee;
-    //box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-    &:hover {
-        background-color: #ccc; 
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-    
-    &:disabled {
-        background-color: #ccc;
-        color: #666;
-        cursor: not-allowed;
-        box-shadow: none;
-    }   
-    &:focus {
-        border-color: var(--yle-blue, #003780); 
-        outline: none; // Poistaa selaimen oletusarvoisen "focus ringin"
-        box-shadow: 0 0 0 3px rgba(0, 55, 128, 0.2); // Pehmeä sininen hehku
-    }
-
-}
-
-
 // ------------------------------------------------------------------------------
 
 .login-form {
@@ -52,25 +12,6 @@
     margin-top: 15px; 
 }
 
-.login-input {
-    box-sizing: border-box; // Sisältää paddingin ja reunat leveyteen
-    width: 100%; 
-    padding: 10px 12px;
-    font-size: 1em;
-    border: 1px solid #ccc; // Kevyt harmaa reuna
-    border-radius: 4px; // Kevyt pyöristys
-    transition: border-color 0.2s, box-shadow 0.2s; // Smooth-efekti
-
-    &:focus {
-        border-color: var(--yle-blue, #003780); 
-        outline: none; // Poistaa selaimen oletusarvoisen "focus ringin"
-        box-shadow: 0 0 0 3px rgba(0, 55, 128, 0.2); // Pehmeä sininen hehku
-    }
-
-    &::placeholder {
-        color: #999;
-    }
-}
 
 
 .user-info-container {
@@ -119,10 +60,11 @@
     justify-content: center;
     align-items: center;
     z-index: 200; /* Varmista, että on kaiken muun päällä */
+
 }
 
 .login-form-container {
-    background: white;
+    background: var(--color-background-primary);
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
@@ -134,13 +76,24 @@
     margin-top: 0;
 }
 
-.login-form-container form input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
+.login-form-container form {
+    display: flex;
+    flex-direction: column; 
 }
+
+// .login-form-container form {
+//     background: var(--color-background-primary)
+//     // width: 100%;
+//     // padding: 10px;
+//     // margin-bottom: 15px;
+//     // border: 1px solid #ccc;
+//     // box-sizing: border-box;
+// }
+
+.login-form-container form button[type="submit"] {
+    align-self: flex-end; 
+}
+
 
 .close-button {
     position: absolute;
@@ -153,15 +106,7 @@
     color: #333;
 }
 
-.submit-button {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%;
-}
+
 
 .list-item-header {
     /* Pakota väri ja koko näkymään testausta varten */

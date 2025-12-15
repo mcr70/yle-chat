@@ -18,14 +18,14 @@
 }
 
 .comment-box {
-    background-color: #eee;
-    border: 1px solid #666;
+    background-color: var(--color-background-primary);
+    border: 1px solid var(--color-text-secondary);
     padding: 10px; 
     border-radius: 10px;
 }
 
 .special-comment-box { /* Emphasize special comments */
-    background-color: #ddd;
+    background-color: var(--color-background-emphasize);
 }
 
 
@@ -44,7 +44,7 @@
 
 .author-date {
   font-size: 0.7em;
-  color: #888;
+  color: var(--color-text-secondary);
   margin-left: 10px;
 }
 
@@ -110,6 +110,7 @@
 
 .reply-button[disabled] {
     cursor: not-allowed !important;
+    color: var(--color-text-secondary);
     opacity: 0.7; 
 }
 
@@ -146,54 +147,8 @@ textarea {
     display: flex;
     justify-content: flex-end; 
     gap: 10px; 
-
 }
 
-.reply-controls button {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 500; 
-    transition: background-color 0.2s, opacity 0.2s;
-}
-
-
-.reply-controls button { 
-    padding: 8px 15px; 
-
-    font-size: 1em;
-    font-weight: bold;
-    text-align: center;
-    color: #003780;
-
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s, box-shadow 0.2s;
-    margin-top: 15px; 
-
-    display: block; 
-    background-color: #eee;
-
-    &:hover {
-        background-color: #ccc; 
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-    
-    &:disabled {
-        background-color: #ccc;
-        color: #666;
-        cursor: not-allowed;
-        box-shadow: none;
-    }   
-    &:focus {
-        border-color: var(--yle-blue, #003780); 
-        outline: none; 
-        box-shadow: 0 0 0 3px rgba(0, 55, 128, 0.2); 
-    }
-
-}
 
 // Pendingg replies ----
 
