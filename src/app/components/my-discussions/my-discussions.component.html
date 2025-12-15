@@ -17,11 +17,10 @@
   </div>
 
   
-  <ng-container *ngIf="isLoggedIn$ | async; else notLoggedIn">
-      
-    <ng-container *ngIf="!(isLoading$ | async) && (myDiscussions$ | async) as discussions">
+  <ng-container *ngIf="isLoggedIn$ | async; else notLoggedIn">      
+    <ng-container *ngIf="(myDiscussions$ | async) as discussions">
         
-      <p *ngIf="!discussions.length">Ei kommentoitua historiaa.</p>
+      <p *ngIf="!discussions.length && !(isLoading$ | async)">Ei kommentoitua historiaa.</p>
 
       <ul class="history-list">
         <li *ngFor="let item of discussions">

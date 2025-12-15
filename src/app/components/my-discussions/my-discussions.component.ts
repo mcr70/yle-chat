@@ -1,8 +1,8 @@
 
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BehaviorSubject, merge, Observable, of, Subject } from 'rxjs';
-import { filter, finalize, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, EMPTY, merge, Observable, of, Subject } from 'rxjs';
+import { catchError, filter, finalize, ignoreElements, switchMap, tap } from 'rxjs/operators';
 
 import { AuthService } from '@services/auth.service';
 import { YleHistoryService, MyDiscussion, GroupedDiscussion } from '@services/yle-history.service';
@@ -16,8 +16,9 @@ import { HistoryService } from '@app/services/history.service';
 })
 export class MyDiscussionsComponent implements OnInit {
 
-  myDiscussions$!: Observable<GroupedDiscussion[]>;
-  isLoggedIn$!: Observable<boolean>;
+  // discussionData is the one fetched, myDiscussions is the one used in template
+  discussionsData$: BehaviorSubject<GroupedDiscussion[]> = new BehaviorSubject<GroupedDiscussion[]>([]);
+  public readonly myDiscussions$: Observable<GroupedDiscussion[]> = this.discussionsData$.asObservable();  isLoggedIn$!: Observable<boolean>;
 
 
   private refreshTrigger = new Subject<void>();
@@ -37,30 +38,35 @@ export class MyDiscussionsComponent implements OnInit {
   ngOnInit(): void {
     this.isLoggedIn$ = this.authService.isLoggedIn$;
 
-    // Luodaan stream, joka laukaisee latauksen joko kirjautumisen TAI napin painalluksen jälkeen.
     const initialLoad$ = this.isLoggedIn$.pipe(
-      filter(isLoggedIn => isLoggedIn) // Ladataan vain, kun kirjautunut sisään
+      filter(isLoggedIn => isLoggedIn) // Load only if logged in
     );
     
-    // Yhdistetään aloituslataus (initialLoad$) ja napin painallus (refreshTrigger)
+    // Load only if logged in or refresh button clicked
     const loadSource$ = merge(initialLoad$, this.refreshTrigger);
     
-    this.myDiscussions$ = loadSource$.pipe(
+    loadSource$.pipe(
       switchMap(() => {
         
-        // Estä NG0100-virhe siirtämällä lataustilan asetus seuraavaan sykliin
+        // Prevent NG0100 -error
         setTimeout(() => {
           this.discussionsLoading.next(true);
         }, 0); 
         
         return this.yleHistory.fetchMyDiscussions().pipe(
-            // Lataus pois päältä, kun valmis
+            tap(data => { 
+                this.discussionsData$.next(data); // Updated loaded data with new data once it succeeds
+            }),
+            
             finalize(() => {
-              this.discussionsLoading.next(false);
-            })
+              this.discussionsLoading.next(false); // Stop loading indicator
+            }),
+            
+            catchError(() => EMPTY), 
+            ignoreElements() // don't pass on elements
         );
       })
-    );
+    ).subscribe();
  
   }
 
