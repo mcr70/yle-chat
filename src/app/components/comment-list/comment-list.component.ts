@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-
+import { Observable, forkJoin } from 'rxjs'; // Tarvitaan forkJoin asynkroniseen lataukseen
 
 import { TopicDetails, Comment, CommentService } from '@services/comment.service';
 import { CommentItemComponent } from '@components/comment-item/comment-item.component';
@@ -29,7 +29,9 @@ export class CommentListComponent implements OnInit {
 
   @ViewChild(HistoryListComponent) historyListComponent!: HistoryListComponent;
 
-  private isManualInput = false; // Controls for how the article id has been set in ui
+  private readonly YLE_ID_REGEX = /^\d{2}-\d{8}$/
+
+  private isManualInput = false;
 
   articleId: string = ''
   articleTitle: string = '';
@@ -40,7 +42,7 @@ export class CommentListComponent implements OnInit {
   currentOffset: number = 0;
   readonly limit: number = 20;
 
-  private MIN_LOADING_TIME_MS = 500; // 0.5 seconds
+  private MIN_LOADING_TIME_MS = 500;
 
   comments: Comment[] = [];
   hideUnmarkedTopLevel: boolean = false;
@@ -76,54 +78,67 @@ export class CommentListComponent implements OnInit {
   }
 
 
-  loadTopicDetails(): void {
+  loadTopicDetails(): Observable<TopicDetails> {
     if (!this.articleId) {
-      this.topicDetails = null;
-      this.articleTitle = '';
-      this.commentsLocked = false;
-      return;
+        throw new Error("Article ID is missing."); 
     }
 
-    this.commentService.getTopicDetails(this.articleId).subscribe({
-      next: (details: TopicDetails) => {
-        this.topicDetails = details;
-        this.articleTitle = details.title; 
-        this.commentsLocked = details.isLocked; 
-
-        const finalTitle = details.title || this.articleId;
-        this.historyService.addOrUpdateArticle(this.articleId, finalTitle);
-      },
-      error: (err) => {
-        // Jos API-kutsu epäonnistuu (esim. topicia ei löydy), nollaa tila.
-        console.error('Artikkelin tietojen lataus epäonnistui:', err);
-        this.topicDetails = null;
-        this.articleTitle = this.articleId; // Käytä ID:tä otsikkona virhetilanteessa
-        this.commentsLocked = true; // Oletetaan lukituksi varmuuden vuoksi
-      }
-    });
+    this.topicDetails = null;
+    this.articleTitle = '';
+    this.commentsLocked = false;
+    
+    return this.commentService.getTopicDetails(this.articleId);
   }
 
 
   loadComments(reset: boolean = false): void {
     if (this.isLoading) return;
+    if (!this.articleId) {
+        this.resetState();
+        return;
+    }
+    
     this.isLoading = true;
-
-    if (reset && this.articleId) {
-        this.loadTopicDetails(); 
-    }
-
-    if (reset) { // Reset happens if the articleId changes
-      this.comments = [];
-      this.currentOffset = 0;
-      this.hasMoreComments = true;
-    }
-
-    console.log(`Loading ${this.articleId}, ${this.articleTitle}, offset=${this.currentOffset}, limit=${this.limit}`)
-
     const startTime = Date.now();
 
-    this.commentService.getComments(this.articleId, this.currentOffset, this.limit).subscribe({
-      next: (newComments) => {
+    // 1. Määritellään ladattavat elementit
+    // Ladataan Topic Details vain resetoidessa
+    let topicDetails$: Observable<TopicDetails | undefined> = reset 
+      ? this.loadTopicDetails() 
+      : new Observable<undefined>();
+    
+    let comments$: Observable<Comment[]>;
+
+    // Jos reset, nollataan tila ennen latauspyyntöä
+    if (reset) {
+        this.comments = [];
+        this.currentOffset = 0;
+        this.hasMoreComments = true;
+    }
+
+    comments$ = this.commentService.getComments(this.articleId, this.currentOffset, this.limit);
+
+    // 2. Tehdään lataus yhdessä forkJoinilla
+    const combinedLoad$: Observable<any> = forkJoin({
+        details: topicDetails$,
+        comments: comments$
+    });
+
+
+    combinedLoad$.subscribe({
+      next: (response) => {
+        // Käsittely Topic Details:
+        if (response.details) {
+            const details = response.details as TopicDetails;
+            this.topicDetails = details;
+            this.articleTitle = details.title; 
+            this.commentsLocked = details.isLocked; 
+            const finalTitle = details.title || this.articleId;
+            this.historyService.addOrUpdateArticle(this.articleId, finalTitle);
+        }
+
+        // Käsittely Kommentit:
+        const newComments = response.comments as Comment[];
         this.comments = [...this.comments, ...newComments];
         this.currentOffset += this.limit;
 
@@ -136,32 +151,43 @@ export class CommentListComponent implements OnInit {
           this.commentService.markNickname(this.comments, this.nicknameFilter);
         }        
 
+        // ... (viive ja siivous)
         const endTime = Date.now();
         const elapsedTime = endTime - startTime;
         const remainingDelay = Math.max(0, this.MIN_LOADING_TIME_MS - elapsedTime);
         
-        // reload
         if (this.historyListComponent) { 
           this.historyListComponent.reloadHistory(); 
         }
 
-        this.cleanupPendingReplies(); // Check if pending replies have been published and cleanup
+        this.cleanupPendingReplies(); 
 
-        setTimeout(() => { // Make sure loading spinner is visible for minimum time
+        setTimeout(() => { 
           this.isLoading = false;
         }, remainingDelay);
       },
       error: (err: any) => {
-        console.error('Kommenttien lataus epäonnistui (404 tms.):', err.status, err.message);
+        console.error('Lataus epäonnistui (Topic/Kommentit):', err.status, err.message);
         this.isLoading = false; 
         this.hasMoreComments = false;
 
         if (reset) { 
-          this.comments = []; 
+          this.resetState();
         }
       }
     });
+  }
+  
 
+  private resetState(): void {
+    this.comments = [];
+    this.currentOffset = 0;
+    this.hasMoreComments = false;
+    this.topicDetails = null;
+    this.articleTitle = '';
+    this.commentsLocked = false;
+    this.filterFoundMatches = false;
+    this.hideUnmarkedTopLevel = false;
   }
 
   loadMoreComments(): void {
@@ -197,11 +223,12 @@ export class CommentListComponent implements OnInit {
   }  
 
  
-  // Callend when user is typing into article-id inpout field
+  // Called when user is typing into article-id inpout field
   onArticleIdChanged(newValue: string) {
     const rawInput = newValue.trim();
     let newArticleId = rawInput;
     
+    // Tarkistetaan onko syöte URL ja parsitaan siitä ID
     if (rawInput.includes('yle.fi/a/')) {
         const match = rawInput.match(/(\d+-\d+)(?:#.*)?$/);
         if (match && match[1]) {
@@ -211,10 +238,18 @@ export class CommentListComponent implements OnInit {
         }
     }
 
-    if (newArticleId !== this.articleId || (newArticleId === '' && this.articleId !== '')) {
+    const isNewValue = newArticleId !== this.articleId || (newArticleId === '' && this.articleId !== '');
+    const isValidId = newArticleId === '' || this.YLE_ID_REGEX.test(newArticleId);
+
+    if (true || isNewValue) {
       this.isManualInput = true;      
       this.articleId = newArticleId;
-      this.loadComments(true); 
+      
+      if (isValidId) {
+          this.loadComments(true); 
+      } else {
+          this.resetState();
+      }
 
       setTimeout(() => {
           this.isManualInput = false;
@@ -250,7 +285,7 @@ export class CommentListComponent implements OnInit {
 
     this.articleId = discussion.articleId;
     
-    this.loadComments(true); // loadComments gets automatically called due to [(ngModel)] in html
+    this.loadComments(true); 
   }
 
 
