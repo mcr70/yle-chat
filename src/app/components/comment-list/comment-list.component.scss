@@ -145,7 +145,7 @@
 }
 
 .reply-comment {
-  background-color: var(--color-background-primary);//#fff;
+  background-color: var(--color-background-primary);
   padding: 10px;
   margin-top: 10px;
   border: 1px dashed #ddd;
@@ -178,8 +178,8 @@
   text-align: center;
   color: #003780;
 
-  background-color: #eee;
-  border: 1px solid #ccc; 
+  background-color: var(--color-background-primary);
+  border: 1px solid var(--color-border-secondary); 
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s, box-shadow 0.2s;
@@ -225,7 +225,7 @@
     cursor: pointer;
     background-color: #f0f0f0; 
     color: #333; 
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 50%; 
     display: flex;
     align-items: center;

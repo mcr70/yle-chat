@@ -7,7 +7,7 @@
 
 .login-form {
     display: flex;
-    flex-direction: column; // Asettaa kentät ja napin allekkain
+    flex-direction: column; 
     gap: 10px; 
     margin-top: 15px; 
 }
@@ -15,18 +15,18 @@
 
 
 .user-info-container {
-    position: relative; /* Tarvitaan, jotta pudotusvalikko asettuu oikein */
+    position: relative; 
 }
 
 .dropdown-menu {
     position: absolute;
-    top: 100%; /* Sijoita painikkeen alapuolelle */
-    right: 0; /* Kohdista oikealle */
+    top: 100%; 
+    right: 0; 
     background-color: white;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 100; /* Varmista, että näkyy muiden elementtien päällä */
+    z-index: 100; 
     min-width: 150px;
 }
 
@@ -45,12 +45,9 @@
 }
 
 
-/* login-panel.component.scss */
-
-// ... (muut tyylit) ...
 
 .login-modal-overlay {
-    position: fixed; /* Pysyy näytöllä scrollatessa */
+    position: fixed; 
     top: 0;
     left: 0;
     width: 100%;
@@ -64,7 +61,7 @@
 }
 
 .login-form-container {
-    background: var(--color-background-primary);
+    background: var(--color-dialog-background);
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
@@ -81,14 +78,6 @@
     flex-direction: column; 
 }
 
-// .login-form-container form {
-//     background: var(--color-background-primary)
-//     // width: 100%;
-//     // padding: 10px;
-//     // margin-bottom: 15px;
-//     // border: 1px solid #ccc;
-//     // box-sizing: border-box;
-// }
 
 .login-form-container form button[type="submit"] {
     align-self: flex-end; 
@@ -104,13 +93,4 @@
     font-size: 1.5em;
     cursor: pointer;
     color: #333;
-}
-
-
-
-.list-item-header {
-    /* Pakota väri ja koko näkymään testausta varten */
-    color: black !important;
-    font-size: 16px !important;
-    /* Tarkista, näkyykö teksti nyt. Jos näkyy, jokin muu luokka ylikirjoittaa sen. */
 }

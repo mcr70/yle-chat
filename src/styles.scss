@@ -1,13 +1,14 @@
-/* You can add global styles to this file, and also import other style files */
-
-/* src/styles.scss */
 
 :root {
     
     --color-background-primary: #eee;    
-    --color-background-emphasize: #ddd;    
+    --color-background-secondary: #ccc;    
+    --color-background-emphasize: #ddd;
+
     --color-border-primary: #abc; 
     --color-border-secondary: #ccc;
+
+    --color-dialog-background: white;
 
     --color-text-secondary: #777; 
 
@@ -33,12 +34,12 @@
     color: var(--color-brand-primary); 
     
     &:hover {
-        background-color: var(--color-border-secondary); 
+        background-color: var(--color-background-secondary); 
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
     
     &:disabled, &[disabled] {
-        background-color: var(--color-border-secondary);
+        background-color: var(--color-background-secondary);
         color: #666;
         cursor: not-allowed;
         box-shadow: none;
