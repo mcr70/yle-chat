@@ -25,7 +25,7 @@ export class CommentItemComponent {
   @Input() articleId!: string; // Needed to make a like/unlike requests
   @Input() comment!: Comment;
   @Input() level: number = 0; 
-  @Input() isLocked: boolean = false
+  @Input() isLocked: boolean = true
 
   isHoveringReplyButton: boolean = false;  
   pendingReply: PendingReply | null = null;

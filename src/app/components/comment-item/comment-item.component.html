@@ -72,7 +72,9 @@
             *ngFor="let child of comment.children"
             [comment]="child"
             [level]="level + 1"
-            [articleId]="articleId"> </app-comment-item>
+            [isLocked]="isLocked"
+            [articleId]="articleId"> 
+        </app-comment-item>
       </div>  
     </ng-container>
 
