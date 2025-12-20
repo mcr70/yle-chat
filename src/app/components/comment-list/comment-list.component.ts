@@ -119,19 +119,16 @@ export class CommentListComponent implements OnInit {
     const startTime = Date.now();
 
     let topicDetails$: Observable<TopicDetails | undefined> = reset 
-      ? this.loadTopicDetails() 
+      ? this.commentService.getTopicDetails(this.articleId) 
       : of(undefined);
-    
+
     let comments$: Observable<Comment[]>;
 
-    if (reset) {
-      this.comments = [];
-      this.currentOffset = 0;
-      this.hasMoreComments = true;
-    }    
+
+    const fetchOffset = reset ? 0 : this.currentOffset;
 
     console.log(`Load comments for ${this.articleId}, offset ${this.currentOffset}, limit ${this.limit}`);
-    comments$ = this.commentService.getComments(this.articleId, this.currentOffset, this.limit);
+    comments$ = this.commentService.getComments(this.articleId, fetchOffset, this.limit);
 
     const combinedLoad$: Observable<any> = forkJoin({
         details: topicDetails$,
@@ -151,8 +148,20 @@ export class CommentListComponent implements OnInit {
         }
 
         const newComments = response.comments as Comment[];
-        this.comments = [...this.comments, ...newComments];
-        this.currentOffset += newComments.length;
+
+        if (reset) {
+          if (this.comments.length > 0) {
+            this.transferCommentState(this.comments, newComments);
+          }
+
+          this.comments = newComments;
+          this.currentOffset = newComments.length;
+          this.hasMoreComments = true;
+        } 
+        else { // Load more adds into existing list, leaving existing state intact
+          this.comments = [...this.comments, ...newComments];
+          this.currentOffset += newComments.length;
+        }
 
         if (newComments.length < this.limit) {
           this.hasMoreComments = false;
@@ -325,6 +334,44 @@ export class CommentListComponent implements OnInit {
     }
 
     return null; 
+  }
+
+
+  /**
+   * After new comments are loaded, transfer the expanded/collapsed state
+   * of comments from old list to new list based on comment IDs.
+   * 
+   * @param oldComments 
+   * @param newComments 
+   */
+  private transferCommentState(oldComments: Comment[], newComments: Comment[]): void {
+    const expandedStateMap = new Map<string, boolean>();
+
+    const collectState = (list: Comment[]) => {
+      list.forEach(comment => {
+        if (comment.isExpanded !== undefined) {
+          expandedStateMap.set(comment.id, comment.isExpanded);
+        }
+        if (comment.children && comment.children.length > 0) {
+          collectState(comment.children);
+        }
+      });
+    };
+
+    collectState(oldComments);
+
+    const applyState = (list: Comment[]) => {
+      list.forEach(comment => {
+        if (expandedStateMap.has(comment.id)) {
+          comment.isExpanded = expandedStateMap.get(comment.id);
+        }
+        if (comment.children && comment.children.length > 0) {
+          applyState(comment.children);
+        }
+      });
+    };
+
+    applyState(newComments);
   }
 
 }
