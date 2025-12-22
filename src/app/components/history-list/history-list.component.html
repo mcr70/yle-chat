@@ -13,7 +13,7 @@
             <a href="#" 
                 (click)="selectArticle(item); $event.preventDefault()" 
                 title="{{ item.title || item.id }}">
-            {{ item.title || item.id }}
+                {{ item.title || item.id }}
             </a>
                             
             <a [href]="getArticleLink(item.id)" target="_blank" class="article-link-icon"

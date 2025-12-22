@@ -9,57 +9,27 @@
     margin: 0; 
 }
 
-.info-icon {
-    cursor: help; 
-    font-size: 0.8em; 
-    color: #555; 
-}
-
 // -------------------------------------
 
 .history-list { list-style: none; padding: 0; }
 
-/* history-list.component.scss */
-
 .history-list li {
-    display: flex;        /* Käytä Flexboxia asetteluun */
-    align-items: center;  /* Keskittää pystysuunnassa */
+    display: flex;
+    align-items: center;
     padding: 5px 0;
-    
-    /* Tämä koskee LUKUTILAA */
+
     a:first-child { 
-        flex-grow: 1;     /* Sallii otsikon viedä mahdollisimman paljon tilaa */
-        overflow: hidden; /* Estää linkkiä venyttämästä riviä */
+        flex-grow: 1;
+        overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-    }
-}
-
-.edit-icon {
-    cursor: pointer;      /* Osoita, että se on klikattava */
-    font-size: 0.8em;
-    margin: 0 5px;        /* Pieni marginaali linkin ja ulkoisen linkin välissä */
-    flex-shrink: 0;       /* Estää kuvakkeen kutistumisen */
-    opacity: 0.6;
-    transition: opacity 0.2s;
-    transform: scaleX(-1); // Mirror on X-axis
-    color: #003780;
-
-    &:hover {
-        opacity: 1.0;
+        color: var(--color-brand-primary);
     }
 }
 
 
 .article-link-icon {
-    flex-shrink: 0;       /* Estää kuvakkeen kutistumisen */
-}
-
-/* Tyyli muokkaustilaan */
-.edit-title-input {
-    flex-grow: 1;
-    padding: 4px;
-    margin-right: 5px;
+    flex-shrink: 0;
 }
 
 .history-list li a:not(.article-link-icon) {
@@ -69,23 +39,12 @@
 }
 
 .article-link-icon {
-    flex-shrink: 0; /* Estää ikonia kutistumasta */
+    flex-shrink: 0; // Prevent shrinking
     font-size: 1.1em;
     text-decoration: none;
-    color: #0066cc;
-}
-.history-input {
-    flex-grow: 1; 
-    padding: 8px;
+    color: var(--color-brand-primary);
 }
 
-.history-controls .filter-input {
-    display: block; 
-    width: 100%; 
-    margin-bottom: 10px; 
-    padding: 8px;
-    box-sizing: border-box; /* Sisältää paddingin ja reunat leveyteen, jotta se ei ylitä 100% */
-}
 
 .history-list a:hover { text-decoration: underline; }
 .empty-message { color: #888; font-style: italic; font-size: 0.9em; }
