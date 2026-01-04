@@ -62,7 +62,7 @@ resource "aws_lambda_function" "cookie_fix_lambda" {
   function_name    = "CloudFrontCookieFixer"
   role             = aws_iam_role.cookie_fix_lambda_role.arn
   handler          = "index.handler"
-  runtime          = "nodejs20.x"
+  runtime          = "nodejs22.x"
   timeout          = 5 # Smallest possible, changes only headers
 
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
