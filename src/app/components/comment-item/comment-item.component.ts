@@ -2,8 +2,9 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { Comment, CommentService } from '@services/comment.service'; 
-import { Observable, Subscription } from 'rxjs';
+import { CommentService } from '@services/comment.service'; 
+import { Comment } from '@app/models/comment-provider.interface';
+import { Subscription } from 'rxjs';
 
 import { AuthService } from '@services/auth.service';
 import { PendingReplyService, PendingReply } from '@services/pending-reply.service'; // ⭐ UUSI IMPORT ⭐
@@ -47,6 +48,8 @@ export class CommentItemComponent {
     this.authSubscription = this.authService.isLoggedIn$.subscribe(isLoggedIn => {
       this.isLoggedIn = isLoggedIn;
     });
+
+    console.log('Comment item initialized:', this.comment);
   }
 
 

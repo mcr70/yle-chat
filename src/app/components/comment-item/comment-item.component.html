@@ -27,10 +27,10 @@
         
         <div class="comment-actions">    
             <button 
-                *ngIf="comment.children && comment.children.length > 0"
+                *ngIf="comment.replies && comment.replies.length > 0"
                 (click)="toggleReplies()"
                 class="toggle-button">
-                {{ comment.isExpanded ? 'Piilota vastaukset ▲' : 'Näytä ' + comment.children.length + ' vastausta ▼' }}
+                {{ comment.isExpanded ? 'Piilota vastaukset ▲' : 'Näytä ' + comment.replies.length + ' vastausta ▼' }}
             </button>
             
             <div class="reply-group">
@@ -69,7 +69,7 @@
     <ng-container *ngIf="comment.isExpanded">
       <div class="replies-wrapper">
         <app-comment-item 
-            *ngFor="let child of comment.children"
+            *ngFor="let child of comment.replies"
             [comment]="child"
             [level]="level + 1"
             [isLocked]="isLocked"

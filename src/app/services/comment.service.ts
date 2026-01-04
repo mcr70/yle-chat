@@ -43,28 +43,21 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { TopicDetails, Comment } from '@app/models/comment-provider.interface';
 
-export interface TopicDetails {
-  title: string;
-  isLocked: boolean;
-  acceptedCommentsCount: number;
-  externalId: string;
-}
-
-export interface Comment {
+// getComment response interface
+interface ApiComment {
   id: string;
   author: string;
   content: string;
   likes: number;
   createdAt: string;
-  children: Comment[]; 
-  parentId: string | null; 
-  topCommentId: string; 
-  isExpanded?: boolean;
-  isLiked: boolean
-
-  hasNickname?: boolean; // Marks if comment matches nickname filter
+  children?: ApiComment[];
+  parentId: string | null;
+  topCommentId: string;
+  isLiked: boolean;
 }
+
 
 interface ReplyPayload {
     content: string;
@@ -112,6 +105,7 @@ export class CommentService {
           map(data => {
               const details: TopicDetails = {
                   title: data.title,
+                  articleLink: `https://yle.fi/a/${articleId}#comments`,
                   isLocked: data.isLocked,
                   acceptedCommentsCount: data.acceptedCommentsCount,
                   externalId: data.externalId 
@@ -134,14 +128,13 @@ export class CommentService {
         return of([]); 
     }
 
-
     const commentsUrl = this.BASE_URL_TEMPLATE.replace('{articleId}', articleId) + '/accepted';
     
     let commentsParams = new HttpParams({ fromObject: this.defaultGetParams });
     commentsParams = commentsParams.set('limit', limit.toString());
     commentsParams = commentsParams.set('offset', offset.toString());
 
-    const commentsApi$ = this.http.get<Comment[]>(commentsUrl, { 
+    const apiComments$ = this.http.get<ApiComment[]>(commentsUrl, { 
         params: commentsParams, 
         withCredentials: true 
     });
@@ -149,20 +142,20 @@ export class CommentService {
     const likedIds$ = this.getLikedCommentIds(articleId);
 
     return forkJoin({
-        commentsData: commentsApi$,  // actual comments
-        likedIds: likedIds$          // liked comments
+        comments: apiComments$,  // actual comments
+        likedIds: likedIds$      // liked comments
     }).pipe(
         map((results) => {
             const likedSet = new Set(results.likedIds);
             
-            let commentsTree = this.buildCommentTree(results.commentsData);
+            let commentsTree = this.buildCommentTree(results.comments);
 
             const markCommentsAsLiked = (cmts: Comment[]): Comment[] => {
                 return cmts.map(comment => {
                     comment.isLiked = likedSet.has(comment.id); 
                     
-                    if (comment.children && comment.children.length > 0) {
-                        comment.children = markCommentsAsLiked(comment.children);
+                    if (comment.replies && comment.replies.length > 0) {
+                        comment.replies = markCommentsAsLiked(comment.replies);
                     }
                     return comment;
                 });
@@ -175,7 +168,7 @@ export class CommentService {
 
 
   /**
-   * Likes an article
+   * Likes a comment
    * 
    * @param articleId
    * @param commentId 
@@ -256,24 +249,37 @@ export class CommentService {
   /**
    * Flattens a nested comment structure into a flat list.
    */
-  private flattenComments(comments: Comment[]): Comment[] {
+  private flattenComments(apiComments: ApiComment[]): Comment[] {
     const flatList: Comment[] = [];
 
-    comments.forEach(comment => {
+    apiComments.forEach(api => {
+      const comment: Comment = {
+        id: api.id,
+        author: api.author,
+        content: api.content,
+        likes: api.likes,
+        createdAt: api.createdAt,
+        parentId: api.parentId,
+        topCommentId: api.topCommentId,
+        isLiked: api.isLiked,
+        replies: []
+      };
+
       flatList.push(comment);
-      if (comment.children && comment.children.length > 0) {
-        flatList.push(...this.flattenComments(comment.children));
+
+      if (api.children?.length) {
+        flatList.push(...this.flattenComments(api.children));
       }
-      comment.children = []; 
     });
 
     return flatList;
   }
 
+
   /**
    * Builds a hierarchical comment tree from a flat list of comments.
    */
-  private buildCommentTree(apiData: Comment[]): Comment[] {
+  private buildCommentTree(apiData: ApiComment[]): Comment[] {
     const allComments = this.flattenComments(apiData);
     
     const commentMap = new Map<string, Comment>();
@@ -290,7 +296,7 @@ export class CommentService {
         const parent = commentMap.get(parentId);
         
         if (parent) {
-          parent.children.push(comment);
+          parent.replies.push(comment);
         } else {
           tree.push(comment); // parent not found, treat as top-level
         }
@@ -307,8 +313,8 @@ export class CommentService {
     for (const comment of comments) {
       comment.hasNickname = false;
 
-      if (comment.children?.length) {
-        this.clearNicknameFlags(comment.children);
+      if (comment.replies?.length) {
+        this.clearNicknameFlags(comment.replies);
       }
     }
   }
@@ -323,8 +329,8 @@ export class CommentService {
         const ownMatch = comment.author
             && comment.author.toLowerCase().startsWith(lowercasedNickname);
 
-        const childMatch = comment.children?.length
-            ? this.markRecursive(comment.children, nickname)
+        const childMatch = comment.replies?.length
+            ? this.markRecursive(comment.replies, nickname)
             : false;
             
         comment.hasNickname = ownMatch || childMatch; // set flag if current comment or child matches

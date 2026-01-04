@@ -5,7 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Observable, forkJoin, of } from 'rxjs';
 
-import { TopicDetails, Comment, CommentService } from '@services/comment.service';
+import { CommentService } from '@services/comment.service';
+import { Comment, TopicDetails } from '@app/models/comment-provider.interface';
 import { CommentItemComponent } from '@components/comment-item/comment-item.component';
 import { MyDiscussionsComponent } from '@components/my-discussions/my-discussions.component';
 
@@ -296,8 +297,8 @@ export class CommentListComponent implements OnInit {
     const findReplyIds = (comments: Comment[]) => {
       for (const comment of comments) {
         loadedReplyIds.add(comment.id);
-        if (comment.children) {
-            findReplyIds(comment.children);
+        if (comment.replies) {
+            findReplyIds(comment.replies);
         }
       }
     };
@@ -352,8 +353,8 @@ export class CommentListComponent implements OnInit {
         if (comment.isExpanded !== undefined) {
           expandedStateMap.set(comment.id, comment.isExpanded);
         }
-        if (comment.children && comment.children.length > 0) {
-          collectState(comment.children);
+        if (comment.replies && comment.replies.length > 0) {
+          collectState(comment.replies);
         }
       });
     };
@@ -365,8 +366,8 @@ export class CommentListComponent implements OnInit {
         if (expandedStateMap.has(comment.id)) {
           comment.isExpanded = expandedStateMap.get(comment.id);
         }
-        if (comment.children && comment.children.length > 0) {
-          applyState(comment.children);
+        if (comment.replies && comment.replies.length > 0) {
+          applyState(comment.replies);
         }
       });
     };

@@ -44,9 +44,4 @@ export class HistoryListComponent implements OnInit {
     selectArticle(item: ArticleHistoryItem): void {
         this.articleSelected.emit(item);
     }
-
-
-    getArticleLink(articleId: string) {
-        return `https://yle.fi/a/${articleId}#comments`;
-    }
 }
