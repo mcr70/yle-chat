@@ -1,6 +1,6 @@
 :host {
-    display: block; 
-    margin-bottom: 10px; 
+    display: flex;
+    align-items: center;
 }
 
 // ------------------------------------------------------------------------------
@@ -76,6 +76,7 @@
 .login-form-container form {
     display: flex;
     flex-direction: column; 
+    gap: 15px;
 }
 
 

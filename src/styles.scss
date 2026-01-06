@@ -20,18 +20,38 @@
     --common-border-radius: 10px;
 }
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+// * { // For debugging styles
+//   outline: 1px solid red !important;
+// }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  //overflow-x: hidden; /* Estää sivuittais-skrollauksen */
+}
+
 
 .yle-button {
-    padding: 8px 15px;
+    display: inline-flex; 
+    align-items: center;
+    text-align: center;
+    align-self: center;
+    justify-content: center;
+    padding: 8px 16px;
+
     font-size: 1em;
     font-weight: bold;
-    text-align: center;
+
     border: 1px solid var(--color-border-secondary);
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.2s, box-shadow 0.2s, opacity 0.2s;
-    margin-top: 15px; 
-    display: block; 
+    margin: 0;
 
     background-color: var(--color-background-primary);
     color: var(--color-brand-primary); 
@@ -82,4 +102,17 @@
         outline: none;
         box-shadow: 0 0 0 3px var(--color-shadow-focus);
     }
+}
+
+// for smaller screens
+@media screen and (max-width: 600px) {
+  body {
+    font-family: sans-serif;
+  }
+
+  .yle-input, .yle-button {
+    min-height: 48px;
+    font-size: 1rem;
+    padding: 0 15px;
+  }  
 }

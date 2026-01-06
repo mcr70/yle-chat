@@ -11,7 +11,11 @@
 .child-comment-item {
     padding-left: 30px; // indentation
     margin-top: 0; 
-}
+
+    @media screen and (max-width: 600px) {
+        padding-left: 20px; 
+    }
+}    
 
 .replies-wrapper {
     margin-top: 10px; 
