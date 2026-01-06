@@ -41,9 +41,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
-import { TopicDetails, Comment } from '@app/models/comment-provider.interface';
+import { TopicDetails, Comment, CommentProvider } from '@app/models/comment-provider.interface';
 
 // getComment response interface
 interface ApiComment {
@@ -68,7 +68,7 @@ interface ReplyPayload {
 @Injectable({
   providedIn: 'root'
 })
-export class CommentService {
+export class YleCommentService implements CommentProvider {
   private commonParams = {
     app_id: 'yle-comments-plugin',
     app_key: 'sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D'
@@ -123,7 +123,7 @@ export class CommentService {
    * @param limit  number of comments to fetch (max 20)
    * @returns 
    */
-  getComments(articleId: string, offset: number, limit: number): Observable<Comment[]> {
+  getComments(articleId: string, offset: number | string, limit: number): Observable<Comment[]> {
     if (!articleId || articleId.trim().length === 0) {
         return of([]); 
     }
@@ -203,7 +203,7 @@ export class CommentService {
    * @param commentId 
    * @returns 
    */
-  postReply(articleId: string, content: string, commentId: string): Observable<any> {
+  postComment(articleId: string, content: string, commentId: string): Observable<any> {
     
     if (!articleId || !content || !commentId) {
         return throwError(() => new Error('Puuttuvat tiedot vastauksen lähettämiseen.'));
@@ -347,6 +347,8 @@ export class CommentService {
   // Get the comment ids User has liked
   private getLikedCommentIds(articleId: string): Observable<string[]> {
     const url = this.LIKED_COMMENTS_URL_TEMPLATE.replace('{articleId}', articleId);
-    return this.http.get<string[]>(url, { params: this.defaultGetParams, withCredentials: true });
-  }  
+    return this.http.get<string[]>(url, { params: this.defaultGetParams, withCredentials: true }).pipe(
+      catchError(() => of([])) // On error, return empty list
+    );
+  }
 }

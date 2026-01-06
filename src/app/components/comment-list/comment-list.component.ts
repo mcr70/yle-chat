@@ -5,8 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Observable, forkJoin, of } from 'rxjs';
 
-import { CommentService } from '@services/comment.service';
-import { Comment, TopicDetails } from '@app/models/comment-provider.interface';
+import { Comment, CommentProvider, TopicDetails } from '@app/models/comment-provider.interface';
 import { CommentItemComponent } from '@components/comment-item/comment-item.component';
 import { MyDiscussionsComponent } from '@components/my-discussions/my-discussions.component';
 
@@ -16,6 +15,7 @@ import { LoginPanelComponent } from '@components/login-panel/login-panel.compone
 import { GroupedDiscussion } from '@services/yle-history.service';
 import { AuthService } from '@services/auth.service';
 import { PendingReplyService } from '@services/pending-reply.service';
+import { CommentServiceManager } from '@app/services/comment-service-manager.service';
 
 
 @Component({
@@ -32,8 +32,8 @@ export class CommentListComponent implements OnInit {
 
   @ViewChild(HistoryListComponent) historyListComponent!: HistoryListComponent;
 
-  private readonly YLE_ID_REGEX = /^\d{2}-\d{8}$/
-
+  private provider!: CommentProvider;
+  
   private isManualInput = false;
 
   articleId: string = ''
@@ -57,7 +57,8 @@ export class CommentListComponent implements OnInit {
   private filterFoundMatches: boolean = false;
 
   constructor(
-    private commentService: CommentService,
+    private serviceManager: CommentServiceManager,
+    //private commentService: YleCommentService,
     private historyService: HistoryService,
     private authService: AuthService,
     private pendingReplyService: PendingReplyService,
@@ -72,6 +73,8 @@ export class CommentListComponent implements OnInit {
 
       if (idFromUrl) {
         this.articleId = idFromUrl;
+        this.provider = this.serviceManager.getProvider(this.articleId);
+
         this.loadComments(true);
       } 
       else {
@@ -80,8 +83,9 @@ export class CommentListComponent implements OnInit {
         
         if (history && history.length > 0) {
           const latestArticle = history[0];
-          this.articleId = latestArticle.id;
           this.articleTitle = latestArticle.title || '';
+          this.articleId = latestArticle.id;
+          this.provider = this.serviceManager.getProvider(this.articleId);
 
           this.loadComments(true); 
         }
@@ -105,7 +109,7 @@ export class CommentListComponent implements OnInit {
     this.commentsLocked = false;
     
     console.log(`Load topic details for ${this.articleId}`)
-    return this.commentService.getTopicDetails(this.articleId);
+    return this.provider.getTopicDetails(this.articleId);
   }
 
 
@@ -120,7 +124,7 @@ export class CommentListComponent implements OnInit {
     const startTime = Date.now();
 
     let topicDetails$: Observable<TopicDetails | undefined> = reset 
-      ? this.commentService.getTopicDetails(this.articleId) 
+      ? this.provider.getTopicDetails(this.articleId) 
       : of(undefined);
 
     let comments$: Observable<Comment[]>;
@@ -129,7 +133,7 @@ export class CommentListComponent implements OnInit {
     const fetchOffset = reset ? 0 : this.currentOffset;
 
     console.log(`Load comments for ${this.articleId}, offset ${this.currentOffset}, limit ${this.limit}`);
-    comments$ = this.commentService.getComments(this.articleId, fetchOffset, this.limit);
+    comments$ = this.provider.getComments(this.articleId, fetchOffset, this.limit);
 
     const combinedLoad$: Observable<any> = forkJoin({
         details: topicDetails$,
@@ -169,7 +173,7 @@ export class CommentListComponent implements OnInit {
         }
         
         if (this.nicknameFilter.trim().length > 0) {
-          this.commentService.markNickname(this.comments, this.nicknameFilter);
+          this.provider.markNickname(this.comments, this.nicknameFilter);
         }        
 
         const endTime = Date.now();
@@ -218,7 +222,7 @@ export class CommentListComponent implements OnInit {
 
   onNicknameChanged(value: string): void {
     this.nicknameFilter = value;
-    this.commentService.markNickname(this.comments, value);
+    this.provider.markNickname(this.comments, value);
 
     this.filterFoundMatches = this.comments.some(comment => 
       comment.hasNickname === true

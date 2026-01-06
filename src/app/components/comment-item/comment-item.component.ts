@@ -2,12 +2,12 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { CommentService } from '@services/comment.service'; 
-import { Comment } from '@app/models/comment-provider.interface';
+import { Comment, CommentProvider } from '@app/models/comment-provider.interface';
 import { Subscription } from 'rxjs';
 
 import { AuthService } from '@services/auth.service';
-import { PendingReplyService, PendingReply } from '@services/pending-reply.service'; // ⭐ UUSI IMPORT ⭐
+import { PendingReplyService, PendingReply } from '@services/pending-reply.service'; 
+import { CommentServiceManager } from '@app/services/comment-service-manager.service';
 
 @Component({
   selector: 'app-comment-item',
@@ -17,28 +17,32 @@ import { PendingReplyService, PendingReply } from '@services/pending-reply.servi
   imports: [ CommonModule, FormsModule ] 
 })
 export class CommentItemComponent {
-  isLoggedIn: boolean = false;
-  isReplying: boolean = false;
-  replyText: string = '';
 
   private authSubscription: Subscription | undefined;
+  private provider!: CommentProvider;
 
   @Input() articleId!: string; // Needed to make a like/unlike requests
   @Input() comment!: Comment;
   @Input() level: number = 0; 
   @Input() isLocked: boolean = true
 
+  isLoggedIn: boolean = false;
+  isReplying: boolean = false;
+  replyText: string = '';
+
   isHoveringReplyButton: boolean = false;  
   pendingReply: PendingReply | null = null;
 
   constructor(
-    private commentService: CommentService,
+    private serviceManager: CommentServiceManager,
     private authService: AuthService,
     private pendingReplyService: PendingReplyService
   ) { }
 
 
   ngOnInit(): void {
+    this.provider = this.serviceManager.getProvider(this.articleId);
+
     if (this.comment.isExpanded === undefined) {
       this.comment.isExpanded = false;
     }
@@ -49,7 +53,6 @@ export class CommentItemComponent {
       this.isLoggedIn = isLoggedIn;
     });
 
-    console.log('Comment item initialized:', this.comment);
   }
 
 
@@ -67,7 +70,7 @@ export class CommentItemComponent {
     const commentId = this.comment.id;
 
     if (this.comment.isLiked) { // Unlike
-      this.commentService.unlikeComment(articleId, commentId)
+      this.provider.unlikeComment(articleId, commentId)
         .subscribe({
           next: () => {
             this.comment.isLiked = false;
@@ -80,7 +83,7 @@ export class CommentItemComponent {
         });
     } 
     else { // Like
-      this.commentService.likeComment(articleId, commentId)
+      this.provider.likeComment(articleId, commentId)
         .subscribe({
           next: () => {
             this.comment.isLiked = true;
@@ -123,7 +126,7 @@ export class CommentItemComponent {
 
     const parentId = this.comment.id;
     
-    this.commentService.postReply(this.articleId, this.replyText, parentId).subscribe({
+    this.provider.postComment(this.articleId, this.replyText, parentId).subscribe({
       next: (newCommentData) => {
         console.log('Reply sent, got response:', newCommentData);
         

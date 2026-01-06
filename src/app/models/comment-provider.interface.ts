@@ -50,7 +50,7 @@ export interface CommentProvider {
    * @param topicId
    * @param commentId 
    */
-  likeComment?(topicId: string, commentId: string): void;
+  likeComment(topicId: string, commentId: string): Observable<any>;
 
   /**
    * Unlikes a comment
@@ -58,7 +58,7 @@ export interface CommentProvider {
    * @param topicId
    * @param commentId 
    */
-  unlikeComment?(topicId: string, commentId: string): void;
+  unlikeComment(topicId: string, commentId: string): Observable<any>;
 
   /**
    * Posts a reply to a comment
@@ -68,5 +68,13 @@ export interface CommentProvider {
    * @param parentId 
    * @returns 
    */
-  postComment?(topicId: string, content: string, parentId?: string): Observable<any>;
+  postComment(topicId: string, content: string, parentId?: string): Observable<any>;
+
+  /**
+   * Marks comments that match the given nickname.
+   * 
+   * @param comments 
+   * @param nickname 
+   */
+  markNickname(comments: Comment[], nickname: string | null): void;
 }
