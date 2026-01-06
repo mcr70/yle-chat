@@ -19,14 +19,16 @@
         
         <form (ngSubmit)="submitLogin()">
             <label for="username">Käyttäjätunnus:</label>
-            <input class="yle-input" type="text" id="username" [(ngModel)]="loginUsername" name="username" required>            
+            <input class="yle-input" type="text" id="username" [(ngModel)]="loginUsername" 
+                name="username" autocomplete="username" autocapitalize="none" spellcheck="false"required>
             
             <label for="password">Salasana:</label>
-            <input class="yle-input" type="password" id="password" [(ngModel)]="loginPassword" name="password" required>
+            <input class="yle-input" type="password" id="password" [(ngModel)]="loginPassword" 
+                name="password" autocomplete="current-password" required>
             
             <button type="submit" class="yle-button">
                 Kirjaudu
             </button>
-            </form>
+        </form>
     </div>
 </div>
