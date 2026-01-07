@@ -56,11 +56,10 @@
 
 
 .sidebar {
-    position: relative; // Tarvitaan resizerin asemointiin
+    position: relative;
     flex-shrink: 0; 
     border-right: 1px solid #ddd;
     padding-right: 20px;
-    // Poista kiinteä width-määritys täältä, koska se tulee nyt HTML-puolelta
 
     @media screen and (max-width: 600px){
       display: none;
@@ -70,13 +69,12 @@
 .sidebar-resizer {
     position: absolute;
     top: 0;
-    right: -5px;      /* Puoliksi sidebarin, puoliksi sisällön päällä */
-    width: 10px;      /* Tarpeeksi leveä, jotta siihen on helppo osua */
-    height: 100%;     /* Koko korkeus ylhäältä alas */
+    right: -5px;
+    width: 10px;
+    height: 100%;
     cursor: col-resize;
-    z-index: 10;      /* Varmistetaan, että on muiden päällä */
+    z-index: 10;
     
-    // Vapaaehtoinen: Näytä pieni korostus, kun hiiri on päällä
     &:hover {
         background-color: rgba(0, 55, 128, 0.05);
     }

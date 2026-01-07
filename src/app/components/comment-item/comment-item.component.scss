@@ -78,6 +78,15 @@
 }
 
 // ------------------------------------------------------
+.likes-container {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    
+    font-weight: bold;
+    color: #2d5e1c;
+}
 
 .like-button {
     color: gray; 

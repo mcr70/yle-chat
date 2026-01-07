@@ -8,7 +8,7 @@
                 <span class="author-date"> {{ formatDate(comment.createdAt) }}</span>
             </div>
             
-            <div class="like-container">
+            <div class="likes-container">
                 <button 
                     *ngIf="isLoggedIn"
                     (click)="toggleLike()" 
