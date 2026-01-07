@@ -41,7 +41,7 @@
 .content-wrapper {
   display: flex; 
   flex-grow: 1; 
-  gap: 30px; 
+  //gap: 20px; 
   padding: 20px;
   width: 100%; 
 
@@ -139,8 +139,8 @@
 // ------------------------------------------------------
 
 .comment-container {
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 100%;
+  padding-left: 20px;
 
   @media screen and (max-width: 600px) {
     max-width: 100%;
