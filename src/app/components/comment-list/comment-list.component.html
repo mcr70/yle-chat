@@ -6,8 +6,7 @@
   </header>  
 
   <div class="content-wrapper">
-    <div class="sidebar">
-
+    <div class="sidebar" [style.width.px]="sidebarWidth">
       <app-my-discussions
         (discussionSelected)="handleDiscussionSelected($event)"      
         (articleIdFilterChange)="onArticleIdChanged($event)">
@@ -17,6 +16,8 @@
           [articleIdFilter]="articleId"
           (articleSelected)="handleArticleSelected($event)">
       </app-history-list>
+
+      <div class="sidebar-resizer" (mousedown)="startResizing($event)"></div>
     </div>
 
     <div class="comment-section">

@@ -36,6 +36,8 @@ export class CommentListComponent implements OnInit {
   
   private isManualInput = false;
 
+  sidebarWidth = 320; // Default width of the sidebar in pixels
+
   articleId: string = ''
   articleTitle: string = '';
 
@@ -290,7 +292,35 @@ export class CommentListComponent implements OnInit {
     }
     
     this.router.navigate(['/comments', discussion.articleId]);
-}
+  }
+
+
+  startResizing(event: MouseEvent) {
+    event.preventDefault();
+
+    const startX = event.clientX;
+    const startWidth = this.sidebarWidth;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const currentWidth = startWidth + (moveEvent.clientX - startX);
+      
+      if (currentWidth >= 150 && currentWidth <= 500) {
+        this.sidebarWidth = currentWidth;
+      }
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = 'default';
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    document.body.style.cursor = 'col-resize';
+  }  
+
+
 
   private cleanupPendingReplies(): void {
     const pendingReplies = this.pendingReplyService.getPendingRepliesForArticle(this.articleId);
@@ -378,5 +408,8 @@ export class CommentListComponent implements OnInit {
 
     applyState(newComments);
   }
+
+
+
 
 }

@@ -56,16 +56,31 @@
 
 
 .sidebar {
-    width: 250px;  
+    position: relative; // Tarvitaan resizerin asemointiin
     flex-shrink: 0; 
     border-right: 1px solid #ddd;
     padding-right: 20px;
+    // Poista kiinteä width-määritys täältä, koska se tulee nyt HTML-puolelta
 
     @media screen and (max-width: 600px){
-      display: none; // hide sidebar on mobile
+      display: none;
     }
 }
 
+.sidebar-resizer {
+    position: absolute;
+    top: 0;
+    right: -5px;      /* Puoliksi sidebarin, puoliksi sisällön päällä */
+    width: 10px;      /* Tarpeeksi leveä, jotta siihen on helppo osua */
+    height: 100%;     /* Koko korkeus ylhäältä alas */
+    cursor: col-resize;
+    z-index: 10;      /* Varmistetaan, että on muiden päällä */
+    
+    // Vapaaehtoinen: Näytä pieni korostus, kun hiiri on päällä
+    &:hover {
+        background-color: rgba(0, 55, 128, 0.05);
+    }
+}
 
 .comment-controls-top {
     display: flex;
