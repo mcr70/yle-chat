@@ -28,6 +28,7 @@
     @media screen and (max-width: 600px) {
       width: 100%;
       align-items: center;
+      padding: 0 5px; // padding left and right
     }
 }
 
@@ -172,7 +173,7 @@
 
 .comment-date, .reply-date {
   font-size: 0.8em;
-  color: --color-text-secondary(--color-text-secondary);
+  color: var(--color-text-secondary);
   margin-bottom: 10px;
 }
 
@@ -314,6 +315,74 @@
     animation: spin 1.2s linear infinite;
     display: inline-block;
     padding: 0px 4px;    
+}
+
+// ------------------------------------------------------
+// Sidebar for mobile view
+.menu-toggle-btn {
+  display: none;     // By default hidden (on desktop)
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: var(--color-brand-primary);
+  gap: 8px;
+  align-items: center;
+}
+
+@media screen and (max-width: 600px) {
+  .menu-toggle-btn {
+    display: flex;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;   // Initially hidden off-screen
+    height: 100%;
+    width: 80% !important; 
+
+    background: white;
+    z-index: 1000;
+    transition: left 0.3s ease-in-out; // Smooth slide
+    padding: 20px;
+    box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+    display: block !important; 
+    overflow-y: auto;
+    
+    &.mobile-open {
+      left: 0; // Slide in when open
+    }
+  }
+
+  .sidebar-resizer {
+    display: none; // Disable resizing on mobile
+  }
+
+  .mobile-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 2rem;
+    background: none;
+    border: none;
+  }
+}
+
+
+.sidebar-overlay {
+    display: none; // hidden by default (on desktop)
+
+    @media screen and (max-width: 600px) {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4); // semi-transparent
+        z-index: 999; // below sidebar
+    }
 }
 
 // ------------------------------------------------------

@@ -37,6 +37,7 @@ export class CommentListComponent implements OnInit {
   private isManualInput = false;
 
   sidebarWidth = 320; // Default width of the sidebar in pixels
+  isMobileMenuOpen = false; // For mobile view sidebar toggle
 
   articleId: string = ''
   articleTitle: string = '';
@@ -249,6 +250,11 @@ export class CommentListComponent implements OnInit {
     return this.filterFoundMatches;
   }  
 
+  // Toggle mobile menu visibility
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    document.body.style.overflow = this.isMobileMenuOpen ? 'hidden' : 'auto'; // Prevent background scrolling when menu is open
+  }  
  
   // Called when user is typing into article-id inpout field
   onArticleIdChanged(rawInput: string): void {
@@ -279,8 +285,10 @@ export class CommentListComponent implements OnInit {
       return; 
     }    
 
-    this.router.navigate(['/comments', articleData.id]);
+    this.isMobileMenuOpen = false; // Close mobile menu if open
+    document.body.style.overflow = 'auto'; 
 
+    this.router.navigate(['/comments', articleData.id]);
   }
 
 
@@ -290,6 +298,9 @@ export class CommentListComponent implements OnInit {
       this.articleId = discussion.articleId;
       return; 
     }
+
+    this.isMobileMenuOpen = false; // Close mobile menu if open
+    document.body.style.overflow = 'auto'; 
     
     this.router.navigate(['/comments', discussion.articleId]);
   }

@@ -1,12 +1,21 @@
 <div class="main-layout-container">
 
   <header class="main-toolbar">
+    <button class="menu-toggle-btn" (click)="toggleMobileMenu()">☰</button>
+
     <h1 class="app-title">Yle kommentointi</h1>
     <app-login-panel></app-login-panel>
   </header>  
 
   <div class="content-wrapper">
-    <div class="sidebar" [style.width.px]="sidebarWidth">
+    <div class="sidebar-overlay" *ngIf="isMobileMenuOpen" 
+        (click)="toggleMobileMenu()">
+    </div>
+
+    <div class="sidebar" 
+      [class.mobile-open]="isMobileMenuOpen"
+      [style.width.px]="sidebarWidth">
+
       <app-my-discussions
         (discussionSelected)="handleDiscussionSelected($event)"      
         (articleIdFilterChange)="onArticleIdChanged($event)">
