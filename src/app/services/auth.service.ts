@@ -17,8 +17,17 @@ export class AuthService {
   private loggedInSubject = new BehaviorSubject<boolean>(false);
   isLoggedIn$ = this.loggedInSubject.asObservable();
   
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.restoreSession();
+  }
 
+
+  /**
+   * Login user with username and password
+   * @param username 
+   * @param password 
+   * @returns 
+   */
   login(username: string, password: string): Observable<any> {
     const url = `${this.LOGIN_PROXY_PREFIX}/v1/user/login?${this.APP_PARAMS}`;
     
@@ -38,19 +47,30 @@ export class AuthService {
         if (response.status === 200 || response.status === 204) {
           this.loggedInSubject.next(true);
           this.userSubject.next(username)
+
+          localStorage.setItem('isLoggedInFlag', 'true');
         }
         else {
           console.log("Problems in login", response.status);
+          localStorage.setItem('isLoggedInFlag', 'true');
         }
       }),
       catchError(error => {
         this.loggedInSubject.next(false);
         console.warn('failed to login');
+        localStorage.setItem('isLoggedInFlag', 'false');
+
         return of(null);
       })
     );
   }
 
+
+  /**
+   * Logs user out
+   * 
+   * @returns 
+   */
   logout(): Observable<any> {
     const url = `${this.LOGIN_PROXY_PREFIX}/v1/user/login?${this.APP_PARAMS}`;
 
@@ -60,11 +80,24 @@ export class AuthService {
     }).pipe(
       tap(response => {
         this.loggedInSubject.next(false);
+        localStorage.removeItem('isLoggedInFlag');
       }),
       catchError(error => {
         this.loggedInSubject.next(false);
+        localStorage.removeItem('isLoggedInFlag');
+
         return of(null);
       })
     );
   }
+
+
+
+  private restoreSession() {
+    const wasLoggedIn = localStorage.getItem('isLoggedInFlag') === 'true';
+    if (wasLoggedIn) {
+      this.loggedInSubject.next(true);
+    }
+  }
+
 }
