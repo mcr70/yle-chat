@@ -150,6 +150,34 @@
   min-width: 0;
 }
 
+.hide-control {
+    display: flex; 
+    align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    input {
+        margin-right: 5px;
+        
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    }
+}
+
+
+.nickname-filter-container {
+    display: flex; 
+    align-items: center; 
+    gap: 10px;
+    width: 100%;
+
+    .filter-input {
+        flex: 1;
+        min-width: 0;
+    }
+}
 // ------------------------------------------------------
 
 .comment-container {
@@ -252,19 +280,6 @@
 
 
 
-.hide-control {
-    display: flex; 
-    align-items: center; 
-}
-
-.hide-control input {
-    margin-right: 5px;
-}
-
-.hide-control input:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-}
 
 .disabled-label {
     color: #999;

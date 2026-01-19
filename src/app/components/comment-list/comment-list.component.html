@@ -44,6 +44,14 @@
                 (suljettu)
               </span>
             </h3>
+
+            <button class="refresh-button" title="{{ isLoading ? 'Ladataan...' : 'Päivitä kommentit' }}"
+              (click)="loadComments(true)" 
+              [disabled]="isLoading">
+            
+              <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
+            </button>
+
           </div>
           
         </div>
@@ -58,28 +66,22 @@
                 (ngModelChange)="onArticleIdChanged($event)"
               />
 
-              <input type="text" placeholder="Suodata nimimerkillä..." class="yle-input filter-input"
-                [value]="nicknameFilter"
-                (input)="onNicknameChanged($any($event.target).value)"
-              />
-
-              <div class="hide-control">
-                <input type="checkbox" id="hideUnmarked" 
-                  [checked]="hideUnmarkedTopLevel"
-                  (change)="hideUnmarkedTopLevel = $any($event.target).checked"
-                  [disabled]="!isHideUnmarkedEnabled" 
+              <div class="nickname-filter-container">
+                <input type="text" placeholder="Suodata nimimerkillä..." class="yle-input filter-input"
+                  [value]="nicknameFilter"
+                  (input)="onNicknameChanged($any($event.target).value)"
                 />
-                <label 
-                  for="hideUnmarked" [class.disabled-label]="!isHideUnmarkedEnabled">Piilota muut</label>
+
+                <div class="hide-control">
+                  <input type="checkbox" id="hideUnmarked" 
+                    [checked]="hideUnmarkedTopLevel"
+                    (change)="hideUnmarkedTopLevel = $any($event.target).checked"
+                    [disabled]="!isHideUnmarkedEnabled" 
+                  />
+                  <label 
+                    for="hideUnmarked" [class.disabled-label]="!isHideUnmarkedEnabled">Piilota muut</label>
+                </div>
               </div>
-
-              <button class="refresh-button" title="{{ isLoading ? 'Ladataan...' : 'Päivitä kommentit' }}"
-                (click)="loadComments(true)" 
-                [disabled]="isLoading">
-              
-                <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
-              </button>
-
           </div>
         </div>
           
