@@ -14,6 +14,7 @@ import { HistoryService, ArticleHistoryItem } from '@services/history.service';
 export class HistoryListComponent implements OnInit {
     
     historyItems: ArticleHistoryItem[] = [];
+    displayLimit = 10; // Limit for displayed history items
 
     @Input() articleIdFilter: string = ''; 
     @Output() articleSelected = new EventEmitter<ArticleHistoryItem>(); 

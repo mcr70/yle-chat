@@ -8,7 +8,7 @@
     <p *ngIf="!historyItems.length">Ei katsottua historiaa.</p>
 
     <ul class="history-list">
-        <li *ngFor="let item of historyItems">            
+        <li *ngFor="let item of historyItems | slice:0:displayLimit">            
             <a href="#" 
                 (click)="selectArticle(item); $event.preventDefault()" 
                 title="{{ item.title || item.id }}">
@@ -16,4 +16,11 @@
             </a>
         </li>
     </ul>
+
+    <button *ngIf="historyItems.length > displayLimit" 
+        (click)="displayLimit = displayLimit + 10" 
+        class="load-more-button">
+    Näytä lisää
+    </button>
+
 </div>
