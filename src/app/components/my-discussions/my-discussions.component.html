@@ -23,7 +23,7 @@
       <p *ngIf="!discussions.length && !(isLoading$ | async)">Ei kommentoitua historiaa.</p>
 
       <ul class="history-list">
-        <li *ngFor="let item of discussions">
+        <li *ngFor="let item of discussions | slice:0:displayLimit">
           <div class="list-item-header"> 
               
               <a href="#" 
@@ -43,6 +43,11 @@
         </li>
       </ul>
 
+      <button *ngIf="discussions.length > displayLimit" 
+          (click)="displayLimit = displayLimit + 5" 
+          class="load-more-button">
+        Näytä lisää
+      </button>
     </ng-container>
   </ng-container>
   

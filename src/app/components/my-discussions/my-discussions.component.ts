@@ -20,7 +20,6 @@ export class MyDiscussionsComponent implements OnInit {
   discussionsData$: BehaviorSubject<GroupedDiscussion[]> = new BehaviorSubject<GroupedDiscussion[]>([]);
   public readonly myDiscussions$: Observable<GroupedDiscussion[]> = this.discussionsData$.asObservable();  isLoggedIn$!: Observable<boolean>;
 
-
   private refreshTrigger = new Subject<void>();
   private discussionsLoading = new BehaviorSubject<boolean>(false);
   isLoading$: Observable<boolean> = this.discussionsLoading.asObservable();
@@ -28,6 +27,7 @@ export class MyDiscussionsComponent implements OnInit {
   @Output() discussionSelected = new EventEmitter<GroupedDiscussion>(); 
   @Output() articleIdFilterChange = new EventEmitter<string>();
 
+  displayLimit = 5; // Limit for displayed discussions
 
   constructor(
     private authService: AuthService,
