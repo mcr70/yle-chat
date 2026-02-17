@@ -1,81 +1,80 @@
 <div [ngClass]="{'top-comment-item': level === 0, 'child-comment-item': level > 0}">
     
-    <div class="comment-box" [ngClass]="{'special-comment-box': isSpecialComment()}">
-        <div class="comment-header"> 
-            
-            <div>
+    <div class="comment-box" 
+         [ngClass]="{'special-comment-box': isSpecialComment(), 'collapsed-box': comment.isCollapsed}">
+        
+        <div class="comment-header" (click)="toggleCollapse()" style="cursor: pointer;"> 
+            <div class="header-left">
+                <span class="collapse-arrow">
+                    {{ comment.isCollapsed ? '▶&#xFE0E;' : '▼&#xFE0E;' }}
+                </span>
                 <strong>{{ comment.author }}</strong> 
                 <span class="author-date"> {{ formatDate(comment.createdAt) }}</span>
+                <span *ngIf="comment.isCollapsed" class="header-preview"> 
+                    – {{ comment.content | slice:0:130 }}...
+                </span>
             </div>
             
             <div class="likes-container">
                 <button 
-                    *ngIf="isLoggedIn"
-                    (click)="toggleLike()" 
-                    [class.liked]="comment.isLiked"
+                    *ngIf="isLoggedIn && !comment.isCollapsed"
+                    (click)="toggleLike(); $event.stopPropagation()" 
                     class="like-button"
-                    title="{{ comment.isLiked ? 'Poista tykkäys' : 'Tykkää kommentista' }}">
-                    
-                    <span class="thumb-icon">★</span> 
+                    [class.liked]="comment.isLiked">
+                    <span class="thumb-icon" [class.liked]="comment.isLiked">★</span> 
                 </button>
-
+                
+                <span *ngIf="comment.isCollapsed" 
+                    class="thumb-icon" 
+                    [class.liked]="comment.isLiked">★</span>
+                    
                 <span class="likes">{{ comment.likes || 0 }}</span>
             </div>
-        </div>
-        
-        <p class="comment-text">{{ comment.content }}</p>
-        
-        <div class="comment-actions">    
-            <button 
-                *ngIf="comment.replies && comment.replies.length > 0"
-                (click)="toggleReplies()"
-                class="toggle-button">
-                {{ comment.isExpanded ? 'Piilota vastaukset ▲' : 'Näytä ' + comment.replies.length + ' vastausta ▼' }}
-            </button>
-            
-            <div class="reply-group">
-                <span *ngIf="pendingReply" 
-                    class="pending-indicator no-wrap"
-                    [attr.title]="pendingReply.content">
-                    Käsittelyssä...
-                </span>
-                
-                <button 
-                    class="reply-button" 
-                    (click)="toggleReplyForm()" 
-                    
-                    [disabled]="isLocked || !!pendingReply || !isLoggedIn"
-                    [attr.title]="getReplyTooltip()">
-                    Vastaa ↵
-                </button>
-            </div>
-        </div>
 
-        <div *ngIf="isReplying && !isLocked" class="reply-form-wrapper"> 
-            <textarea [(ngModel)]="replyText" placeholder="Kirjoita vastauksesi tähän..." rows="4"></textarea>
-            <div class="reply-controls">
-                <button 
-                    class="yle-button"
-                    (click)="sendReply()"
-                    [disabled]="isLocked">
-                    Lähetä vastaus
-                </button>
-                <button class="yle-button" (click)="toggleReplyForm()">Peruuta</button>
-            </div>
         </div>
         
+        <ng-container *ngIf="!comment.isCollapsed">
+            <p class="comment-text">{{ comment.content }}</p>
+            
+            <div class="comment-actions">    
+                <button 
+                    *ngIf="comment.replies && comment.replies.length > 0"
+                    (click)="toggleReplies(); $event.stopPropagation()"
+                    class="toggle-button">
+                    {{ comment.isExpanded ? 'Piilota vastaukset ▲' : 'Näytä ' + comment.replies.length + ' vastausta ▼' }}
+                </button>
+                
+                <div class="reply-group">
+                    <span *ngIf="pendingReply" 
+                        class="pending-indicator no-wrap"
+                        [attr.title]="pendingReply.content">
+                        Käsittelyssä...
+                    </span>
+
+                    <button class="reply-button" 
+                            (click)="toggleReplyForm(); $event.stopPropagation()" 
+                            [disabled]="isLocked || !!pendingReply || !isLoggedIn"
+                            [attr.title]="getReplyTooltip()">
+                            Vastaa ↵
+                    </button>
+                </div>
+            </div>
+            
+            <div *ngIf="isReplying && !isLocked" class="reply-form-wrapper"> 
+                <textarea [(ngModel)]="replyText" placeholder="Kirjoita vastauksesi tähän..." rows="4"></textarea>
+                <div class="reply-controls">
+                    <button class="yle-button" (click)="sendReply()" [disabled]="isLocked">
+                        Lähetä vastaus
+                    </button>
+                    <button class="yle-button" (click)="toggleReplyForm()">Peruuta</button>
+                </div>
+            </div>
+        </ng-container>
     </div> 
     
-    <ng-container *ngIf="comment.isExpanded">
+    <ng-container *ngIf="!comment.isCollapsed && comment.isExpanded">
       <div class="replies-wrapper">
-        <app-comment-item 
-            *ngFor="let child of comment.replies"
-            [comment]="child"
-            [level]="level + 1"
-            [isLocked]="isLocked"
-            [articleId]="articleId"> 
-        </app-comment-item>
+        <app-comment-item *ngFor="let child of comment.replies" [comment]="child" [level]="level + 1" [isLocked]="isLocked" [articleId]="articleId"></app-comment-item>
       </div>  
     </ng-container>
-
 </div>

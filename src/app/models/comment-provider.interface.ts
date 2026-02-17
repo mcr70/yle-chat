@@ -19,6 +19,8 @@ export interface Comment {
   replies: Comment[];
 
   isExpanded?: boolean; // For UI purposes
+  isCollapsed?: boolean; // For UI purposes
+  
   topCommentId: string; 
   isLiked: boolean
 

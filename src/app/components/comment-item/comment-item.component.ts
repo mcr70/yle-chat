@@ -28,6 +28,8 @@ export class CommentItemComponent {
 
   isLoggedIn: boolean = false;
   isReplying: boolean = false;
+  isCollapsed: boolean = false;
+
   replyText: string = '';
 
   isHoveringReplyButton: boolean = false;  
@@ -60,6 +62,10 @@ export class CommentItemComponent {
     return this.isLocked;
   }
 
+
+  toggleCollapse() {
+    this.comment.isCollapsed = !this.comment.isCollapsed;
+  }
 
   toggleReplies(): void {
     this.comment.isExpanded = !this.comment.isExpanded;
