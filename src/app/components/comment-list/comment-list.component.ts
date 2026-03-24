@@ -46,7 +46,7 @@ export class CommentListComponent implements OnInit {
   commentsLocked: boolean = false; 
 
   currentOffset: number = 0;
-  readonly limit: number = 20;
+  readonly limit: number = 1000;
 
   private MIN_LOADING_TIME_MS = 500;
 
@@ -391,13 +391,14 @@ export class CommentListComponent implements OnInit {
    * @param newComments 
    */
   private transferCommentState(oldComments: Comment[], newComments: Comment[]): void {
-    const expandedStateMap = new Map<string, boolean>();
+    const stateMap = new Map<string, { expanded?: boolean, collapsed?: boolean }>();
 
     const collectState = (list: Comment[]) => {
       list.forEach(comment => {
-        if (comment.isExpanded !== undefined) {
-          expandedStateMap.set(comment.id, comment.isExpanded);
-        }
+        stateMap.set(comment.id, {
+          expanded: comment.isExpanded,
+          collapsed: comment.isCollapsed
+        });
         if (comment.replies && comment.replies.length > 0) {
           collectState(comment.replies);
         }
@@ -408,8 +409,10 @@ export class CommentListComponent implements OnInit {
 
     const applyState = (list: Comment[]) => {
       list.forEach(comment => {
-        if (expandedStateMap.has(comment.id)) {
-          comment.isExpanded = expandedStateMap.get(comment.id);
+        const savedState = stateMap.get(comment.id);
+        if (savedState) {
+          if (savedState.expanded !== undefined) comment.isExpanded = savedState.expanded;
+          if (savedState.collapsed !== undefined) comment.isCollapsed = savedState.collapsed;
         }
         if (comment.replies && comment.replies.length > 0) {
           applyState(comment.replies);
@@ -419,8 +422,4 @@ export class CommentListComponent implements OnInit {
 
     applyState(newComments);
   }
-
-
-
-
 }

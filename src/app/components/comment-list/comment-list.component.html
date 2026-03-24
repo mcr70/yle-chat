@@ -31,30 +31,30 @@
 
     <div class="comment-section">
       <div class="comment-container">
-
-        <div class="comment-controls-top">
-          
-          <div class="comment-header">
-            <h3>{{ articleTitle || articleId }} <a href="{{ topicDetails?.articleLink }} " target="_blank" class="article-link-icon">↗️</a>
-              <span *ngIf="topicDetails?.acceptedCommentsCount != null" class="comment-count-info no-wrap">
-                – {{ topicDetails?.acceptedCommentsCount }} kommenttia
-              </span>
-
-              <span *ngIf="commentsLocked" class="comment-locked-info no-wrap">
-                (suljettu)
-              </span>
-            </h3>
-
-            <button class="refresh-button" title="{{ isLoading ? 'Ladataan...' : 'Päivitä kommentit' }}"
-              (click)="loadComments(true)" 
-              [disabled]="isLoading">
+        <div class="sticky-controls-wrapper">
+          <div class="comment-controls-top">
             
-              <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
-            </button>
+            <div class="comment-header">
+              <h3>{{ articleTitle || articleId }} <a href="{{ topicDetails?.articleLink }} " target="_blank" class="article-link-icon">↗️</a>
+                <span *ngIf="topicDetails?.acceptedCommentsCount != null" class="comment-count-info no-wrap">
+                  – {{ topicDetails?.acceptedCommentsCount }} kommenttia
+                </span>
 
+                <span *ngIf="commentsLocked" class="comment-locked-info no-wrap">
+                  (suljettu)
+                </span>
+              </h3>
+
+              <button class="refresh-button" title="{{ isLoading ? 'Ladataan...' : 'Päivitä kommentit' }}"
+                (click)="loadComments(true)" 
+                [disabled]="isLoading">
+              
+                <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
+              </button>
+
+            </div>
+            
           </div>
-          
-        </div>
 
 
           <div class="filter-controls">
@@ -82,10 +82,11 @@
                     for="hideUnmarked" [class.disabled-label]="!isHideUnmarkedEnabled">Piilota muut</label>
                 </div>
               </div>
+            </div>
           </div>
-        </div>
+      </div>
           
-        <hr>
+        
 
         <ng-container *ngIf="comments.length > 0; else noComments">
           <app-comment-item 
