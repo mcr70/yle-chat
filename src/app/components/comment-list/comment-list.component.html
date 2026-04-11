@@ -72,6 +72,25 @@
                   (input)="onNicknameChanged($any($event.target).value)"
                 />
 
+                <div class="search-nav-group" *ngIf="nicknameFilter">
+                  <button class="nav-btn" (click)="navigateToMatch('prev')" [disabled]="matches.length <= 1">
+                      &larr;
+                  </button>
+                  
+                  <span class="nav-counter">
+                    <ng-container *ngIf="matches.length > 0">
+                      {{ currentMatchIndex === -1 ? '?' : currentMatchIndex + 1 }} / {{ matches.length }}
+                    </ng-container>
+                    <ng-container *ngIf="matches.length === 0">
+                      0 / 0
+                    </ng-container>
+                  </span>
+
+                  <button class="nav-btn" (click)="navigateToMatch('next')" [disabled]="matches.length <= 1">
+                      &rarr;
+                  </button>
+                </div>
+
                 <div class="hide-control">
                   <input type="checkbox" id="hideUnmarked" 
                     [checked]="hideUnmarkedTopLevel"
@@ -114,4 +133,14 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="mobile-search-nav" *ngIf="matches.length > 0">
+  <button (click)="navigateToMatch('prev')" class="nav-btn">←</button>
+  
+  <span class="nav-counter">
+    {{ currentMatchIndex === -1 ? '?' : currentMatchIndex + 1 }} / {{ matches.length }}
+  </span>
+  
+  <button (click)="navigateToMatch('next')" class="nav-btn">→</button>
 </div>

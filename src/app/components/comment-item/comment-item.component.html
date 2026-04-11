@@ -1,4 +1,5 @@
-<div [ngClass]="{'top-comment-item': level === 0, 'child-comment-item': level > 0}">
+<div [id]="'comment-' + comment.id" 
+     [ngClass]="{'top-comment-item': level === 0, 'child-comment-item': level > 0}">
     
     <div class="comment-box" 
          [ngClass]="{'special-comment-box': isSpecialComment(), 'collapsed-box': comment.isCollapsed}">
@@ -30,7 +31,6 @@
                     
                 <span class="likes">{{ comment.likes || 0 }}</span>
             </div>
-
         </div>
         
         <ng-container *ngIf="!comment.isCollapsed">
@@ -74,7 +74,13 @@
     
     <ng-container *ngIf="!comment.isCollapsed && comment.isExpanded">
       <div class="replies-wrapper">
-        <app-comment-item *ngFor="let child of comment.replies" [comment]="child" [level]="level + 1" [isLocked]="isLocked" [articleId]="articleId"></app-comment-item>
+        <app-comment-item 
+            *ngFor="let child of comment.replies" 
+            [comment]="child" 
+            [level]="level + 1" 
+            [isLocked]="isLocked" 
+            [articleId]="articleId">
+        </app-comment-item>
       </div>  
     </ng-container>
 </div>

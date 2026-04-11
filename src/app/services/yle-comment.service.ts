@@ -323,11 +323,11 @@ export class YleCommentService implements CommentProvider {
   private markRecursive(comments: Comment[], nickname: string): boolean {
     let foundInSubTree = false;
 
-    const lowercasedNickname = nickname ? nickname.toLowerCase() : '';
+    const filter = nickname ? nickname.toLowerCase() : '';
 
     for (const comment of comments) {
         const ownMatch = comment.author
-            && comment.author.toLowerCase().startsWith(lowercasedNickname);
+            && comment.author.toLowerCase().includes(filter);
 
         const childMatch = comment.replies?.length
             ? this.markRecursive(comment.replies, nickname)

@@ -56,8 +56,11 @@ export class CommentListComponent implements OnInit {
   isLoading: boolean = false;
 
   nicknameFilter: string = '';
+  currentMatchIndex: number = -1; 
+  activeTargetId: string | null = null;
 
   private filterFoundMatches: boolean = false;
+  
 
   constructor(
     private serviceManager: CommentServiceManager,
@@ -227,6 +230,9 @@ export class CommentListComponent implements OnInit {
     this.nicknameFilter = value;
     this.provider.markNickname(this.comments, value);
 
+    // Reset navigation state
+    this.currentMatchIndex = -1;
+
     this.filterFoundMatches = this.comments.some(comment => 
       comment.hasNickname === true
     );
@@ -332,6 +338,93 @@ export class CommentListComponent implements OnInit {
   }  
 
 
+  // vvv  Navigation  vvv
+  get matches() {
+    const filter = (this.nicknameFilter || '').trim().toLowerCase();
+    if (filter.length < 2) return [];
+    
+    const allMatches: any[] = [];
+    
+    const flatten = (items: any[]) => {
+      if (!items || items.length === 0) return;
+
+      items.forEach(item => {
+        const name = item.author || ''; 
+        
+        if (name.toLowerCase().includes(filter)) {
+          allMatches.push(item);
+        }
+        
+        if (item.replies && item.replies.length > 0) {
+          flatten(item.replies);
+        }
+      });
+    };
+    
+    flatten(this.comments);
+    return allMatches;
+  }
+
+  onFilterChange() {
+    this.currentMatchIndex = this.matches.length > 0 ? 0 : -1;
+  }
+
+  navigateToMatch(direction: 'next' | 'prev') {
+    const total = this.matches.length;
+    if (total === 0) return;
+
+    if (direction === 'next') {
+      this.currentMatchIndex++;
+      if (this.currentMatchIndex >= total) this.currentMatchIndex = 0;
+    } else {
+      this.currentMatchIndex--;
+      if (this.currentMatchIndex < 0) this.currentMatchIndex = total - 1;
+    }
+
+    const targetComment = this.matches[this.currentMatchIndex];
+    this.ensureCommentIsVisible(this.comments, targetComment.id);
+
+    setTimeout(() => {
+      const element = document.getElementById(`comment-${targetComment.id}`);
+      if (element) {
+        const isMobile = window.innerWidth <= 600;
+        const headerOffset = isMobile ? 65 : 200;
+
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+        
+        this.activeTargetId = targetComment.id;
+        setTimeout(() => this.activeTargetId = null, 2500);
+      }
+    }, 150); // delay to ensure comment is expanded and rendered before scrolling
+  }
+
+  // 4. recursus function to ensure the target comment is visible by expanding all its parent comments
+  ensureCommentIsVisible(nodes: any[], targetId: string): boolean {
+    for (const node of nodes) {
+      if (node.id === targetId) {
+        node.isCollapsed = false; // make sure the target comment itself is not collapsed
+        return true; 
+      }
+
+      if (node.replies && node.replies.length > 0) {
+        const foundInChildren = this.ensureCommentIsVisible(node.replies, targetId);
+        if (foundInChildren) {
+          node.isCollapsed = false; // make sure the parent is not collapsed
+          node.isExpanded = true;   // make sure replies are visible so child becomes visible
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+//  ^^^  Navigation  ^^^
 
   private cleanupPendingReplies(): void {
     const pendingReplies = this.pendingReplyService.getPendingRepliesForArticle(this.articleId);

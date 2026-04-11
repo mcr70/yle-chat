@@ -70,6 +70,8 @@
   background-color: white; 
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 
+  margin-bottom: 10px; // Small gap between controls and comment list
+
   .comment-controls-top, .filter-controls {
     position: static; 
     margin: 0;
@@ -77,7 +79,13 @@
     background-color: transparent; /* Wrapper controls */
   }
 
-  margin-bottom: 10px; // Small gap between controls and comment list
+  @media screen and (max-width: 600px) {
+    position: static;   /* Remove sticky on mobile */
+    box-shadow: none;   
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee; 
+  }
+
 }
 
 
@@ -160,16 +168,60 @@
 
 
 .nickname-filter-container {
-    display: flex; 
-    align-items: center; 
-    gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     width: 100%;
 
     .filter-input {
         flex: 1;
         min-width: 0;
     }
+
+    // Navigointipainikkeiden ryhmä
+    .search-nav-group {
+        display: flex;
+        align-items: center;
+        background-color: #f8f9fa;
+        border: 1px solid var(--color-border-secondary);
+        border-radius: 6px;
+        padding: 2px;
+        gap: 4px;
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #003780;
+            cursor: pointer;
+            padding: 4px 10px;
+            font-size: 1.1em;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.15s;
+
+            &:hover:not(:disabled) {
+                background-color: #e9ecef;
+            }
+
+            &:disabled {
+                color: #ccc;
+                cursor: not-allowed;
+            }
+        }
+
+        .nav-counter {
+            font-size: 0.85em;
+            font-weight: bold;
+            color: var(--color-text-secondary);
+            padding: 0 4px;
+            min-width: 45px;
+            text-align: center;
+        }
+    }
 }
+
 // ------------------------------------------------------
 .comment-container {
   max-width: 100%;
@@ -357,11 +409,11 @@
 
 .sidebar {
   position: sticky;
-  top: 60px;               // Pysyy main-toolbarin (60px) alapuolella
-  align-self: flex-start;  // Estää venymästä sisällön mukana
+  top: 60px;               // below the header
+  align-self: flex-start;  // prevent stretching to full height of content area
   
-  height: calc(100vh - 60px); // Täyttää ruudun loppuosan
-  overflow-y: auto;        // Itsenäinen skrollaus sidepalkin sisällä
+  height: calc(100vh - 60px); // Full viewport height minus header
+  overflow-y: auto;        // Enable vertical scrolling if content exceeds viewport height
   flex-shrink: 0;
   
   background-color: white;
@@ -377,7 +429,6 @@
     background: transparent;
   }
   &::-webkit-scrollbar-thumb { 
-    //background: #ccc; border-radius: 10px; 
     background-color: rgba(0, 0, 0, 0.05); 
     border-radius: 10px;   
   }
@@ -385,7 +436,7 @@
     background-color: rgba(0, 0, 0, 0.2);
   }
 
-  // 5. Kun käyttäjä tarttuu suoraan palkkiin
+  // Hover effect for scrollbar thumb
   &::-webkit-scrollbar-thumb:hover {
     background-color: rgba(0, 0, 0, 0.4);
   }
@@ -393,17 +444,17 @@
   @media screen and (max-width: 600px) {
     position: fixed;
     top: 0;
-    left: -100%;           // Piilossa vasemmalla
+    left: -100%;           // Initially hidden off-screen
     height: 100%;
-    width: 85% !important; // Hieman leveämpi mobiilissa
-    z-index: 1100;         // Kaiken muun (myös headerin) päällä
+    width: 85% !important; // Take most of the screen width on mobile
+    z-index: 1100;         // Above the overlay
     transition: left 0.3s ease-in-out;
     display: block !important;
     border-right: none;
     box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
 
     &.mobile-open {
-      left: 0;             // Liukuu näkyviin
+      left: 0;             // Slide in when open
     }
     &::-webkit-scrollbar {
       display: none; 
@@ -426,7 +477,7 @@
   }
 
   @media screen and (max-width: 600px) {
-    display: none; // Ei tarvita mobiilissa
+    display: none; // No resizing on mobile
   }
 }
 
@@ -447,3 +498,46 @@
 }
 
 // ------------------------------------------------------
+// Piilotetaan navigointi yläpalkista mobiilissa
+@media screen and (max-width: 600px) {
+  .search-nav-group { // Tämä on se nykyinen navigointi ylhäällä
+    display: none !important;
+  }
+}
+
+// Kelluvan mobiilipillerin tyylit
+.mobile-search-nav {
+  display: none; // Oletuksena piilossa
+
+  @media screen and (max-width: 600px) {
+    display: flex;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    
+    background-color: var(--color-brand-primary); 
+    color: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    align-items: center;
+    gap: 15px;
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .nav-counter {
+      font-weight: bold;
+      min-width: 60px;
+      text-align: center;
+    }
+  }
+}
