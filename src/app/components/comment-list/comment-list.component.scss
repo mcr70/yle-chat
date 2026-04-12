@@ -498,46 +498,58 @@
 }
 
 // ------------------------------------------------------
-// Piilotetaan navigointi yläpalkista mobiilissa
+/* 1. Hide the top navigation in mobile view */
 @media screen and (max-width: 600px) {
-  .search-nav-group { // Tämä on se nykyinen navigointi ylhäällä
+  .nickname-filter-container .search-nav-group { 
     display: none !important;
   }
 }
 
-// Kelluvan mobiilipillerin tyylit
+/* 2. Floating mobile navigation pill */
 .mobile-search-nav {
-  display: none; // Oletuksena piilossa
+  /* Hidden by default on desktop */
+  display: none; 
 
   @media screen and (max-width: 600px) {
-    display: flex;
+    /* Use flex for mobile only */
+    display: flex !important; 
     position: fixed;
-    bottom: 20px;
+    bottom: 30px; /* Positioned slightly higher from the bottom */
     left: 50%;
     transform: translateX(-50%);
-    z-index: 1000;
+    
+    /* Set z-index high enough to be above sidebar (999) and overlay */
+    z-index: 2000; 
     
     background-color: var(--color-brand-primary); 
     color: white;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border-radius: 50px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
     align-items: center;
-    gap: 15px;
+    gap: 20px;
+    min-width: 180px;
+    justify-content: center;
 
     .nav-btn {
       background: none;
       border: none;
       color: white;
-      font-size: 20px;
-      padding: 5px 10px;
+      font-size: 24px; /* Larger hit area for thumbs */
+      padding: 5px 15px;
       cursor: pointer;
+      line-height: 1;
+
+      &:disabled {
+        opacity: 0.3;
+      }
     }
 
     .nav-counter {
       font-weight: bold;
-      min-width: 60px;
+      min-width: 70px;
       text-align: center;
+      font-size: 1.1em;
     }
   }
 }
