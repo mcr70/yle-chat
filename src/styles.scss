@@ -114,3 +114,15 @@ html, body {
     padding: 0 5px;
   }  
 }
+
+
+/* This affects the whole html document's scroll-to-id behavior */
+html {
+  scroll-padding-top: 220px; /* Same as your header height + some margin */
+}
+
+@media screen and (max-width: 600px) {
+  html {
+    scroll-padding-top: 80px;
+  }
+}

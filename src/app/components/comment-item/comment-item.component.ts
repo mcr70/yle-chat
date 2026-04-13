@@ -20,6 +20,7 @@ export class CommentItemComponent {
 
   private authSubscription: Subscription | undefined;
   private provider!: CommentProvider;
+  showCopiedTooltip: boolean = false;
 
   @Input() articleId!: string; // Needed to make a like/unlike requests
   @Input() comment!: Comment;
@@ -56,6 +57,27 @@ export class CommentItemComponent {
     });
 
   }
+
+
+  // Copy comment link to clipboard
+  copyLink(commentId: string): void {
+    // Get the current URL without any existing hashes
+    const baseUrl = window.location.origin + window.location.pathname + window.location.search;
+    const shareUrl = `${baseUrl}#comment-${commentId}`;
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      /* Show feedback */
+      this.showCopiedTooltip = true;
+      
+      /* Hide feedback after 2 seconds */
+      setTimeout(() => {
+        this.showCopiedTooltip = false;
+      }, 1500);      
+    }).catch(err => {
+      console.error('Could not copy link: ', err);
+    });
+  } 
 
 
   get isReplyDisabled(): boolean {

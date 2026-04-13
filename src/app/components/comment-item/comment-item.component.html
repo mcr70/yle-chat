@@ -11,6 +11,11 @@
                 </span>
                 <strong>{{ comment.author }}</strong> 
                 <span class="author-date"> {{ formatDate(comment.createdAt) }}</span>
+                <button class="share-btn" (click)="copyLink(comment.id); $event.stopPropagation()" title="Copy link to this comment">
+                    <span class="share-icon">🔗</span>
+                    <span class="copy-tooltip" *ngIf="showCopiedTooltip">Kopioitu!</span>
+                </button>
+
                 <span *ngIf="comment.isCollapsed" class="header-preview"> 
                     – {{ comment.content | slice:0:130 }}...
                 </span>

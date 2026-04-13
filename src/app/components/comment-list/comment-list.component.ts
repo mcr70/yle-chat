@@ -103,7 +103,11 @@ export class CommentListComponent implements OnInit {
             this.loadComments(true); 
         }
     });
-}
+  }
+
+  // ngAfterViewInit(): void {
+  //   this.handleInitialAnchor();
+  // }
 
   loadTopicDetails(): Observable<TopicDetails> {
     if (!this.articleId) {
@@ -194,6 +198,8 @@ export class CommentListComponent implements OnInit {
         
         setTimeout(() => { 
           this.isLoading = false; 
+          //this.checkUrlAnchor();
+          this.handleInitialAnchor();
         }, remainingDelay);
       },
       error: (err: any) => {
@@ -514,5 +520,42 @@ export class CommentListComponent implements OnInit {
     };
 
     applyState(newComments);
+  }
+
+
+  private handleInitialAnchor(): void {
+    const hash = window.location.hash;
+    if (!hash || !hash.startsWith('#comment-')) return;
+
+    const commentId = hash.replace('#comment-', '');
+    
+    // Wait a bit longer to ensure Angular has finished the render cycle
+    setTimeout(() => {
+      const element = document.getElementById(`comment-${commentId}`);
+      
+      if (element) {
+        // Ensure the comment's parents are expanded
+        this.ensureCommentIsVisible(this.comments, commentId);
+
+        // Re-query element position after expansion
+        setTimeout(() => {
+          const isMobile = window.innerWidth <= 600;
+          const headerOffset = isMobile ? 80 : 220; // 400 is likely too much, 220 fits your sticky header
+
+          // Calculate absolute position from the top of the document
+          const rect = element.getBoundingClientRect();
+          const absoluteTop = rect.top + window.scrollY;
+          const finalPosition = absoluteTop - headerOffset;
+
+          window.scrollTo({
+            top: finalPosition,
+            behavior: 'smooth'
+          });
+          
+          this.activeTargetId = commentId;
+          setTimeout(() => this.activeTargetId = null, 3000);
+        }, 50); // Small extra tick to let 'isExpanded' impact the DOM
+      }
+    }, 600);
   }
 }

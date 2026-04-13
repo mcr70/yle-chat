@@ -28,7 +28,6 @@
     padding: 10px; 
     border-radius: var(--common-border-radius, 10px);
     box-shadow: var(--common-shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
-    
     transition: margin 0.2s;
 
     &.collapsed-box {
@@ -293,4 +292,40 @@ textarea {
 
 .pending-indicator[title] {
     cursor: help; 
+}
+
+// Share button ----
+.share-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 0.8em;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background-color 0.2s;
+
+  .copy-tooltip {
+    color: var(--color-text-primary); //#28a745; /* Green color for success */
+    font-weight: bold;
+    animation: fadeIn 0.2s ease-in;
+  }
+
+  &:hover {
+    background-color: #f0f0f0;
+    color: var(--color-brand-primary);
+  }
+
+  .share-icon {
+    font-size: 1.1em;
+  }
+}
+
+/* Simple animation for the feedback */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
