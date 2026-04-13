@@ -529,32 +529,32 @@ export class CommentListComponent implements OnInit {
 
     const commentId = hash.replace('#comment-', '');
     
-    // Wait a bit longer to ensure Angular has finished the render cycle
+    /* 1. Wait for comments to load */
     setTimeout(() => {
-      const element = document.getElementById(`comment-${commentId}`);
+      /* 2. CRITICAL: Expand parents BEFORE looking for the element */
+      const isFoundInData = this.ensureCommentIsVisible(this.comments, commentId);
       
-      if (element) {
-        // Ensure the comment's parents are expanded
-        this.ensureCommentIsVisible(this.comments, commentId);
-
-        // Re-query element position after expansion
+      if (isFoundInData) {
+        /* 3. Small delay to let Angular render the newly opened branches */
         setTimeout(() => {
-          const isMobile = window.innerWidth <= 600;
-          const headerOffset = isMobile ? 80 : 220; // 400 is likely too much, 220 fits your sticky header
-
-          // Calculate absolute position from the top of the document
-          const rect = element.getBoundingClientRect();
-          const absoluteTop = rect.top + window.scrollY;
-          const finalPosition = absoluteTop - headerOffset;
-
-          window.scrollTo({
-            top: finalPosition,
-            behavior: 'smooth'
-          });
+          const element = document.getElementById(`comment-${commentId}`);
           
-          this.activeTargetId = commentId;
-          setTimeout(() => this.activeTargetId = null, 3000);
-        }, 50); // Small extra tick to let 'isExpanded' impact the DOM
+          if (element) {
+            const isMobile = window.innerWidth <= 600;
+            const headerOffset = isMobile ? 80 : 220;
+
+            const rect = element.getBoundingClientRect();
+            const absoluteTop = rect.top + window.scrollY;
+
+            window.scrollTo({
+              top: absoluteTop - headerOffset,
+              behavior: 'smooth'
+            });
+            
+            this.activeTargetId = commentId;
+            setTimeout(() => this.activeTargetId = null, 3000);
+          }
+        }, 100); /* Wait for DOM to catch up after ensureCommentIsVisible */
       }
     }, 600);
   }
