@@ -73,7 +73,7 @@
                 />
 
                 <div class="search-nav-group" *ngIf="nicknameFilter">
-                  <button class="nav-btn" (click)="navigateToMatch('prev')" [disabled]="matches.length <= 1">
+                  <button class="nav-btn" (click)="navigateToMatch('prev')" [disabled]="matches.length === 0">
                       &larr;
                   </button>
                   
@@ -86,7 +86,7 @@
                     </ng-container>
                   </span>
 
-                  <button class="nav-btn" (click)="navigateToMatch('next')" [disabled]="matches.length <= 1">
+                  <button class="nav-btn" (click)="navigateToMatch('next')" [disabled]="matches.length === 0">
                       &rarr;
                   </button>
                 </div>
