@@ -36,6 +36,20 @@
  *     https://comments.api.yle.fi/v1/topics/74-20198519/comments?app_id=yle-comments-plugin&app_key=sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D
  *       - payload:
  *         {"content":"comment text is here","parentId":"33-31402f04-503d-41bc-98cf-35d1a9e47ad0"}
+ *
+ * 
+ *   - Most discussed articles: POST
+ *     curl -X POST "https://layout-front.api.yle.fi/v1/layout-fragment/ylefi-front-page?app_id=ukko&app_key=weTyEj7RwTjAzbVr73uSypbcSALJ4xDk" \
+        -H "Content-Type: application/json" \
+        -d '{
+          "count": 10,
+          "excludeContentIds": []
+        }' | jq '.items[] | {
+          id: .content.contentId,
+          otsikko: .data.headline.full,
+          kommentteja: .data.topic.acceptedCommentsCount,
+          aktiivinen: (.data.topic.isLocked | not)
+        }'
  */
 
 import { Injectable } from '@angular/core';
