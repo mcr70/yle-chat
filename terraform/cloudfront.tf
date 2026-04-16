@@ -12,7 +12,7 @@ locals {
     },
     YleHistoryApiOrigin = {
       domain       = "datacloud.api.yle.fi",
-      path_pattern = "/v2/tv/history*"
+      path_pattern = "/v3/history*"
       allowed_methods = [ "GET", "HEAD", "OPTIONS" ]
     },
     YleLoginApiOrigin = { // Needs POST

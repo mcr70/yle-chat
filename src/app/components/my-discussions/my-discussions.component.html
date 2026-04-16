@@ -28,18 +28,17 @@
               
               <a href="#" 
                  (click)="selectDiscussion(item); $event.preventDefault()" 
-                 title="{{ item.title }}"                           
+                 title="{{ item.articleTitle }}"
                  [class.truncated-title]="true"                     
                  class="article-title-link">                        
-                {{ item.title }} </a>
+                {{ item.articleTitle }} </a>
           </div>
 
-          <p class="comment-preview"
-             title="{{ getTooltipForComments(item.comments) }}"> 
+          <p class="comment-preview">
             <span class="comment-count">
-              {{ item.comments.length }} kommentti{{item.comments.length > 1 ? 'a' : ''}}
+              {{ item.commentCount }} kommentti{{ item.commentCount > 1 ? 'a' : '' }}
             </span>
-          </p>          
+          </p>
         </li>
       </ul>
 

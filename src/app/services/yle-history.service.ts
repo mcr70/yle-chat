@@ -27,25 +27,24 @@ export interface MyDiscussion {
 
 
 export interface GroupedDiscussion {
-  articleId: string; 
-  title: string;
-  url: string;
-  comments: { content: string, date?: Date }[]; // List of user commants
-  latestCommentContent: string; 
+  articleId: string;
+  articleTitle: string;
+  lastCommentTimestamp: number;
+  commentCount: number;
 }
-
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class YleHistoryService {
   private readonly PROXY_PREFIX = '';//'/yle-history';
-  private readonly API_URL = '/v2/tv/history?limit=40&exclude_sub_accounts=true&fetch_comments=true';
+  //private readonly API_URL = '/v2/tv/history?limit=40&exclude_sub_accounts=true&fetch_comments=true';
+  private readonly API_URL = '/v3/history?limit=40';
 
   constructor(private http: HttpClient) { }
 
@@ -53,65 +52,40 @@ export class YleHistoryService {
    * Fetch users Yle history and filter out everything else other than comments.
    */
   fetchMyDiscussions(): Observable<GroupedDiscussion[]> {
-    console.log('Fetch users comment history');
-    
-    return this.http.get<YleHistoryItem[]>(this.PROXY_PREFIX + this.API_URL, {
+    return this.http.get<any[]>(this.PROXY_PREFIX + this.API_URL, {
       withCredentials: true 
     }).pipe(
       // Filter only comments
-      map(items => items.filter(item => item.application === 'comments' && item.comment && item.comment.url)),      
-      // Convert to GroupedDiscussion
-      map(commentItems => {
-        
-        const groupedDiscussionsMap = new Map<string, GroupedDiscussion>();
-        
-        commentItems.forEach(item => {
-          const articleId = this.parseArticleIdFromUrl(item.comment!.url);
-          const commentContent = item.comment!.content;
-          
-          if (!articleId) return; // Skip, if failed to get articleId 
+      map(items => items.filter(item => item.entity_type === 'article_comment')),
 
-          if (groupedDiscussionsMap.has(articleId)) {
-            // If article is already found, add CommentContent into comments
-            const existing = groupedDiscussionsMap.get(articleId)!;
-            existing.comments.push({ content: commentContent });
-            existing.latestCommentContent = commentContent; // Päivitä tuorein kommentti
-            
-          } 
-          else {
-            // Creste new GroupedDiscussion
-            groupedDiscussionsMap.set(articleId, {
-              articleId: articleId,
-              title: item.comment!.title,
-              url: item.comment!.url,
-              latestCommentContent: commentContent,
-              comments: [{ content: commentContent }]
+      // transform to GroupedDiscussion format
+      map(commentItems => {
+        const groups = new Map<string, GroupedDiscussion>();
+
+        commentItems.forEach(item => {
+          const id = item.entity_id; // article ID
+          
+          if (!groups.has(id)) {
+            groups.set(id, {
+              articleId: id,
+              articleTitle: item.article_title || 'Nimetön artikkeli',
+              lastCommentTimestamp: item.timestamp,
+              commentCount: 1
             });
+          } else {
+            const group = groups.get(id)!;
+            group.commentCount++;
+
+            if (item.timestamp > group.lastCommentTimestamp) {
+              group.lastCommentTimestamp = item.timestamp;
+            }
           }
         });
-        
-        // Map -> Array
-        return Array.from(groupedDiscussionsMap.values());
-      }),      
-      catchError(error => {
-        if (error.status === 401 || error.status === 403) {
-          console.warn('YleHistoryService: User is not logged in, return empty list');
-          return of([]);
-        }
 
-        return throwError(() => new Error('Virhe historiatiedon hakemisessa.'));
+        return Array.from(groups.values())
+          .sort((a, b) => b.lastCommentTimestamp - a.lastCommentTimestamp);
       })
     );
   }
-
-  private parseArticleIdFromUrl(url: string): string {
-    // regex to parse article-id after "/a/<article-id>"
-    // article-id is expected to be in format "<number>-<number>""
-    const match = url.match(/\/a\/(\d+-\d+)$/);
-    if (match && match[1]) {
-      return match[1];
-    }
     
-    return ''; 
-  }  
 }

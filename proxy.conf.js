@@ -25,7 +25,7 @@ const PROXY_CONFIG = [
   
   // 3. User history
   {
-    context: ["/v2/tv/history"],
+    context: ["/v3/history"],
     target: "https://datacloud.api.yle.fi",
     secure: true,
     changeOrigin: true,
