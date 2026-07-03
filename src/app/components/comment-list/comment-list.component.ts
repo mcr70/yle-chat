@@ -129,7 +129,7 @@ export class CommentListComponent implements OnInit {
         this.resetState();
         return;
     }
-    
+
     this.isLoading = true;
     const startTime = Date.now();
 
@@ -198,6 +198,8 @@ export class CommentListComponent implements OnInit {
         
         setTimeout(() => { 
           this.isLoading = false; 
+          this.currentMatchIndex = -1;
+
           //this.checkUrlAnchor();
           this.handleInitialAnchor();
         }, remainingDelay);
@@ -225,6 +227,7 @@ export class CommentListComponent implements OnInit {
     this.filterFoundMatches = false;
     this.hideUnmarkedTopLevel = false;
     this.isLoading = false;
+    this.currentMatchIndex = -1;
   }
 
   loadMoreComments(): void {
