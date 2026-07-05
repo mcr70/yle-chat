@@ -51,7 +51,6 @@ export class CommentListComponent implements OnInit {
   private MIN_LOADING_TIME_MS = 500;
 
   comments: Comment[] = [];
-  hideUnmarkedTopLevel: boolean = false;
   hasMoreComments: boolean = true;
   isLoading: boolean = false;
 
@@ -225,7 +224,6 @@ export class CommentListComponent implements OnInit {
     this.articleTitle = '';
     this.commentsLocked = false;
     this.filterFoundMatches = false;
-    this.hideUnmarkedTopLevel = false;
     this.isLoading = false;
     this.currentMatchIndex = -1;
   }
@@ -245,25 +243,12 @@ export class CommentListComponent implements OnInit {
     this.filterFoundMatches = this.comments.some(comment => 
       comment.hasNickname === true
     );
-    
-    if (!this.filterFoundMatches) {
-      this.hideUnmarkedTopLevel = false;
-    }
   }
 
   get filteredComments(): Comment[] {
-    if (!this.hideUnmarkedTopLevel) {
-      return this.comments; 
-    }
-
-    return this.comments.filter(comment => {
-      return comment.hasNickname === true;
-    });
+    return this.comments; 
   }  
 
-  get isHideUnmarkedEnabled(): boolean {
-    return this.filterFoundMatches;
-  }  
 
   // Toggle mobile menu visibility
   toggleMobileMenu() {

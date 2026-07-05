@@ -90,16 +90,6 @@
                       &rarr;
                   </button>
                 </div>
-
-                <div class="hide-control">
-                  <input type="checkbox" id="hideUnmarked" 
-                    [checked]="hideUnmarkedTopLevel"
-                    (change)="hideUnmarkedTopLevel = $any($event.target).checked"
-                    [disabled]="!isHideUnmarkedEnabled" 
-                  />
-                  <label 
-                    for="hideUnmarked" [class.disabled-label]="!isHideUnmarkedEnabled">Piilota muut</label>
-                </div>
               </div>
             </div>
           </div>
