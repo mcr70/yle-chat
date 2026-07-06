@@ -1,13 +1,13 @@
 <div class="articles-container">
   <div class="header-row">
-    <h2>Keskusteluja</h2>
+    <h3>Keskusteluja</h3>
     
     <button 
       (click)="refreshArticles()" 
       [disabled]="isLoading$ | async"
       class="refresh-button"
       [title]="(isLoading$ | async) ? 'Ladataan...' : 'Päivitä keskustelut'">
-
+      
       @if (!(isLoading$ | async)) {
         <span>🔄</span>
       } @else {
@@ -23,21 +23,32 @@
       <ul class="articles-list">
         @for (article of articles; track article.id) {
           <li class="article-item">
-            <a class="article-link" 
-               href="#" 
-               [title]="article.title" 
-               (click)="selectArticle($event, article)">
-              {{ article.title }}
-            </a>
+            <div class="article-link-row">
+              <a class="article-link" 
+                 href="#" 
+                 [title]="article.title" 
+                 (click)="selectArticle($event, article)">
+                {{ article.title }}
+              </a>
+              
+              <span class="comment-badge" [title]="article.commentCount + ' kommenttia'">
+                {{ article.commentCount }}
+              </span>
+            </div>
             
             <div class="article-meta">
               @if (article.category) {
                 <span class="category-tag">{{ article.category }}</span>
-                <span class="separator">|</span>
               }
-              <span>{{ article.commentCount }} {{ article.commentCount === 1 ? 'kommentti' : 'kommenttia' }}</span>
+              
+              @if (article.published) {
+                @if (article.category) { <span class="separator">|</span> }
+                <span class="publish-time">{{ article.published | date:'d.M. \'klo\' HH.mm' }}</span>
+              }
+
               @if (!article.isActive) {
-                <span class="status-badge">(Keskustelu suljettu)</span>
+                <span class="separator">|</span>
+                <span class="status-badge">(Suljettu)</span>
               }
             </div>
           </li>

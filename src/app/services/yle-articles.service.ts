@@ -1,4 +1,3 @@
-// yle-articles.service.ts
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { map } from "rxjs/operators";
@@ -13,7 +12,7 @@ export class YleArticlesService {
 
   getArticles() {
     const payload = {
-      count: 40,
+      count: 100,
       excludeContentIds: []
     };
 
@@ -27,11 +26,18 @@ export class YleArticlesService {
             title: item.data?.headline?.full,
             commentCount: item.data?.topic?.acceptedCommentsCount || 0,
             isActive: item.data?.topic?.isLocked !== undefined ? !item.data.topic.isLocked : false,
-            published: item.data?.datePublished,
+            // Convert to Date object for sorting and template pipes
+            published: item.data?.datePublished ? new Date(item.data.datePublished) : null,
             category: item.data?.subjects?.[0]?.title?.fi || ''
           }))
-          // filter out articles that have 0 comments and are not active
-          .filter((article: any) => !(article.commentCount === 0 && !article.isActive));
+          // Filter out articles that have 0 comments and are not active
+          .filter((article: any) => !(article.commentCount === 0 && !article.isActive))
+          // Sort by publication time: newest first
+          .sort((a: any, b: any) => {
+            const timeA = a.published ? a.published.getTime() : 0;
+            const timeB = b.published ? b.published.getTime() : 0;
+            return timeB - timeA;
+          });
       })
     );
   }

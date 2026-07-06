@@ -59,7 +59,6 @@ export class ArticlesComponent implements OnInit {
 
   // Handle article selection click
   selectArticle(event: Event, article: any): void {
-    console.log('Article selected:', article);
     event.preventDefault();
     this.articleSelected.emit(article);
     this.articleIdFilterChange.emit(article.id);

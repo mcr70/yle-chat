@@ -9,8 +9,8 @@
     align-items: center;
     margin-bottom: 15px;
 
-    h2 {
-      font-size: 1.5rem;
+    h3 {
+      font-size: 1.2rem;
       font-weight: bold;
       color: #000;
       margin: 0;
@@ -84,7 +84,7 @@
 .article-link {
   color: #004b87;
   text-decoration: underline;
-  font-size: 1.05rem;
+  //font-size: 1.05rem;
   font-weight: normal;
   line-height: 1.4;
   cursor: pointer;
@@ -122,4 +122,99 @@
 .status-badge {
   color: #999;
   font-style: italic;
+}
+
+
+
+.article-meta {
+  font-size: 0.85rem;
+  color: #666;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 4px;
+
+  .category-tag {
+    text-transform: capitalize;
+    color: #444;
+    font-weight: 500;
+  }
+
+  .publish-time {
+    color: #777;
+  }
+
+  .separator {
+    color: #ccc;
+  }
+}
+
+
+.article-link-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.article-link {
+  color: #004b87;
+  text-decoration: underline;
+  font-size: 1.05rem;
+  font-weight: normal;
+  line-height: 1.4;
+  cursor: pointer;
+  
+  /* Truncation rules */
+  flex-grow: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover {
+    color: #002a54;
+  }
+}
+
+/* Compact and modern comment badge */
+.comment-badge {
+  background-color: #e9ecef;
+  color: #495057;
+  font-size: 0.8rem;
+  //font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px; // Makes it a rounded pill
+  min-width: 28px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.article-meta {
+  font-size: 0.85rem;
+  color: #666;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 6px; /* Slightly more spacing under the badge row */
+
+  .category-tag {
+    text-transform: capitalize;
+    color: #444;
+    font-weight: 500;
+  }
+
+  .publish-time {
+    color: #777;
+  }
+
+  .status-badge {
+    color: #999;
+    font-style: italic;
+  }
+
+  .separator {
+    color: #ccc;
+  }
 }
