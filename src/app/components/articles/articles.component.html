@@ -16,9 +16,6 @@
     </button>
   </div>
 
-  @if (isLoading$ | async) {
-    <p class="loading-text">Ladataan artikkeleita...</p>
-  } @else {
     @if (articles$ | async; as articles) {
       <ul class="articles-list">
         @for (article of articles; track article.id) {
@@ -55,5 +52,5 @@
         }
       </ul>
     }
-  }
+  
 </div>
