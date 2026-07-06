@@ -11,6 +11,7 @@ import { MyDiscussionsComponent } from '@components/my-discussions/my-discussion
 
 import { ArticleHistoryItem, HistoryService } from '@services/history.service';
 import { HistoryListComponent } from '@components/history-list/history-list.component';
+import { ArticlesComponent } from '@components/articles/articles.component';
 import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
 import { GroupedDiscussion } from '@services/yle-history.service';
 import { AuthService } from '@services/auth.service';
@@ -25,7 +26,7 @@ import { CommentServiceManager } from '@app/services/comment-service-manager.ser
   imports: [
     CommonModule, FormsModule,
     CommentItemComponent, HistoryListComponent, LoginPanelComponent, MyDiscussionsComponent,
-    RouterModule
+    ArticlesComponent, RouterModule
   ]
 })
 export class CommentListComponent implements OnInit {

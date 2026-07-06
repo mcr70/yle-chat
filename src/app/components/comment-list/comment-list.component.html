@@ -21,11 +21,15 @@
         (articleIdFilterChange)="onArticleIdChanged($event)">
       </app-my-discussions>
 
+      <app-articles 
+        (articleIdFilterChange)="onArticleIdChanged($event)">
+      </app-articles>
+<!--
       <app-history-list 
           [articleIdFilter]="articleId"
           (articleSelected)="handleArticleSelected($event)">
       </app-history-list>
-
+-->      
       <div class="sidebar-resizer" (mousedown)="startResizing($event)"></div>
     </div>
 
@@ -67,7 +71,7 @@
               />
 
               <div class="nickname-filter-container">
-                <input type="text" placeholder="Suodata nimimerkillä..." class="yle-input filter-input"
+                <input type="text" placeholder="Hae nimimerkkiä..." class="yle-input filter-input"
                   [value]="nicknameFilter"
                   (input)="onNicknameChanged($any($event.target).value)"
                 />

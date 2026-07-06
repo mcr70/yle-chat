@@ -58,7 +58,14 @@ const PROXY_CONFIG = [
         }
       });
     },
-  }
+  },
+  {
+    context: ["/v1/layout-fragment/"],
+    target: "https://layout-front.api.yle.fi",
+    secure: true,
+    changeOrigin: true,
+    logLevel: "debug"
+  }  
 ];
 
 module.exports = PROXY_CONFIG;

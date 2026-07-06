@@ -1,0 +1,48 @@
+<div class="articles-container">
+  <div class="header-row">
+    <h2>Keskusteluja</h2>
+    
+    <button 
+      (click)="refreshArticles()" 
+      [disabled]="isLoading$ | async"
+      class="refresh-button"
+      [title]="(isLoading$ | async) ? 'Ladataan...' : 'Päivitä keskustelut'">
+      
+      @if (!(isLoading$ | async)) {
+        <span>🔄</span>
+      } @else {
+        <span class="spinner">🔄</span>
+      }
+    </button>
+  </div>
+
+  @if (isLoading$ | async) {
+    <p class="loading-text">Ladataan artikkeleita...</p>
+  } @else {
+    @if (articles$ | async; as articles) {
+      <ul class="articles-list">
+        @for (article of articles; track article.id) {
+          <li class="article-item">
+            <a class="article-link" 
+               href="#" 
+               [title]="article.title" 
+               (click)="selectArticle($event, article)">
+              {{ article.title }}
+            </a>
+            
+            <div class="article-meta">
+              @if (article.category) {
+                <span class="category-tag">{{ article.category }}</span>
+                <span class="separator">|</span>
+              }
+              <span>{{ article.commentCount }} {{ article.commentCount === 1 ? 'kommentti' : 'kommenttia' }}</span>
+              @if (!article.isActive) {
+                <span class="status-badge">(Keskustelu suljettu)</span>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  }
+</div>

@@ -32,7 +32,6 @@ export class MyDiscussionsComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private yleHistory: YleHistoryService,
-    private historyService: HistoryService
   ) {}
 
   ngOnInit(): void {

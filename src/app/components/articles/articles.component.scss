@@ -1,0 +1,125 @@
+.articles-container {
+  font-family: sans-serif;
+  max-width: 100%;
+  margin-top: 30px;
+
+  .header-row {
+    display: flex;
+    justify-content: space-between; // Aligns the button nicely to the right like in my-discussions
+    align-items: center;
+    margin-bottom: 15px;
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #000;
+      margin: 0;
+    }
+  }
+}
+
+/* Rounded refresh button matching my-discussions */
+.refresh-button {
+  width: 40px; 
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+  background-color: #f0f0f0; 
+  color: #333; 
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 50%; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2em; 
+  transition: background-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: #e0e0e0;
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    color: var(--color-text-secondary);
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+}
+
+/* Rotation animation for the spinner */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spinner {
+  font-weight: bold;
+  animation: spin 1.2s linear infinite;
+  display: inline-block;
+}
+
+.loading-text {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.articles-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.article-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  overflow: hidden;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.article-link {
+  color: #004b87;
+  text-decoration: underline;
+  font-size: 1.05rem;
+  font-weight: normal;
+  line-height: 1.4;
+  cursor: pointer;
+  
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%; 
+
+  &:hover {
+    color: #002a54;
+  }
+}
+
+.article-meta {
+  font-size: 0.85rem;
+  color: #666;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 4px;
+
+  .category-tag {
+    text-transform: capitalize;
+    color: #444;
+    font-weight: 500;
+  }
+
+  .separator {
+    color: #ccc;
+  }
+}
+
+.status-badge {
+  color: #999;
+  font-style: italic;
+}
