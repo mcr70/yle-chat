@@ -22,7 +22,8 @@
       </app-my-discussions>
 
       <app-articles 
-        (articleIdFilterChange)="onArticleIdChanged($event)">
+        (articleIdFilterChange)="onArticleIdChanged($event)"
+        (articleSelected)="handleArticleSelected($event)">
       </app-articles>
 <!--
       <app-history-list 
