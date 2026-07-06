@@ -11,8 +11,11 @@
         class="refresh-button"
         title="{{ (isLoading$ | async) ? 'Ladataan...' : 'Päivitä keskustelut' }}">
         
-        <span *ngIf="!(isLoading$ | async)">🔄</span> 
-        <span *ngIf="isLoading$ | async" class="spinner">🔄</span> 
+      @if (!(isLoading$ | async)) {
+        <span>🔄</span>
+      } @else {
+        <app-spinner></app-spinner>
+      }
     </button>
   </div>
 

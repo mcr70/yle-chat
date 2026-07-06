@@ -6,13 +6,15 @@ import { catchError, filter, finalize, ignoreElements, switchMap, tap } from 'rx
 
 import { AuthService } from '@services/auth.service';
 import { YleHistoryService, MyDiscussion, GroupedDiscussion } from '@services/yle-history.service';
-import { HistoryService } from '@app/services/history.service';
+
+import { SpinnerComponent } from '@components/spinner/spinner.component';
+
 
 @Component({
   selector: 'app-my-discussions',
   templateUrl: './my-discussions.component.html',
   styleUrls: ['./my-discussions.component.scss'],
-  imports: [ CommonModule ]
+  imports: [ CommonModule, SpinnerComponent ]
 })
 export class MyDiscussionsComponent implements OnInit {
 

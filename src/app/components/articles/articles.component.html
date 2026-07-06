@@ -7,11 +7,11 @@
       [disabled]="isLoading$ | async"
       class="refresh-button"
       [title]="(isLoading$ | async) ? 'Ladataan...' : 'Päivitä keskustelut'">
-      
+
       @if (!(isLoading$ | async)) {
         <span>🔄</span>
       } @else {
-        <span class="spinner">🔄</span>
+        <app-spinner></app-spinner>
       }
     </button>
   </div>

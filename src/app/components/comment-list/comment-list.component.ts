@@ -18,6 +18,7 @@ import { AuthService } from '@services/auth.service';
 import { PendingReplyService } from '@services/pending-reply.service';
 import { CommentServiceManager } from '@app/services/comment-service-manager.service';
 
+import { SpinnerComponent } from '@components/spinner/spinner.component';
 
 @Component({
   selector: 'app-comment-list',
@@ -25,9 +26,9 @@ import { CommentServiceManager } from '@app/services/comment-service-manager.ser
   styleUrls: ['./comment-list.component.scss'],
   imports: [
     CommonModule, FormsModule,
-    CommentItemComponent, HistoryListComponent, LoginPanelComponent, MyDiscussionsComponent,
-    ArticlesComponent, RouterModule
-  ]
+    CommentItemComponent, LoginPanelComponent, MyDiscussionsComponent,
+    ArticlesComponent, RouterModule, SpinnerComponent
+]
 })
 export class CommentListComponent implements OnInit {
 

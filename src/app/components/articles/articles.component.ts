@@ -4,12 +4,13 @@ import { BehaviorSubject, EMPTY, merge, Observable, Subject } from 'rxjs';
 import { catchError, finalize, ignoreElements, switchMap, tap } from 'rxjs/operators';
 
 import { YleArticlesService } from '@services/yle-articles.service';
+import { SpinnerComponent } from '@components/spinner/spinner.component';
 
 @Component({
   selector: 'app-articles',
   templateUrl: './articles.component.html',
   styleUrls: ['./articles.component.scss'],
-  imports: [CommonModule]
+  imports: [CommonModule, SpinnerComponent]
 })
 export class ArticlesComponent implements OnInit {
 
