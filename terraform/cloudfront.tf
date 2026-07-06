@@ -19,6 +19,11 @@ locals {
       domain       = "login.api.yle.fi" 
       path_pattern = "/v1/user/*"
       allowed_methods = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
+    },
+    YleLayoutApiOrigin = { // For front-page articles, needs POST
+      domain          = "layout-front.api.yle.fi"
+      path_pattern    = "/v1/layout-fragment/*"
+      allowed_methods = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
     }
   }
 }
