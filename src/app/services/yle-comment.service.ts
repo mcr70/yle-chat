@@ -119,7 +119,7 @@ export class YleCommentService implements CommentProvider {
           map(data => {
               const details: TopicDetails = {
                   title: data.title,
-                  articleLink: `https://yle.fi/a/${articleId}#comments`,
+                  articleLink: `https://yle.fi/a/${articleId}`,
                   isLocked: data.isLocked,
                   acceptedCommentsCount: data.acceptedCommentsCount,
                   externalId: data.externalId 
