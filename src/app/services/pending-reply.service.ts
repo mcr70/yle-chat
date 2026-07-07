@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 export interface PendingReply {
-  parentId: string;  // ID of the comment being replied to
+  parentId: string | null;  // ID of the comment being replied to. If null, it's a top-level comment
   replyId: string;   // The temporary ID of the reply (received from POST)
   content: string;   // The content of the reply (for hover/tooltip)
   articleId: string; // The ID of the article (for article-specific cleanup)

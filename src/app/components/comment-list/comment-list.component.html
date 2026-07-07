@@ -25,13 +25,7 @@
         (articleIdFilterChange)="onArticleIdChanged($event)"
         (articleSelected)="handleArticleSelected($event)">
       </app-articles>
-<!--
-      <app-history-list 
-          [articleIdFilter]="articleId"
-          (articleSelected)="handleArticleSelected($event)">
-      </app-history-list>
--->      
-      <div class="sidebar-resizer" (mousedown)="startResizing($event)"></div>
+<div class="sidebar-resizer" (mousedown)="startResizing($event)"></div>
     </div>
 
     <div class="comment-section">
@@ -59,14 +53,9 @@
                 } @else {
                   <app-spinner></app-spinner>
                 }
-
-<!--              
-                <span *ngIf="!isLoading">🔄</span> <span *ngIf="isLoading" class="spinner">↻</span> 
-            -->
               </button>
-
             </div>
-            
+
           </div>
 
 
@@ -103,7 +92,32 @@
                       &rarr;
                   </button>
                 </div>
+
+                <button class="yle-button" 
+                        [class.active]="showNewCommentForm"
+                        (click)="toggleNewCommentForm()" 
+                        [disabled]="commentsLocked || !articleId"
+                        title="Kirjoita uusi pääkommentti">
+                  ✍️
+                </button>
               </div>
+            </div>
+          </div>
+
+          <div class="new-main-comment-form" *ngIf="showNewCommentForm">
+            <textarea 
+              placeholder="Kirjoita uusi kommentti tähän..." 
+              class="yle-input new-comment-textarea"
+              [(ngModel)]="newCommentText"
+              rows="4">
+            </textarea>
+            <div class="new-comment-actions">
+              <button class="yle-button" (click)="submitNewComment()" [disabled]="!newCommentText.trim() || isLoading">
+                Lähetä kommentti
+              </button>
+              <button class="yle-button" (click)="toggleNewCommentForm()">
+                Peruuta
+              </button>
             </div>
           </div>
       </div>

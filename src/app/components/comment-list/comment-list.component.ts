@@ -1,4 +1,3 @@
-
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,7 +14,7 @@ import { ArticlesComponent } from '@components/articles/articles.component';
 import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
 import { GroupedDiscussion } from '@services/yle-history.service';
 import { AuthService } from '@services/auth.service';
-import { PendingReplyService } from '@services/pending-reply.service';
+import { PendingReply, PendingReplyService } from '@services/pending-reply.service';
 import { CommentServiceManager } from '@app/services/comment-service-manager.service';
 
 import { SpinnerComponent } from '@components/spinner/spinner.component';
@@ -23,7 +22,7 @@ import { SpinnerComponent } from '@components/spinner/spinner.component';
 @Component({
   selector: 'app-comment-list',
   templateUrl: './comment-list.component.html',
-  styleUrls: ['./comment-list.component.scss'],
+  styleUrls: ['./comment-list.component.scss', './new-main-comment.scss'],
   imports: [
     CommonModule, FormsModule,
     CommentItemComponent, LoginPanelComponent, MyDiscussionsComponent,
@@ -46,6 +45,7 @@ export class CommentListComponent implements OnInit {
 
   topicDetails: TopicDetails | null = null;
   commentsLocked: boolean = false; 
+  pendingMainComments: PendingReply[] = [];
 
   currentOffset: number = 0;
   readonly limit: number = 1000;
@@ -59,6 +59,10 @@ export class CommentListComponent implements OnInit {
   nicknameFilter: string = '';
   currentMatchIndex: number = -1; 
   activeTargetId: string | null = null;
+
+  // State management for the new main comment form
+  showNewCommentForm: boolean = false;
+  newCommentText: string = '';
 
   private filterFoundMatches: boolean = false;
   
@@ -110,19 +114,50 @@ export class CommentListComponent implements OnInit {
   //   this.handleInitialAnchor();
   // }
 
-  loadTopicDetails(): Observable<TopicDetails> {
-    if (!this.articleId) {
-        throw new Error("Article ID is missing."); 
+  // Toggle visible state of the new comment form
+  toggleNewCommentForm(): void {
+    if (this.commentsLocked || !this.articleId) return;
+    this.showNewCommentForm = !this.showNewCommentForm;
+    if (!this.showNewCommentForm) {
+      this.newCommentText = '';
     }
-
-    this.topicDetails = null;
-    this.articleTitle = '';
-    this.commentsLocked = false;
-    
-    console.log(`Load topic details for ${this.articleId}`)
-    return this.provider.getTopicDetails(this.articleId);
   }
 
+  // Handle new main comment submission
+  submitNewComment(): void {
+    if (!this.newCommentText.trim() || !this.articleId) return;
+
+    this.isLoading = true;
+
+    // Post comment with parentId as null since it's a root/main comment
+    this.provider.postComment(this.articleId, this.newCommentText.trim(), undefined).subscribe({
+      next: (newCommentData) => {
+        console.log('Main comment sent, got response:', newCommentData);
+
+        const newMainComment: PendingReply = {
+          parentId: null, // Root comment
+          replyId: newCommentData.id,
+          content: this.newCommentText.trim(),
+          articleId: this.articleId
+        };
+
+        // Save to pending storage so it survives page refreshes during moderation
+        this.pendingReplyService.addPendingReply(newMainComment);
+        
+        // Push directly to local array to display immediately without waiting for API refresh
+        this.pendingMainComments.unshift(newMainComment);
+
+        // Reset form state
+        this.newCommentText = '';
+        this.showNewCommentForm = false;
+        this.isLoading = false;
+      },
+      error: (err: any) => {
+        console.error('Failed to submit new main comment:', err);
+        this.isLoading = false;
+      }
+    });
+  }
 
   loadComments(reset: boolean = false): void {
     if (this.isLoading) return;
@@ -131,6 +166,8 @@ export class CommentListComponent implements OnInit {
         return;
     }
 
+    this.pendingMainComments = this.pendingReplyService.getPendingRepliesForArticle(this.articleId)
+      .filter(r => r.parentId === null);
     this.isLoading = true;
     const startTime = Date.now();
 
@@ -228,6 +265,8 @@ export class CommentListComponent implements OnInit {
     this.filterFoundMatches = false;
     this.isLoading = false;
     this.currentMatchIndex = -1;
+    this.showNewCommentForm = false;
+    this.newCommentText = '';
   }
 
   loadMoreComments(): void {
@@ -445,6 +484,9 @@ export class CommentListComponent implements OnInit {
             this.pendingReplyService.removePendingReply(pending.replyId);
         }
     }
+
+    this.pendingMainComments = this.pendingReplyService.getPendingRepliesForArticle(this.articleId)
+      .filter(r => r.parentId === null);
   }
 
 
@@ -475,8 +517,7 @@ export class CommentListComponent implements OnInit {
   /**
    * After new comments are loaded, transfer the expanded/collapsed state
    * of comments from old list to new list based on comment IDs.
-   * 
-   * @param oldComments 
+   * * @param oldComments 
    * @param newComments 
    */
   private transferCommentState(oldComments: Comment[], newComments: Comment[]): void {

@@ -75,7 +75,7 @@ interface ApiComment {
 
 interface ReplyPayload {
     content: string;
-    parentId: string;
+    parentId: string | null;
 }
 
 
@@ -217,9 +217,9 @@ export class YleCommentService implements CommentProvider {
    * @param commentId 
    * @returns 
    */
-  postComment(articleId: string, content: string, commentId: string): Observable<any> {
+  postComment(articleId: string, content: string, parentId?: string): Observable<any> {
     
-    if (!articleId || !content || !commentId) {
+    if (!articleId || !content) {
         return throwError(() => new Error('Puuttuvat tiedot vastauksen lähettämiseen.'));
     }
 
@@ -228,7 +228,7 @@ export class YleCommentService implements CommentProvider {
 
     const payload: ReplyPayload = {
         content: content,
-        parentId: commentId
+        parentId: parentId || null
     };
 
     return this.http.post(url, payload, { 
