@@ -11,7 +11,8 @@
                 </span>
                 <strong>{{ comment.author }}</strong> 
                 <span class="author-date"> {{ formatDate(comment.createdAt) }}</span>
-                <button class="share-btn" (click)="copyLink(comment.id); $event.stopPropagation()" title="Copy link to this comment">
+                <button class="share-btn" (click)="copyLink(comment.id); $event.stopPropagation()" 
+                      title="Kopioi linkki kommenttiin">
                     <span class="share-icon">🔗</span>
                     <span class="copy-tooltip" *ngIf="showCopiedTooltip">Kopioitu!</span>
                 </button>
