@@ -19,10 +19,15 @@ import { CommentServiceManager } from '@app/services/comment-service-manager.ser
 
 import { SpinnerComponent } from '@components/spinner/spinner.component';
 
+
+const CURRENT_INFO_VERSION = '1.0';
+const INFO_VERSION_KEY = 'app_info_seen_version';
+
+
 @Component({
   selector: 'app-comment-list',
   templateUrl: './comment-list.component.html',
-  styleUrls: ['./comment-list.component.scss', './new-main-comment.scss'],
+  styleUrls: ['./comment-list.component.scss', './new-main-comment.scss', './info-dialog.scss'],
   imports: [
     CommonModule, FormsModule,
     CommentItemComponent, LoginPanelComponent, MyDiscussionsComponent,
@@ -34,8 +39,9 @@ export class CommentListComponent implements OnInit {
   @ViewChild(HistoryListComponent) historyListComponent!: HistoryListComponent;
 
   private provider!: CommentProvider;
-  
   private isManualInput = false;
+  private MIN_LOADING_TIME_MS = 500;
+  private filterFoundMatches: boolean = false;
 
   sidebarWidth = 320; // Default width of the sidebar in pixels
   isMobileMenuOpen = false; // For mobile view sidebar toggle
@@ -50,7 +56,6 @@ export class CommentListComponent implements OnInit {
   currentOffset: number = 0;
   readonly limit: number = 1000;
 
-  private MIN_LOADING_TIME_MS = 500;
 
   comments: Comment[] = [];
   hasMoreComments: boolean = true;
@@ -64,8 +69,7 @@ export class CommentListComponent implements OnInit {
   showNewCommentForm: boolean = false;
   newCommentText: string = '';
 
-  private filterFoundMatches: boolean = false;
-  
+  isInfoModalOpen = false;
 
   constructor(
     private serviceManager: CommentServiceManager,
@@ -108,6 +112,8 @@ export class CommentListComponent implements OnInit {
             this.loadComments(true); 
         }
     });
+
+    this.checkIfInfoModalShouldOpen();
   }
 
   // ngAfterViewInit(): void {
@@ -458,6 +464,25 @@ export class CommentListComponent implements OnInit {
     }
     return false;
   }
+
+  // ----  Info dialog handling  ----
+  openInfoModal(): void { 
+    this.isInfoModalOpen = true;
+  }
+
+  closeInfoModal(): void {
+    this.isInfoModalOpen = false;
+    localStorage.setItem(INFO_VERSION_KEY, CURRENT_INFO_VERSION);
+  }
+
+  private checkIfInfoModalShouldOpen(): void {
+    const savedVersion = localStorage.getItem(INFO_VERSION_KEY);
+
+    if (!savedVersion || savedVersion !== CURRENT_INFO_VERSION) {
+      this.isInfoModalOpen = true;
+    }
+  }
+  // --------------------------------
 
 //  ^^^  Navigation  ^^^
 

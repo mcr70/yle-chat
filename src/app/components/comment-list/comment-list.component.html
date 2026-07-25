@@ -4,7 +4,13 @@
     <button class="menu-toggle-btn" (click)="toggleMobileMenu()">☰</button>
 
     <h1 class="app-title">Yle kommentointi</h1>
-    <app-login-panel></app-login-panel>
+
+    <div class="toolbar-right">
+      <button class="yle-button" (click)="openInfoModal()" title="Tietoa sovelluksesta">
+        ℹ️
+      </button>
+      <app-login-panel></app-login-panel>
+    </div>
   </header>  
 
   <div class="content-wrapper">
@@ -160,4 +166,45 @@
   </span>
   
   <button (click)="navigateToMatch('next')" class="nav-btn">→</button>
+</div>
+
+
+
+
+<!-- info-modal -->
+<div class="modal-overlay" *ngIf="isInfoModalOpen" (click)="closeInfoModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <header class="modal-header">
+      <h2>Tietoa sovelluksesta</h2>
+      <button class="close-btn" (click)="closeInfoModal()">&times;</button>
+    </header>
+
+    <div class="modal-body">
+      <section>
+        <h3> Evästeet ja paikallinen tallennus (LocalStorage)</h3>
+        <p> Sovellus ei käytä seuranta- tai markkinointievästeitä.</p>
+        <ul>
+          <li><strong>LocalStorage / SessionStorage:</strong> Käytetään istunnon tilan tallentamiseen selaimeesi.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3> Autentikointi ja kirjautuminen</h3>
+        <p>
+          Kirjautuminen tapahtuu suoraan Ylen palvelimille. Salasanaa ei koskaan käsitellä tai tallenneta tähän sovellukseen.
+        </p>
+      </section>
+
+      <section>
+        <h3> Kommentointi</h3>
+        <p>
+          Kommentit haetaan ja lähetetään suoraan Ylen julkisten rajapintojen kautta. Omat keskustelut -osio näyttää historiaa nimimerkkisi perusteella lähetetyistä kommenteista.
+        </p>
+      </section>
+    </div>
+
+    <footer class="modal-footer">
+      <button class="primary-btn" (click)="closeInfoModal()">Selvä</button>
+    </footer>
+  </div>
 </div>
