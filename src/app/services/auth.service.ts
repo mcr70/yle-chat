@@ -48,17 +48,17 @@ export class AuthService {
           this.loggedInSubject.next(true);
           this.userSubject.next(username)
 
-          localStorage.setItem('isLoggedInFlag', 'true');
+          sessionStorage.setItem('isLoggedInFlag', 'true');
         }
         else {
           console.log("Problems in login", response.status);
-          localStorage.setItem('isLoggedInFlag', 'true');
+          sessionStorage.setItem('isLoggedInFlag', 'false');
         }
       }),
       catchError(error => {
         this.loggedInSubject.next(false);
         console.warn('failed to login');
-        localStorage.setItem('isLoggedInFlag', 'false');
+        sessionStorage.setItem('isLoggedInFlag', 'false');
 
         return of(null);
       })
@@ -80,11 +80,11 @@ export class AuthService {
     }).pipe(
       tap(response => {
         this.loggedInSubject.next(false);
-        localStorage.removeItem('isLoggedInFlag');
+        sessionStorage.removeItem('isLoggedInFlag');
       }),
       catchError(error => {
         this.loggedInSubject.next(false);
-        localStorage.removeItem('isLoggedInFlag');
+        sessionStorage.removeItem('isLoggedInFlag');
 
         return of(null);
       })
@@ -94,7 +94,7 @@ export class AuthService {
 
 
   private restoreSession() {
-    const wasLoggedIn = localStorage.getItem('isLoggedInFlag') === 'true';
+    const wasLoggedIn = sessionStorage.getItem('isLoggedInFlag') === 'true';
     if (wasLoggedIn) {
       this.loggedInSubject.next(true);
     }

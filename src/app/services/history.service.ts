@@ -3,6 +3,10 @@
  */
 import { Injectable } from '@angular/core';
 
+const HISTORY_ENABLED = false; // Set to false to disable history tracking
+const HISTORY_STORAGE_KEY = 'articleHistory';
+const HISTORY_MAX_ITEMS = 20;
+
 export interface ArticleHistoryItem {
   id: string;
   title: string;
@@ -14,12 +18,11 @@ export interface ArticleHistoryItem {
 })
 export class HistoryService {
   
-  private readonly STORAGE_KEY = 'articleHistory';
-  private readonly MAX_ITEMS = 20; 
-
   constructor() {
-    if (!localStorage.getItem(this.STORAGE_KEY)) {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify([]));
+    if (HISTORY_ENABLED) {
+      if (!sessionStorage.getItem(HISTORY_STORAGE_KEY)) {
+        sessionStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify([]));
+      }
     }
   }
 
@@ -27,7 +30,7 @@ export class HistoryService {
    * Get stored article history.
    */
   getHistory(): ArticleHistoryItem[] {
-    const json = localStorage.getItem(this.STORAGE_KEY);
+    const json = sessionStorage.getItem(HISTORY_STORAGE_KEY);
     return json ? (JSON.parse(json) as ArticleHistoryItem[]) : [];
   }
 
@@ -35,7 +38,7 @@ export class HistoryService {
    * Add or update an article in the history.
    */
   addOrUpdateArticle(id: string, title: string): void {
-    //console.log(`addOrUpdateArticle(${id}, ${title})`)
+    if (!HISTORY_ENABLED) return;
 
     if (!id || !title) return;
 
@@ -51,11 +54,11 @@ export class HistoryService {
 
     history.unshift(newItem); // Add to the front
 
-    if (history.length > this.MAX_ITEMS) {
-      history = history.slice(0, this.MAX_ITEMS); // Keep only the latest MAX_ITEMS
+    if (history.length > HISTORY_MAX_ITEMS) {
+      history = history.slice(0, HISTORY_MAX_ITEMS); // Keep only the latest MAX_ITEMS
     }
 
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(history));
+    sessionStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
   }
 
 
@@ -64,6 +67,8 @@ export class HistoryService {
    * @param ids Article IDs to remove from history.
    */
   clear(ids: string[]): void {
+    if (!HISTORY_ENABLED) return;
+
     if (!ids || ids.length === 0) {
       return;
     }
@@ -72,6 +77,6 @@ export class HistoryService {
     
     history = history.filter(item => !ids.includes(item.id));
     
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(history));
+    sessionStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
   }
 }
