@@ -42,6 +42,7 @@ export class CommentListComponent implements OnInit {
   private isManualInput = false;
   private MIN_LOADING_TIME_MS = 500;
   private filterFoundMatches: boolean = false;
+  private currentProvider: string = 'yle';
 
   sidebarWidth = 320; // Default width of the sidebar in pixels
   isMobileMenuOpen = false; // For mobile view sidebar toggle
@@ -84,11 +85,12 @@ export class CommentListComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
+      this.currentProvider = params.get('provider') || 'yle';
       const idFromUrl = params.get('id');
 
       if (idFromUrl) {
         this.articleId = idFromUrl;
-        this.provider = this.serviceManager.getProvider(this.articleId);
+        this.provider = this.serviceManager.getProvider(this.currentProvider);
 
         this.loadComments(true);
       } 
@@ -100,7 +102,7 @@ export class CommentListComponent implements OnInit {
           const latestArticle = history[0];
           this.articleTitle = latestArticle.title || '';
           this.articleId = latestArticle.id;
-          this.provider = this.serviceManager.getProvider(this.articleId);
+          this.provider = this.serviceManager.getProvider(this.currentProvider);
 
           this.loadComments(true); 
         }
@@ -309,7 +311,7 @@ export class CommentListComponent implements OnInit {
     
     if (!parsedId) {
         if (rawInput === '') {
-             this.router.navigate(['/']);
+             this.router.navigate([`/${this.currentProvider}/comments`]);
              this.articleId = '';
         }
         return; 
@@ -318,7 +320,7 @@ export class CommentListComponent implements OnInit {
     const currentUrlId = this.route.snapshot.paramMap.get('id');
 
     if (currentUrlId !== parsedId) {
-        this.router.navigate(['/comments', parsedId]);
+      this.navigateToArticle(parsedId);
     }
 
     this.articleId = parsedId;
@@ -335,7 +337,7 @@ export class CommentListComponent implements OnInit {
     this.isMobileMenuOpen = false; // Close mobile menu if open
     document.body.style.overflow = 'auto'; 
 
-    this.router.navigate(['/comments', articleData.id]);
+    this.navigateToArticle(articleData.id);
   }
 
 
@@ -349,7 +351,7 @@ export class CommentListComponent implements OnInit {
     this.isMobileMenuOpen = false; // Close mobile menu if open
     document.body.style.overflow = 'auto'; 
     
-    this.router.navigate(['/comments', discussion.articleId]);
+    this.navigateToArticle(discussion.articleId);
   }
 
 
@@ -484,7 +486,9 @@ export class CommentListComponent implements OnInit {
   }
   // --------------------------------
 
-//  ^^^  Navigation  ^^^
+  private navigateToArticle(articleId: string): void {
+    this.router.navigate([`/${this.currentProvider}/comments`, articleId]);
+  }
 
   private cleanupPendingReplies(): void {
     const pendingReplies = this.pendingReplyService.getPendingRepliesForArticle(this.articleId);

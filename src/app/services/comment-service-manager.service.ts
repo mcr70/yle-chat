@@ -12,9 +12,9 @@ export class CommentServiceManager {
   ) {}
 
   /**
-   * Returns the appropriate comment provider based on the topicId format.
+   * Returns the appropriate comment provider based on the providerId.
    */
-  getProvider(topicId: string): CommentProvider {
+  getProvider(providerId: string): CommentProvider {
     // currently only Yle is supported
     return this.yleService;
   }
