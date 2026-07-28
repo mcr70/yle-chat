@@ -5,6 +5,19 @@
 console.log('--- PROXY CONFIG HAS BEEN READ ---'); 
 
 const PROXY_CONFIG = [
+  // 0. HS Comments API
+  {
+    context: ["/api/commenting/"],
+    target: "https://www.hs.fi",
+    secure: true,
+    changeOrigin: true,
+    logLevel: "debug",
+    // headers: {
+    //   "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    //   "Referer": "https://www.hs.fi/"
+    // }
+  },
+
   // 1. Yle Comments API, v2
   {
     context: ["/v2/topics/"],

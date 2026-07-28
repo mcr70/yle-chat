@@ -1,7 +1,12 @@
+import { Injectable } from '@angular/core';
+
 import { CommentService } from './comment-service.interface';
 import { AuthService } from './auth-service.interface';
 import { ArticleService } from './article-service.interface';
 import { MyHistoryService } from './my-history-service.interface';
+
+import { YleProvider } from '@providers/yle/yle-provider.service';
+import { HSProvider } from '@providers/hs/hs-provider.service';
 
 export interface ProviderCapabilities {
   supportsAuth: boolean;
@@ -22,24 +27,30 @@ export interface Provider {
   articleService?: ArticleService;
 }
 
-import { Injectable } from '@angular/core';
-import { YleProvider } from '@providers/yle/yle-provider.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProviderManager {
+  private providers = new Map<string, Provider>();
 
   constructor(
     private yleProvider: YleProvider,
-  ) {}
+    private hsProvider: HSProvider
+  ) {
+    this.providers.set(this.yleProvider.id, this.yleProvider);
+    this.providers.set(this.hsProvider.id, this.hsProvider);
+  }
 
   /**
    * Returns the appropriate provider based on the providerId.
    */
   getProvider(providerId: string): Provider {
-    // currently only Yle is supported
-    return this.yleProvider;
+    const provider = this.providers.get(providerId);
+    if (!provider) {
+      throw new Error(`Provider '${providerId}' not supported.`);
+    }
+    return provider;
   }
 
 }
