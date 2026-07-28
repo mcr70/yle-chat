@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { ProviderCapabilities } from "@app/models/provider.interface";
-import { Provider } from "@app/models/provider.interface";
+import { ProviderCapabilities } from "@app/models/provider";
+import { Provider } from "@app/models/provider";
 import { YleCommentService } from "./yle-comment.service";
 import { YleAuthService } from "./yle-auth.service";
 import { YleHistoryService } from "./yle-my-history.service";
@@ -22,7 +22,7 @@ export class YleProvider implements Provider {
   constructor(
     public commentService: YleCommentService,
     public authService: YleAuthService,
-    public historyService: YleHistoryService,
+    public myHistoryService: YleHistoryService,
     public articleService: YleArticlesService
   ) {}
 }

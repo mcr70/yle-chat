@@ -21,3 +21,25 @@ export interface Provider {
   myHistoryService?: MyHistoryService;
   articleService?: ArticleService;
 }
+
+import { Injectable } from '@angular/core';
+import { YleProvider } from '@services/yle-provider.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ProviderManager {
+
+  constructor(
+    private yleProvider: YleProvider,
+  ) {}
+
+  /**
+   * Returns the appropriate provider based on the providerId.
+   */
+  getProvider(providerId: string): Provider {
+    // currently only Yle is supported
+    return this.yleProvider;
+  }
+
+}

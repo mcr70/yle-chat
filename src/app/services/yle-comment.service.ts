@@ -57,7 +57,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { ProviderCapabilities } from '@app/models/provider.interface';
+import { ProviderCapabilities } from '@app/models/provider';
 import { TopicDetails, Comment } from '@app/models/comment-service.interface';
 import { CommentService } from '@app/models/comment-service.interface';
 

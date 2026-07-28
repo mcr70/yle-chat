@@ -1,14 +1,13 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-import { Provider } from '@app/models/provider.interface';
-import { Comment } from '@app/models/comment-service.interface';
 import { Subscription } from 'rxjs';
 
-import { YleAuthService } from '@app/services/yle-auth.service';
+import { Provider } from '@app/models/provider';
+import { Comment } from '@app/models/comment-service.interface';
+
 import { PendingReplyService, PendingReply } from '@services/pending-reply.service'; 
-import { CommentServiceManager } from '@app/services/comment-service-manager.service';
+import { ProviderManager } from '@app/models/provider';
 
 @Component({
   selector: 'app-comment-item',
@@ -17,16 +16,16 @@ import { CommentServiceManager } from '@app/services/comment-service-manager.ser
   standalone: true,
   imports: [ CommonModule, FormsModule ] 
 })
-export class CommentItemComponent {
+export class CommentItemComponent implements OnInit, OnDestroy {
 
   private authSubscription: Subscription | undefined;
-  private provider!: Provider;
+  public provider!: Provider;
   showCopiedTooltip: boolean = false;
 
-  @Input() articleId!: string; // Needed to make a like/unlike requests
+  @Input() articleId!: string;
   @Input() comment!: Comment;
   @Input() level: number = 0; 
-  @Input() isLocked: boolean = true
+  @Input() isLocked: boolean = true;
 
   isLoggedIn: boolean = false;
   isReplying: boolean = false;
@@ -38,14 +37,12 @@ export class CommentItemComponent {
   pendingReply: PendingReply | null = null;
 
   constructor(
-    private serviceManager: CommentServiceManager,
-    private authService: YleAuthService,
+    private providerManager: ProviderManager,
     private pendingReplyService: PendingReplyService
   ) { }
 
-
   ngOnInit(): void {
-    this.provider = this.serviceManager.getProvider(this.articleId);
+    this.provider = this.providerManager.getProvider(this.articleId);
 
     if (this.comment.isExpanded === undefined) {
       this.comment.isExpanded = false;
@@ -53,25 +50,25 @@ export class CommentItemComponent {
 
     this.checkPendingStatus();
 
-    this.authSubscription = this.authService.isLoggedIn$.subscribe(isLoggedIn => {
-      this.isLoggedIn = isLoggedIn;
-    });
-
+    if (this.provider.capabilities.supportsAuth && this.provider.authService) {
+      this.authSubscription = this.provider.authService.isLoggedIn$.subscribe(isLoggedIn => {
+        this.isLoggedIn = isLoggedIn;
+      });
+    }
   }
 
+  ngOnDestroy(): void {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
+  }
 
-  // Copy comment link to clipboard
   copyLink(commentId: string): void {
-    // Get the current URL without any existing hashes
     const baseUrl = window.location.origin + window.location.pathname + window.location.search;
     const shareUrl = `${baseUrl}#comment-${commentId}`;
 
-    // Copy to clipboard
     navigator.clipboard.writeText(shareUrl).then(() => {
-      /* Show feedback */
       this.showCopiedTooltip = true;
-      
-      /* Hide feedback after 2 seconds */
       setTimeout(() => {
         this.showCopiedTooltip = false;
       }, 1500);      
@@ -80,11 +77,9 @@ export class CommentItemComponent {
     });
   } 
 
-
   get isReplyDisabled(): boolean {
-    return this.isLocked;
+    return this.isLocked || !this.provider.capabilities.supportsReplying;
   }
-
 
   toggleCollapse() {
     this.comment.isCollapsed = !this.comment.isCollapsed;
@@ -95,24 +90,30 @@ export class CommentItemComponent {
   }
 
   public toggleLike() {
+    if (!this.provider.capabilities.supportsLiking || !this.provider.commentService.likeComment) {
+      return;
+    }
+
     const articleId = this.articleId; 
     const commentId = this.comment.id;
 
     if (this.comment.isLiked) { // Unlike
-      this.provider.unlikeComment(articleId, commentId)
-        .subscribe({
-          next: () => {
-            this.comment.isLiked = false;
-            this.comment.likes = (this.comment.likes || 0) - 1;
-            console.log('Unlike successful.');
-          },
-          error: (error) => {
-            console.error('Unlike failed:', error);
-          }
-        });
+      if (this.provider.commentService.unlikeComment) {
+        this.provider.commentService.unlikeComment(articleId, commentId)
+          .subscribe({
+            next: () => {
+              this.comment.isLiked = false;
+              this.comment.likes = (this.comment.likes || 0) - 1;
+              console.log('Unlike successful.');
+            },
+            error: (error) => {
+              console.error('Unlike failed:', error);
+            }
+          });
+      }
     } 
     else { // Like
-      this.provider.likeComment(articleId, commentId)
+      this.provider.commentService.likeComment(articleId, commentId)
         .subscribe({
           next: () => {
             this.comment.isLiked = true;
@@ -127,39 +128,44 @@ export class CommentItemComponent {
   }
 
   getReplyTooltip(): string | null {
-      if (this.isLocked) {
-          return 'Keskustelu on suljettu';
-      }
-      if (this.pendingReply) {
-            return `Vastauksesi on käsittelyssä: "${this.pendingReply.content.substring(0, 50)}..."`;
-      }
-      if (!(this.isLoggedIn)) { 
-          return 'Kirjaudu sisään vastataksesi'; 
-      }
-      return null;
+    if (!this.provider.capabilities.supportsReplying) {
+      return 'Vastaaminen ei ole tuettu tällä alustalla';
+    }
+    if (this.isLocked) {
+      return 'Keskustelu on suljettu';
+    }
+    if (this.pendingReply) {
+      return `Vastauksesi on käsittelyssä: "${this.pendingReply.content.substring(0, 50)}..."`;
+    }
+    if (this.provider.capabilities.supportsAuth && !this.isLoggedIn) { 
+      return 'Kirjaudu sisään vastataksesi'; 
+    }
+    return null;
   }
 
   toggleReplyForm(): void {
-    if (this.isLoggedIn) {
+    const canReply = this.provider.capabilities.supportsAuth ? this.isLoggedIn : true;
+    
+    if (canReply && this.provider.capabilities.supportsReplying) {
       this.isReplying = !this.isReplying;
     }
   }
 
   sendReply(): void {
-    if (this.isReplyDisabled) {
-      console.warn("Attempted to send reply to a locked topic");
+    if (this.isReplyDisabled || !this.provider.commentService.postComment) {
+      console.warn("Attempted to send reply when locked or not supported");
       return;
     }
 
-    if (!this.replyText.trim()) return; // Don't send an empty comment
+    if (!this.replyText.trim()) return;
 
     const parentId = this.comment.id;
     
-    this.provider.postComment(this.articleId, this.replyText, parentId).subscribe({
+    this.provider.commentService.postComment(this.articleId, this.replyText, parentId).subscribe({
       next: (newCommentData) => {
         console.log('Reply sent, got response:', newCommentData);
         
-        const newReply: PendingReply = { // Pending reply
+        const newReply: PendingReply = {
           parentId: this.comment.id,
           replyId: newCommentData.id, 
           content: this.replyText,
@@ -178,11 +184,9 @@ export class CommentItemComponent {
     });
   }
 
-
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleString('fi-FI');
   }
-
 
   isSpecialComment(): boolean {
     return this.comment.hasNickname === true;
@@ -194,7 +198,6 @@ export class CommentItemComponent {
     }
   }
 
-  // -------------------------------------------------------------------------------------
   private checkPendingStatus(): void {
     const pendingReplies = this.pendingReplyService.getPendingRepliesForArticle(this.articleId);
     this.pendingReply = pendingReplies.find(r => r.parentId === this.comment.id) || null;
