@@ -1,3 +1,6 @@
+import { YleAuthService } from '@app/services/yle-auth.service';
+import { YleArticlesService } from '@app/services/yle-articles.service';
+import { YleHistoryService } from '@app/services/yle-history.service';
 import { Observable } from 'rxjs';
 
 
@@ -27,7 +30,23 @@ export interface Comment {
   hasNickname?: boolean; // Marks if comment matches nickname filter
 }
 
+
+export interface ProviderCapabilities {
+  // Supported services
+  supportsAuth: boolean;           // Supporting login/logout?
+  supportsUserHistory: boolean;    // Supporting user history?
+  supportsArticleListing: boolean; // Supporting article fetching?
+
+  // Supported actions
+  supportsLiking: boolean;         // Supporting like/unlike?
+  supportsReplying: boolean;       // Supporting replying to comments?
+}
+
 export interface CommentProvider {
+  id: string; // e.g. 'yle', 'reddit', 'hs'
+  displayName: string; // e.g. 'Yleisradio', 'Reddit', 'Helsingin Sanomat'
+  capabilities: ProviderCapabilities;
+
   /**
    * Gets comments for a specific article with pagination.
    * 
@@ -79,4 +98,9 @@ export interface CommentProvider {
    * @param nickname 
    */
   markNickname(comments: Comment[], nickname: string | null): void;
+
+
+  authService?: YleAuthService;
+  historyService?: YleHistoryService;
+  articleService?: YleArticlesService;  
 }

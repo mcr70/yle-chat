@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { AuthService } from '@services/auth.service';
+import { YleAuthService } from '@app/services/yle-auth.service';
 
 @Component({
   selector: 'app-login-panel',
@@ -25,7 +25,7 @@ export class LoginPanelComponent {
   
   isLoggedIn$;
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: YleAuthService) {
     this.isLoggedIn$ = this.authService.isLoggedIn$;
   }
 

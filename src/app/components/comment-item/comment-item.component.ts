@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Comment, CommentProvider } from '@app/models/comment-provider.interface';
 import { Subscription } from 'rxjs';
 
-import { AuthService } from '@services/auth.service';
+import { YleAuthService } from '@app/services/yle-auth.service';
 import { PendingReplyService, PendingReply } from '@services/pending-reply.service'; 
 import { CommentServiceManager } from '@app/services/comment-service-manager.service';
 
@@ -38,7 +38,7 @@ export class CommentItemComponent {
 
   constructor(
     private serviceManager: CommentServiceManager,
-    private authService: AuthService,
+    private authService: YleAuthService,
     private pendingReplyService: PendingReplyService
   ) { }
 

@@ -13,7 +13,7 @@ import { HistoryListComponent } from '@components/history-list/history-list.comp
 import { ArticlesComponent } from '@components/articles/articles.component';
 import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
 import { GroupedDiscussion } from '@services/yle-history.service';
-import { AuthService } from '@services/auth.service';
+import { YleAuthService } from '@app/services/yle-auth.service';
 import { PendingReply, PendingReplyService } from '@services/pending-reply.service';
 import { CommentServiceManager } from '@app/services/comment-service-manager.service';
 
@@ -76,7 +76,7 @@ export class CommentListComponent implements OnInit {
     private serviceManager: CommentServiceManager,
     //private commentService: YleCommentService,
     private historyService: HistoryService,
-    private authService: AuthService,
+    private authService: YleAuthService,
     private pendingReplyService: PendingReplyService,
     private router: Router,
     private route: ActivatedRoute

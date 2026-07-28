@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { BehaviorSubject, EMPTY, merge, Observable, of, Subject } from 'rxjs';
 import { catchError, filter, finalize, ignoreElements, switchMap, tap } from 'rxjs/operators';
 
-import { AuthService } from '@services/auth.service';
+import { YleAuthService } from '@app/services/yle-auth.service';
 import { YleHistoryService, MyDiscussion, GroupedDiscussion } from '@services/yle-history.service';
 
 import { SpinnerComponent } from '@components/spinner/spinner.component';
@@ -32,7 +32,7 @@ export class MyDiscussionsComponent implements OnInit {
   displayLimit = 5; // Limit for displayed discussions
 
   constructor(
-    private authService: AuthService,
+    private authService: YleAuthService,
     private yleHistory: YleHistoryService,
   ) {}
 

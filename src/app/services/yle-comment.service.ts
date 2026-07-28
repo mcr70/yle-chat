@@ -57,7 +57,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { TopicDetails, Comment, CommentProvider } from '@app/models/comment-provider.interface';
+import { TopicDetails, Comment, CommentProvider, ProviderCapabilities } from '@app/models/comment-provider.interface';
 
 // getComment response interface
 interface ApiComment {
@@ -83,6 +83,17 @@ interface ReplyPayload {
   providedIn: 'root'
 })
 export class YleCommentService implements CommentProvider {
+readonly id = 'yle';
+  readonly displayName = 'Yleisradio';
+
+  readonly capabilities: ProviderCapabilities = {
+    supportsAuth: true,
+    supportsUserHistory: true,
+    supportsArticleListing: true,
+    supportsLiking: true,
+    supportsReplying: true
+  };
+
   private commonParams = {
     app_id: 'yle-comments-plugin',
     app_key: 'sfYZJtStqjcANSKMpSN5VIaIUwwcBB6D'

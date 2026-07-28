@@ -6,7 +6,7 @@ import { tap, catchError } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
+export class YleAuthService {
   private readonly LOGIN_PROXY_PREFIX = '';//'/yle-login';
   
   private readonly APP_PARAMS = 'app_id=tunnus_shared_ui_202004_prod&app_key=0aded2b7c4387042dbfb19cfcf152663&initiating_app=uutiset';
