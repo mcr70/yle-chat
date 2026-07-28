@@ -5,7 +5,7 @@ import { BehaviorSubject, EMPTY, merge, Observable, of, Subject } from 'rxjs';
 import { catchError, filter, finalize, ignoreElements, switchMap, tap } from 'rxjs/operators';
 
 import { YleAuthService } from '@app/services/yle-auth.service';
-import { YleHistoryService, MyDiscussion, GroupedDiscussion } from '@services/yle-history.service';
+import { YleHistoryService, MyDiscussion, GroupedDiscussion } from '@app/services/yle-my-history.service';
 
 import { SpinnerComponent } from '@components/spinner/spinner.component';
 

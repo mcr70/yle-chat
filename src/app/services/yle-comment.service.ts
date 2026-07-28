@@ -57,7 +57,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { TopicDetails, Comment, CommentProvider, ProviderCapabilities } from '@app/models/comment-provider.interface';
+import { ProviderCapabilities } from '@app/models/provider.interface';
+import { TopicDetails, Comment } from '@app/models/comment-service.interface';
+import { CommentService } from '@app/models/comment-service.interface';
 
 // getComment response interface
 interface ApiComment {
@@ -82,7 +84,7 @@ interface ReplyPayload {
 @Injectable({
   providedIn: 'root'
 })
-export class YleCommentService implements CommentProvider {
+export class YleCommentService implements CommentService {
 readonly id = 'yle';
   readonly displayName = 'Yleisradio';
 

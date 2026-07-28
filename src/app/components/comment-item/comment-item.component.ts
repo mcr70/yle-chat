@@ -2,7 +2,8 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { Comment, CommentProvider } from '@app/models/comment-provider.interface';
+import { Provider } from '@app/models/provider.interface';
+import { Comment } from '@app/models/comment-service.interface';
 import { Subscription } from 'rxjs';
 
 import { YleAuthService } from '@app/services/yle-auth.service';
@@ -19,7 +20,7 @@ import { CommentServiceManager } from '@app/services/comment-service-manager.ser
 export class CommentItemComponent {
 
   private authSubscription: Subscription | undefined;
-  private provider!: CommentProvider;
+  private provider!: Provider;
   showCopiedTooltip: boolean = false;
 
   @Input() articleId!: string; // Needed to make a like/unlike requests

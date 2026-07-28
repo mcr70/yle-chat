@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Observable, forkJoin, of } from 'rxjs';
 
-import { Comment, CommentProvider, TopicDetails } from '@app/models/comment-provider.interface';
+import { CommentService } from '@app/models/provider.interface';
+import { Comment, TopicDetails } from '@app/models/comment-service.interface';
+
 import { CommentItemComponent } from '@components/comment-item/comment-item.component';
 import { MyDiscussionsComponent } from '@components/my-discussions/my-discussions.component';
 
@@ -12,7 +14,7 @@ import { ArticleHistoryItem, HistoryService } from '@services/history.service';
 import { HistoryListComponent } from '@components/history-list/history-list.component';
 import { ArticlesComponent } from '@components/articles/articles.component';
 import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
-import { GroupedDiscussion } from '@services/yle-history.service';
+import { GroupedDiscussion } from '@app/services/yle-my-history.service';
 import { YleAuthService } from '@app/services/yle-auth.service';
 import { PendingReply, PendingReplyService } from '@services/pending-reply.service';
 import { CommentServiceManager } from '@app/services/comment-service-manager.service';
@@ -38,7 +40,7 @@ export class CommentListComponent implements OnInit {
 
   @ViewChild(HistoryListComponent) historyListComponent!: HistoryListComponent;
 
-  private provider!: CommentProvider;
+  private provider!: CommentService;
   private isManualInput = false;
   private MIN_LOADING_TIME_MS = 500;
   private filterFoundMatches: boolean = false;
