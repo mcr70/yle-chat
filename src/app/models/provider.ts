@@ -23,7 +23,7 @@ export interface Provider {
 }
 
 import { Injectable } from '@angular/core';
-import { YleProvider } from '@services/yle-provider.service';
+import { YleProvider } from '@providers/yle/yle-provider.service';
 
 @Injectable({
   providedIn: 'root'
