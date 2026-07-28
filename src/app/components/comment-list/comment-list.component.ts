@@ -1,10 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Observable, forkJoin, of } from 'rxjs';
+import { Observable, Subscription, forkJoin, of } from 'rxjs';
 
-import { Comment, CommentProvider, TopicDetails } from '@app/models/comment-provider.interface';
+import { Provider } from '@app/models/provider';
+import { Comment, TopicDetails } from '@app/models/comment-service.interface';
+
 import { CommentItemComponent } from '@components/comment-item/comment-item.component';
 import { MyDiscussionsComponent } from '@components/my-discussions/my-discussions.component';
 
@@ -12,42 +14,42 @@ import { ArticleHistoryItem, HistoryService } from '@services/history.service';
 import { HistoryListComponent } from '@components/history-list/history-list.component';
 import { ArticlesComponent } from '@components/articles/articles.component';
 import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
-import { GroupedDiscussion } from '@services/yle-history.service';
-import { AuthService } from '@services/auth.service';
+import { GroupedDiscussion } from '@app/models/my-history-service.interface';
 import { PendingReply, PendingReplyService } from '@services/pending-reply.service';
-import { CommentServiceManager } from '@app/services/comment-service-manager.service';
+import { ProviderManager } from '@app/models/provider';
 
 import { SpinnerComponent } from '@components/spinner/spinner.component';
 
-
 const CURRENT_INFO_VERSION = '1.0';
 const INFO_VERSION_KEY = 'app_info_seen_version';
-
 
 @Component({
   selector: 'app-comment-list',
   templateUrl: './comment-list.component.html',
   styleUrls: ['./comment-list.component.scss', './new-main-comment.scss', './info-dialog.scss'],
+  standalone: true,
   imports: [
     CommonModule, FormsModule,
     CommentItemComponent, LoginPanelComponent, MyDiscussionsComponent,
     ArticlesComponent, RouterModule, SpinnerComponent
-]
+  ]
 })
-export class CommentListComponent implements OnInit {
+export class CommentListComponent implements OnInit, OnDestroy {
 
   @ViewChild(HistoryListComponent) historyListComponent!: HistoryListComponent;
 
-  private provider!: CommentProvider;
+  public provider!: Provider;
+  private authSubscription?: Subscription;
+
   private isManualInput = false;
   private MIN_LOADING_TIME_MS = 500;
   private filterFoundMatches: boolean = false;
-  private currentProvider: string = 'yle';
+  private currentProviderId: string = 'yle';
 
-  sidebarWidth = 320; // Default width of the sidebar in pixels
-  isMobileMenuOpen = false; // For mobile view sidebar toggle
+  sidebarWidth = 320;
+  isMobileMenuOpen = false;
 
-  articleId: string = ''
+  articleId: string = '';
   articleTitle: string = '';
 
   topicDetails: TopicDetails | null = null;
@@ -57,7 +59,6 @@ export class CommentListComponent implements OnInit {
   currentOffset: number = 0;
   readonly limit: number = 1000;
 
-
   comments: Comment[] = [];
   hasMoreComments: boolean = true;
   isLoading: boolean = false;
@@ -66,96 +67,99 @@ export class CommentListComponent implements OnInit {
   currentMatchIndex: number = -1; 
   activeTargetId: string | null = null;
 
-  // State management for the new main comment form
   showNewCommentForm: boolean = false;
   newCommentText: string = '';
 
   isInfoModalOpen = false;
 
   constructor(
-    private serviceManager: CommentServiceManager,
-    //private commentService: YleCommentService,
+    private providerManager: ProviderManager,
     private historyService: HistoryService,
-    private authService: AuthService,
     private pendingReplyService: PendingReplyService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
 
-
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      this.currentProvider = params.get('provider') || 'yle';
+      this.currentProviderId = params.get('provider') || 'yle';
       const idFromUrl = params.get('id');
+
+      // Päivitetään aktiivinen provider ja haetaan sen auth-tila
+      this.setupProvider(this.currentProviderId);
 
       if (idFromUrl) {
         this.articleId = idFromUrl;
-        this.provider = this.serviceManager.getProvider(this.currentProvider);
-
         this.loadComments(true);
       } 
       else {
-        // No ide from url, load latest from history
         const history = this.historyService.getHistory();
         
         if (history && history.length > 0) {
           const latestArticle = history[0];
           this.articleTitle = latestArticle.title || '';
           this.articleId = latestArticle.id;
-          this.provider = this.serviceManager.getProvider(this.currentProvider);
 
           this.loadComments(true); 
         }
       }
     });
-    
-    this.authService.isLoggedIn$.subscribe(() => {
-        if (this.articleId) {
-            this.loadComments(true); 
-        }
-    });
 
     this.checkIfInfoModalShouldOpen();
   }
 
-  // ngAfterViewInit(): void {
-  //   this.handleInitialAnchor();
-  // }
+  ngOnDestroy(): void {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
+  }
 
-  // Toggle visible state of the new comment form
+  private setupProvider(providerId: string): void {
+    this.provider = this.providerManager.getProvider(providerId);
+
+    // Puretaan edellisen providerin auth-tilaus
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+      this.authSubscription = undefined;
+    }
+
+    // Luodaan uusi tilaus jos alusta tukee autentikaatiota
+    if (this.provider.capabilities.supportsAuth && this.provider.authService) {
+      this.authSubscription = this.provider.authService.isLoggedIn$.subscribe(() => {
+        if (this.articleId) {
+          this.loadComments(true); 
+        }
+      });
+    }
+  }
+
   toggleNewCommentForm(): void {
-    if (this.commentsLocked || !this.articleId) return;
+    if (this.commentsLocked || !this.articleId || !this.provider.capabilities.supportsReplying) return;
     this.showNewCommentForm = !this.showNewCommentForm;
     if (!this.showNewCommentForm) {
       this.newCommentText = '';
     }
   }
 
-  // Handle new main comment submission
   submitNewComment(): void {
-    if (!this.newCommentText.trim() || !this.articleId) return;
+    if (!this.newCommentText.trim() || !this.articleId || !this.provider.commentService.postComment) return;
 
     this.isLoading = true;
 
-    // Post comment with parentId as null since it's a root/main comment
-    this.provider.postComment(this.articleId, this.newCommentText.trim(), undefined).subscribe({
+    this.provider.commentService.postComment(this.articleId, this.newCommentText.trim(), undefined).subscribe({
       next: (newCommentData) => {
         console.log('Main comment sent, got response:', newCommentData);
 
         const newMainComment: PendingReply = {
-          parentId: null, // Root comment
+          parentId: null,
           replyId: newCommentData.id,
           content: this.newCommentText.trim(),
           articleId: this.articleId
         };
 
-        // Save to pending storage so it survives page refreshes during moderation
         this.pendingReplyService.addPendingReply(newMainComment);
-        
-        // Push directly to local array to display immediately without waiting for API refresh
         this.pendingMainComments.unshift(newMainComment);
 
-        // Reset form state
         this.newCommentText = '';
         this.showNewCommentForm = false;
         this.isLoading = false;
@@ -180,22 +184,18 @@ export class CommentListComponent implements OnInit {
     const startTime = Date.now();
 
     let topicDetails$: Observable<TopicDetails | undefined> = reset 
-      ? this.provider.getTopicDetails(this.articleId) 
+      ? this.provider.commentService.getTopicDetails(this.articleId) 
       : of(undefined);
-
-    let comments$: Observable<Comment[]>;
-
 
     const fetchOffset = reset ? 0 : this.currentOffset;
 
     console.log(`Load comments for ${this.articleId}, offset ${this.currentOffset}, limit ${this.limit}`);
-    comments$ = this.provider.getComments(this.articleId, fetchOffset, this.limit);
+    const comments$: Observable<Comment[]> = this.provider.commentService.getComments(this.articleId, fetchOffset, this.limit);
 
     const combinedLoad$: Observable<any> = forkJoin({
         details: topicDetails$,
         comments: comments$
     });
-
 
     combinedLoad$.subscribe({
       next: (response) => {
@@ -219,7 +219,7 @@ export class CommentListComponent implements OnInit {
           this.currentOffset = newComments.length;
           this.hasMoreComments = true;
         } 
-        else { // Load more adds into existing list, leaving existing state intact
+        else {
           this.comments = [...this.comments, ...newComments];
           this.currentOffset += newComments.length;
         }
@@ -229,7 +229,7 @@ export class CommentListComponent implements OnInit {
         }
         
         if (this.nicknameFilter.trim().length > 0) {
-          this.provider.markNickname(this.comments, this.nicknameFilter);
+          this.provider.commentService.markNickname(this.comments, this.nicknameFilter);
         }        
 
         const endTime = Date.now();
@@ -245,8 +245,6 @@ export class CommentListComponent implements OnInit {
         setTimeout(() => { 
           this.isLoading = false; 
           this.currentMatchIndex = -1;
-
-          //this.checkUrlAnchor();
           this.handleInitialAnchor();
         }, remainingDelay);
       },
@@ -261,7 +259,6 @@ export class CommentListComponent implements OnInit {
       }
     });
   }
-  
 
   private resetState(): void {
     this.comments = [];
@@ -281,12 +278,10 @@ export class CommentListComponent implements OnInit {
     this.loadComments();
   }
 
-
   onNicknameChanged(value: string): void {
     this.nicknameFilter = value;
-    this.provider.markNickname(this.comments, value);
+    this.provider.commentService.markNickname(this.comments, value);
 
-    // Reset navigation state
     this.currentMatchIndex = -1;
 
     this.filterFoundMatches = this.comments.some(comment => 
@@ -298,20 +293,17 @@ export class CommentListComponent implements OnInit {
     return this.comments; 
   }  
 
-
-  // Toggle mobile menu visibility
   toggleMobileMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
-    document.body.style.overflow = this.isMobileMenuOpen ? 'hidden' : 'auto'; // Prevent background scrolling when menu is open
+    document.body.style.overflow = this.isMobileMenuOpen ? 'hidden' : 'auto';
   }  
- 
-  // Called when user is typing into article-id inpout field
+
   onArticleIdChanged(rawInput: string): void {
     const parsedId = this.parseArticleIdFromUrl(rawInput);
     
     if (!parsedId) {
         if (rawInput === '') {
-             this.router.navigate([`/${this.currentProvider}/comments`]);
+             this.router.navigate([`/${this.currentProviderId}/comments`]);
              this.articleId = '';
         }
         return; 
@@ -326,34 +318,29 @@ export class CommentListComponent implements OnInit {
     this.articleId = parsedId;
   }
 
-
-  // Called when an article is selected from history
   handleArticleSelected(articleData: ArticleHistoryItem): void {
     if (this.isManualInput) {
       this.articleId = articleData.id;
       return; 
     }    
 
-    this.isMobileMenuOpen = false; // Close mobile menu if open
+    this.isMobileMenuOpen = false;
     document.body.style.overflow = 'auto'; 
 
     this.navigateToArticle(articleData.id);
   }
 
-
-  // Called when an article is selected from own discussion list
   handleDiscussionSelected(discussion: GroupedDiscussion): void {
     if (this.isManualInput) {
       this.articleId = discussion.articleId;
       return; 
     }
 
-    this.isMobileMenuOpen = false; // Close mobile menu if open
+    this.isMobileMenuOpen = false;
     document.body.style.overflow = 'auto'; 
     
     this.navigateToArticle(discussion.articleId);
   }
-
 
   startResizing(event: MouseEvent) {
     event.preventDefault();
@@ -380,8 +367,6 @@ export class CommentListComponent implements OnInit {
     document.body.style.cursor = 'col-resize';
   }  
 
-
-  // vvv  Navigation  vvv
   get matches() {
     const filter = (this.nicknameFilter || '').trim().toLowerCase();
     if (filter.length < 2) return [];
@@ -444,22 +429,21 @@ export class CommentListComponent implements OnInit {
         this.activeTargetId = targetComment.id;
         setTimeout(() => this.activeTargetId = null, 2500);
       }
-    }, 150); // delay to ensure comment is expanded and rendered before scrolling
+    }, 150);
   }
 
-  // 4. recursus function to ensure the target comment is visible by expanding all its parent comments
   ensureCommentIsVisible(nodes: any[], targetId: string): boolean {
     for (const node of nodes) {
       if (node.id === targetId) {
-        node.isCollapsed = false; // make sure the target comment itself is not collapsed
+        node.isCollapsed = false;
         return true; 
       }
 
       if (node.replies && node.replies.length > 0) {
         const foundInChildren = this.ensureCommentIsVisible(node.replies, targetId);
         if (foundInChildren) {
-          node.isCollapsed = false; // make sure the parent is not collapsed
-          node.isExpanded = true;   // make sure replies are visible so child becomes visible
+          node.isCollapsed = false;
+          node.isExpanded = true;
           return true;
         }
       }
@@ -467,7 +451,6 @@ export class CommentListComponent implements OnInit {
     return false;
   }
 
-  // ----  Info dialog handling  ----
   openInfoModal(): void { 
     this.isInfoModalOpen = true;
   }
@@ -484,10 +467,9 @@ export class CommentListComponent implements OnInit {
       this.isInfoModalOpen = true;
     }
   }
-  // --------------------------------
 
   private navigateToArticle(articleId: string): void {
-    this.router.navigate([`/${this.currentProvider}/comments`, articleId]);
+    this.router.navigate([`/${this.currentProviderId}/comments`, articleId]);
   }
 
   private cleanupPendingReplies(): void {
@@ -518,12 +500,6 @@ export class CommentListComponent implements OnInit {
       .filter(r => r.parentId === null);
   }
 
-
-  /**
-   * Yle article ID is in format XX-XXXXXXXX
-   * @param input 
-   * @returns 
-   */
   private parseArticleIdFromUrl(input: string): string | null {
     if (!input) {
         return null;
@@ -542,13 +518,6 @@ export class CommentListComponent implements OnInit {
     return null; 
   }
 
-
-  /**
-   * After new comments are loaded, transfer the expanded/collapsed state
-   * of comments from old list to new list based on comment IDs.
-   * * @param oldComments 
-   * @param newComments 
-   */
   private transferCommentState(oldComments: Comment[], newComments: Comment[]): void {
     const stateMap = new Map<string, { expanded?: boolean, collapsed?: boolean }>();
 
@@ -582,20 +551,16 @@ export class CommentListComponent implements OnInit {
     applyState(newComments);
   }
 
-
   private handleInitialAnchor(): void {
     const hash = window.location.hash;
     if (!hash || !hash.startsWith('#comment-')) return;
 
     const commentId = hash.replace('#comment-', '');
     
-    /* 1. Wait for comments to load */
     setTimeout(() => {
-      /* 2. CRITICAL: Expand parents BEFORE looking for the element */
       const isFoundInData = this.ensureCommentIsVisible(this.comments, commentId);
       
       if (isFoundInData) {
-        /* 3. Small delay to let Angular render the newly opened branches */
         setTimeout(() => {
           const element = document.getElementById(`comment-${commentId}`);
           
@@ -614,7 +579,7 @@ export class CommentListComponent implements OnInit {
             this.activeTargetId = commentId;
             setTimeout(() => this.activeTargetId = null, 3000);
           }
-        }, 100); /* Wait for DOM to catch up after ensureCommentIsVisible */
+        }, 100);
       }
     }, 600);
   }

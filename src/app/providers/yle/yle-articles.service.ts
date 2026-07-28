@@ -1,16 +1,18 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { ArticleListItem, ArticleService } from "@app/models/article-service.interface";
+import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
 })
-export class YleArticlesService {
+export class YleArticlesService implements ArticleService {
   private readonly API_URL = '/v1/layout-fragment/ylefi-front-page?app_id=ukko&app_key=weTyEj7RwTjAzbVr73uSypbcSALJ4xDk';
 
   constructor(private http: HttpClient) { }
 
-  getArticles() {
+  getArticles(): Observable<ArticleListItem[]>{
     const payload = {
       count: 100,
       excludeContentIds: []

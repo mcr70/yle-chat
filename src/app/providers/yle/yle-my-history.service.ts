@@ -4,19 +4,6 @@
  *   - Cookie: -b 'ylelogin=1b0b4764b6cc...'
  */
 
-interface YleHistoryItem {
-  collectorreceived: number;
-  content_type: string;
-  yle_id: string;
-  type: string;
-  application?: string; 
-  comment?: {
-    id: string;
-    content: string;
-    title: string;
-    url: string;
-  };
-}
 
 export interface MyDiscussion {
   id: string;
@@ -26,22 +13,18 @@ export interface MyDiscussion {
 }
 
 
-export interface GroupedDiscussion {
-  articleId: string;
-  articleTitle: string;
-  lastCommentTimestamp: number;
-  commentCount: number;
-}
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { GroupedDiscussion, MyHistoryService } from '@app/models/my-history-service.interface';
+
 @Injectable({
   providedIn: 'root'
 })
-export class YleHistoryService {
+export class YleHistoryService implements MyHistoryService {
   private readonly PROXY_PREFIX = '';//'/yle-history';
   //private readonly API_URL = '/v2/tv/history?limit=40&exclude_sub_accounts=true&fetch_comments=true';
   private readonly API_URL = '/v3/history?limit=40';

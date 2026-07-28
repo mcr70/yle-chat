@@ -1,85 +1,122 @@
-
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BehaviorSubject, EMPTY, merge, Observable, of, Subject } from 'rxjs';
-import { catchError, filter, finalize, ignoreElements, switchMap, tap } from 'rxjs/operators';
+import { ActivatedRoute } from '@angular/router';
+import { BehaviorSubject, EMPTY, merge, Observable, of, Subject, Subscription } from 'rxjs';
+import { catchError, filter, finalize, switchMap, tap } from 'rxjs/operators';
 
-import { AuthService } from '@services/auth.service';
-import { YleHistoryService, MyDiscussion, GroupedDiscussion } from '@services/yle-history.service';
+import { Provider } from '@app/models/provider';
+import { GroupedDiscussion } from '@app/models/my-history-service.interface';
+import { ProviderManager } from '@app/models/provider';
 
 import { SpinnerComponent } from '@components/spinner/spinner.component';
-
 
 @Component({
   selector: 'app-my-discussions',
   templateUrl: './my-discussions.component.html',
   styleUrls: ['./my-discussions.component.scss'],
+  standalone: true,
   imports: [ CommonModule, SpinnerComponent ]
 })
-export class MyDiscussionsComponent implements OnInit {
+export class MyDiscussionsComponent implements OnInit, OnDestroy {
 
-  // discussionData is the one fetched, myDiscussions is the one used in template
   discussionsData$: BehaviorSubject<GroupedDiscussion[]> = new BehaviorSubject<GroupedDiscussion[]>([]);
-  public readonly myDiscussions$: Observable<GroupedDiscussion[]> = this.discussionsData$.asObservable();  isLoggedIn$!: Observable<boolean>;
+  public readonly myDiscussions$: Observable<GroupedDiscussion[]> = this.discussionsData$.asObservable();
+  
+  // Initialize with BehaviorSubject to guarantee immediate state for the template pipe
+  private isLoggedInSubject = new BehaviorSubject<boolean>(false);
+  public isLoggedIn$: Observable<boolean> = this.isLoggedInSubject.asObservable();
 
   private refreshTrigger = new Subject<void>();
   private discussionsLoading = new BehaviorSubject<boolean>(false);
   isLoading$: Observable<boolean> = this.discussionsLoading.asObservable();
 
+  private subscription = new Subscription();
+  public provider!: Provider;
+
   @Output() discussionSelected = new EventEmitter<GroupedDiscussion>(); 
   @Output() articleIdFilterChange = new EventEmitter<string>();
 
-  displayLimit = 5; // Limit for displayed discussions
+  displayLimit = 5;
 
   constructor(
-    private authService: AuthService,
-    private yleHistory: YleHistoryService,
+    private providerManager: ProviderManager,
+    private route: ActivatedRoute 
   ) {}
 
   ngOnInit(): void {
-    this.isLoggedIn$ = this.authService.isLoggedIn$;
+    // Resolve active provider ID from route or parent route
+    const providerId = 
+      this.route.snapshot.paramMap.get('provider') || 
+      this.route.snapshot.parent?.paramMap.get('provider') || 
+      'yle';
 
-    const initialLoad$ = this.isLoggedIn$.pipe(
-      filter(isLoggedIn => isLoggedIn) // Load only if logged in
+    this.provider = this.providerManager.getProvider(providerId);
+
+    // Guard against providers without history capability or missing service
+    if (!this.provider.capabilities.supportsUserHistory || !this.provider.myHistoryService) {
+      this.isLoggedInSubject.next(false);
+      return;
+    }
+
+    // Determine authentication state stream
+    const auth$ = (this.provider.capabilities.supportsAuth && this.provider.authService)
+      ? this.provider.authService.isLoggedIn$
+      : of(true);
+
+    // Keep component auth state synchronized with the template
+    const authSub = auth$.subscribe(loggedIn => {
+      this.isLoggedInSubject.next(loggedIn);
+    });
+    this.subscription.add(authSub);
+
+    // Trigger data fetch on auth state change (if logged in) or manual refresh
+    const loadTrigger$ = merge(
+      auth$.pipe(filter(isLoggedIn => isLoggedIn)),
+      this.refreshTrigger
     );
-    
-    // Load only if logged in or refresh button clicked
-    const loadSource$ = merge(initialLoad$, this.refreshTrigger);
-    
-    loadSource$.pipe(
+
+    const fetchSub = loadTrigger$.pipe(
       switchMap(() => {
-        
-        // Prevent NG0100 -error
+        if (!this.provider.myHistoryService) {
+          return EMPTY;
+        }
+
+        // Avoid NG0100 ExpressionChangedAfterItHasBeenCheckedError
         setTimeout(() => {
           this.discussionsLoading.next(true);
-        }, 0); 
-        
-        return this.yleHistory.fetchMyDiscussions().pipe(
-            tap(data => { 
-                this.discussionsData$.next(data); // Updated loaded data with new data once it succeeds
-            }),
-            
-            finalize(() => {
-              this.discussionsLoading.next(false); // Stop loading indicator
-            }),
-            
-            catchError(() => EMPTY), 
-            ignoreElements() // don't pass on elements
+        }, 0);
+
+        return this.provider.myHistoryService.fetchMyDiscussions().pipe(
+          tap(data => {
+            this.discussionsData$.next(data);
+          }),
+          finalize(() => {
+            this.discussionsLoading.next(false);
+          }),
+          catchError((err) => {
+            console.error('Failed to fetch user discussions:', err);
+            return EMPTY;
+          })
         );
       })
     ).subscribe();
- 
+
+    this.subscription.add(fetchSub);
   }
 
-  
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
   selectDiscussion(discussion: GroupedDiscussion): void {
     this.discussionSelected.emit(discussion);
     this.articleIdFilterChange.emit(discussion.articleId);
   }  
 
-
-  openDiscussion(discussion: MyDiscussion): void {
-    window.open(discussion.url, '_blank');
+  openDiscussion(discussion: any): void {
+    if (discussion.url) {
+      window.open(discussion.url, '_blank');
+    }
   }
 
   refreshDiscussions(): void {
@@ -92,11 +129,10 @@ export class MyDiscussionsComponent implements OnInit {
     }
     
     return comments
-      .map((comment, index) => {
+      .map((comment) => {
         const snippet = comment.content.slice(0, 100).trim();
         return `- ${snippet}${comment.content.length > 100 ? '...' : ''}`;
       })
-      .join('\r\n\r\n'); // two linebreaks 
+      .join('\r\n\r\n');
   }  
-
 }
