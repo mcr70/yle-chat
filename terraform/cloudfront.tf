@@ -1,5 +1,10 @@
 locals {
   api_origins = {
+    HsApiOrigin = {
+      domain          = "www.hs.fi"
+      path_pattern    = "/hs-api/*"
+      allowed_methods = ["GET", "HEAD", "OPTIONS"]
+    },
     YleCommentsV1Origin = { // Reply, like/unlike needs POST
       domain          = "comments.api.yle.fi"
       path_pattern    = "/v1/topics/*"
@@ -26,6 +31,22 @@ locals {
       allowed_methods = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
     }
   }
+}
+
+###  CloudFront Functions  #################################################
+
+resource "aws_cloudfront_function" "hs_api_rewrite" {
+  name    = "hs-api-path-rewrite"
+  runtime = "cloudfront-js-2.0"
+  comment = "Removes /hs-api prefix from request URL before forwarding to HS"
+  publish = true
+  code    = <<-EOT
+    function handler(event) {
+        var request = event.request;
+        request.uri = request.uri.replace(/^\/hs-api/, '');
+        return request;
+    }
+  EOT
 }
 
 ###  CloudFront Distribution  ##############################################
@@ -112,6 +133,14 @@ resource "aws_cloudfront_distribution" "cdn" {
         }
       }
 
+      dynamic "function_association" {
+        for_each = ordered_cache_behavior.key == "HsApiOrigin" ? [1] : []
+
+        content {
+          event_type   = "viewer-request"
+          function_arn = aws_cloudfront_function.hs_api_rewrite.arn
+        }
+      }
 
       dynamic "lambda_function_association" {
         for_each = ordered_cache_behavior.key == "YleLoginApiOrigin" ? [1] : []
