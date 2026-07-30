@@ -2,6 +2,7 @@
   [title]="provider.displayName"
   [showHomeButton]="true"
   [showMenuToggle]="provider.capabilities.supportsUserHistory || provider.capabilities.supportsArticleListing"
+  [showLoginButton]="true"
   (toggleMenu)="toggleMobileMenu()"
   (openInfo)="openInfoModal()">
 </app-toolbar>

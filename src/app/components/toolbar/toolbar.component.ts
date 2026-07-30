@@ -17,6 +17,7 @@ export class ToolbarComponent implements OnInit {
   @Input() title: string = '';
   @Input() showHomeButton: boolean = true;
   @Input() showMenuToggle: boolean = false;
+  @Input() showLoginButton: boolean = false;
 
   // Event emitted when the menu toggle button is clicked (mobile view)
   @Output() toggleMenu = new EventEmitter<void>();

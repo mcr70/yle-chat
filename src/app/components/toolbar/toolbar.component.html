@@ -24,7 +24,7 @@
     <button class="yle-button info-btn" (click)="openInfoModal()" title="Tietoa sovelluksesta">
       ℹ️
     </button>
-    <app-login-panel></app-login-panel>
+    <app-login-panel *ngIf="showLoginButton"></app-login-panel>
   </div>
 </header>
 
