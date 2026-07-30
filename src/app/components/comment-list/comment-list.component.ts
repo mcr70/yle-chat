@@ -29,7 +29,7 @@ const INFO_VERSION_KEY = 'app_info_seen_version';
   styleUrls: ['./comment-list.component.scss', './new-main-comment.scss', './info-dialog.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule,
+    CommonModule, FormsModule, 
     CommentItemComponent, LoginPanelComponent, MyDiscussionsComponent,
     ArticlesComponent, RouterModule, SpinnerComponent
   ]
@@ -113,6 +113,11 @@ export class CommentListComponent implements OnInit, OnDestroy {
       this.authSubscription.unsubscribe();
     }
   }
+
+  goHome(): void {
+    this.router.navigate(['/']);
+  }
+
 
   private setupProvider(providerId: string): void {
     this.provider = this.providerManager.getProvider(providerId);

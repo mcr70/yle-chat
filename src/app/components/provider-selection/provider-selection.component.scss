@@ -1,0 +1,127 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f5f5f7;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #1d1d1f;
+}
+
+/* Yläpalkki samalla tyylillä kuin kommenteissa */
+.app-header {
+  background-color: #e8ecef;
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid #dcdcdc;
+
+  h1 {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0b2e63; /* Ylen ja HS:n sinisävyyn sopiva tumma sininen */
+  }
+}
+
+.main-layout {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+  box-sizing: border-border;
+
+  @media screen and (max-width: 600px) {
+    margin: 1rem auto;
+    padding: 0 0.75rem; /* Pienempi padding mobiilissa */
+  }
+}
+
+.selection-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+
+  @media screen and (max-width: 600px) {
+    padding: 1.25rem 1rem; /* Ohennettu sisämarginaali */
+  }
+
+  .subtitle {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #555;
+    font-size: 1.05rem;
+  }
+}
+
+.provider-grid {
+  display: grid;
+  /* Sallitaan korttien kutistua mobiilissa alle 320px leveyteen */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 1.25rem;
+}
+
+.provider-item {
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  padding: 1.25rem;
+  background-color: #fafafa;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+  width: 100%; /* Varmistetaan pysyminen vanhemman rajoissa */
+
+  &:hover {
+    background-color: #ffffff;
+    border-color: #b0b0b0;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .provider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+
+    h2 {
+      margin: 0;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      font-size: 1.25rem;
+      color: #111;
+    }
+  }
+
+  /* Break-word pitää huolen ettei pitkä teksti työnnä korttia yli */
+  .description {
+    color: #444;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+    word-break: break-word;
+  }
+}
+
+
+/* Badge-tunnisteet */
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  white-space: nowrap;
+
+  &.badge-success {
+    background-color: #e6f4ea;
+    color: #137333;
+    border: 1px solid #ceead6;
+  }
+
+  &.badge-info {
+    background-color: #e8f0fe;
+    color: #1a73e8;
+    border: 1px solid #d2e3fc;
+  }
+}

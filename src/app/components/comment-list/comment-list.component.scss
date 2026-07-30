@@ -15,13 +15,13 @@
 .main-toolbar {
   position: sticky;
   top: 0;
-  z-index: 1000; /* On top of everything else */
+  z-index: 1000;
   height: 60px;
 
   display: flex;
-  justify-content: space-between; 
+  justify-content: space-between; /* Työntää toolbar-left:n vasemmalle ja toolbar-right:n oikealle */
   align-items: center;
-  padding: 0 20px; // padding left and right
+  padding: 0 20px;
   min-height: 60px;
 
   background-color: var(--color-background-primary);
@@ -32,8 +32,41 @@
 
   @media screen and (max-width: 600px) {
     width: 100%;
-    align-items: center;
-    padding: 0 5px; // padding left and right
+    padding: 0 5px;
+  }
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Pitää napit ja otsikon siististi vierekkäin */
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.home-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+
+  .home-icon {
+    display: block;
+    color: var(--color-brand-primary, #003780);
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-color: var(--color-border-secondary, #ccc);
   }
 }
 
@@ -43,6 +76,7 @@
   font-size: 1.5em;
   color: #003780;
 }
+
 
 .content-wrapper {
   display: flex; 

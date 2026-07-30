@@ -1,0 +1,32 @@
+<header class="app-header">
+  <h1>Valitse keskustelupalvelu</h1>
+</header>
+
+<div class="main-layout">
+  <div class="selection-card">
+    <p class="subtitle">Minkä uutispalvelun keskusteluja haluat selailla?</p>
+
+    <div class="provider-grid">
+      <div 
+        *ngFor="let provider of providers" 
+        class="provider-item"
+        (click)="selectProvider(provider.id)">
+        
+        <div class="provider-header">
+          <h2>{{ provider.name }}</h2>
+          <span class="badge" [ngClass]="provider.badgeClass">
+            {{ provider.badgeText }}
+          </span>
+        </div>
+
+        <p class="description">{{ provider.description }}</p>
+
+        <div class="action-row">
+          <button class="btn-primary" type="button">
+            Siirry keskusteluihin &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

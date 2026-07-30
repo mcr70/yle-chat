@@ -9,7 +9,7 @@ import { YleArticlesService } from "./yle-articles.service";
 @Injectable({ providedIn: 'root' })
 export class YleProvider implements Provider {
   readonly id = 'yle';
-  readonly displayName = 'Yle kommentointi';
+  readonly displayName = 'Yle';
 
   readonly capabilities: ProviderCapabilities = {
     supportsAuth: true,

@@ -1,5 +1,7 @@
 import { Routes, UrlMatchResult, UrlSegment } from '@angular/router';
 import { CommentListComponent } from '@components/comment-list/comment-list.component'; 
+import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
+import { ProviderSelectionComponent } from './components/provider-selection/provider-selection.component';
 
 /**
  * Matcher for handling unknown routes under a known provider prefix.
@@ -20,19 +22,22 @@ export function providerFallbackMatcher(url: UrlSegment[]): UrlMatchResult | nul
 }
 
 export const routes: Routes = [
-  // Default redirect to Yle provider
-  { path: '', redirectTo: 'yle/comments', pathMatch: 'full' },
+  // 1. select provider page (default route)
+  { path: '', component: ProviderSelectionComponent, pathMatch: 'full' },
 
-  // Dynamic provider routes
+  // 2. Provider-specific comment listing routes
   { path: ':provider/comments/:id', component: CommentListComponent },
   { path: ':provider/comments', component: CommentListComponent },
 
-  // Dynamic fallback for any unknown path starting with :provider (e.g. /hs/foo -> /hs/comments)
+  // 3. Fallback route for unknown paths under a known provider prefix
   {
     matcher: providerFallbackMatcher,
     redirectTo: ':provider/comments'
   },
 
-  // Global fallback
-  { path: '**', redirectTo: 'yle/comments', pathMatch: 'full' }
+  // 4. Authentication callback route
+  { path: 'auth-callback', component: AuthCallbackComponent },
+
+  // 5. Unknown routes redirect to the home page
+  { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

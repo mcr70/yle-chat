@@ -17,6 +17,8 @@ export class YleAuthService {
   private loggedInSubject = new BehaviorSubject<boolean>(false);
   isLoggedIn$ = this.loggedInSubject.asObservable();
   
+  requiresCredentials = true; // Yle login requires username/password input
+
   constructor(private http: HttpClient) {
     this.restoreSession();
   }

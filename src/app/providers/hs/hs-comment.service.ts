@@ -68,8 +68,8 @@ export class HSCommentService implements CommentService {
     supportsReplying: false
   };
 
-  private readonly INITIAL_COMMENTS_URL_TEMPLATE = '/api/commenting/hs/articles/{articleId}/comments';
-
+  private readonly INITIAL_COMMENTS_URL_TEMPLATE = '/hs-api/api/commenting/hs/articles/{articleId}/comments';
+  
   constructor(private http: HttpClient) {}
 
   /**

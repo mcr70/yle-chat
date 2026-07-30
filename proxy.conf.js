@@ -5,19 +5,21 @@
 console.log('--- PROXY CONFIG HAS BEEN READ ---'); 
 
 const PROXY_CONFIG = [
-  // 0. HS Comments API
+// 0. HS Comments, Access Token & Lane Items API
   {
-    context: ["/api/commenting/"],
+    context: ["/hs-api"],
     target: "https://www.hs.fi",
     secure: true,
     changeOrigin: true,
     logLevel: "debug",
-    // headers: {
-    //   "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    //   "Referer": "https://www.hs.fi/"
-    // }
+    pathRewrite: { "^/hs-api": "" }, // Poistaa /hs-api-etuliitteen
+    headers: {
+      "Origin": "https://www.hs.fi",
+      "Referer": "https://www.hs.fi/",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
   },
-
+  
   // 1. Yle Comments API, v2
   {
     context: ["/v2/topics/"],
@@ -52,18 +54,14 @@ const PROXY_CONFIG = [
     secure: true,
     changeOrigin: true,
     logLevel: "debug",
-    
     configure: (proxy) => {
       proxy.on("proxyRes", (proxyRes, req, res) => {
-
         const setCookieHeaders = proxyRes.headers['set-cookie'];
         
         if (setCookieHeaders) {
           const modifiedCookies = setCookieHeaders.map(cookie => {
-            // Remove Domain- ja Secure-attributes so that browser won't
-            // reject "ylelogin" (and other) cookies.
-            let modifiedCookie = cookie.replace(/Domain=[^;]+;?/, '');
-            modifiedCookie = modifiedCookie.replace(/Secure;?/, '');
+            let modifiedCookie = cookie.replace(/Domain=[^;]+;?/i, '');
+            modifiedCookie = modifiedCookie.replace(/Secure;?/i, '');
             return modifiedCookie.trim();
           });
           
@@ -72,13 +70,15 @@ const PROXY_CONFIG = [
       });
     },
   },
+
+  // 5. Yle layout fragment
   {
     context: ["/v1/layout-fragment/"],
     target: "https://layout-front.api.yle.fi",
     secure: true,
     changeOrigin: true,
     logLevel: "debug"
-  }  
+  }
 ];
 
 module.exports = PROXY_CONFIG;
