@@ -1,0 +1,84 @@
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+}
+
+.main-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+  min-height: 60px;
+  padding: 0 20px;
+  box-sizing: border-box;
+
+  max-width: 1200px;
+  margin: 0 auto;
+
+  background-color: var(--color-background-primary, #ffffff);
+  box-shadow: var(--common-shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
+
+  border-bottom: 1px solid var(--common-border-color, #abc);
+  border-top: 1px solid var(--common-border-color, #abc);
+
+  @media screen and (max-width: 1200px) {
+    width: 100%;
+  }
+
+  @media screen and (max-width: 600px) {
+    padding: 0 10px;
+  }
+}
+
+.toolbar-left,
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-title {
+  margin: 0;
+  line-height: 1;
+  font-size: 1.5em;
+  color: var(--color-brand-primary);
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.home-btn,
+.info-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+.home-btn .home-icon {
+  display: block;
+  color: var(--color-brand-primary, #003780);
+}
+
+.menu-toggle-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: var(--color-brand-primary, #003780);
+
+  @media screen and (max-width: 600px) {
+    display: flex;
+  }
+}

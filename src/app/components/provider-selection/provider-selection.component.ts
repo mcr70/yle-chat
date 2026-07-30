@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 
+import { ToolbarComponent } from '@components/toolbar/toolbar.component';
+
 interface ProviderOption {
   id: string;
   name: string;
@@ -13,7 +15,7 @@ interface ProviderOption {
 @Component({
   selector: 'app-provider-selection',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ToolbarComponent],
   templateUrl: './provider-selection.component.html',
   styleUrls: ['./provider-selection.component.scss']
 })

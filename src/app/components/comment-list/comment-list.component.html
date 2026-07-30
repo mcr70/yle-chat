@@ -1,25 +1,12 @@
+<app-toolbar 
+  [title]="provider.displayName"
+  [showHomeButton]="true"
+  [showMenuToggle]="provider.capabilities.supportsUserHistory || provider.capabilities.supportsArticleListing"
+  (toggleMenu)="toggleMobileMenu()"
+  (openInfo)="openInfoModal()">
+</app-toolbar>
+
 <div class="main-layout-container">
-
-  <header class="main-toolbar">
-    <div class="toolbar-left">
-      <button class="yle-button home-btn" (click)="goHome()" title="Palaa alkusivulle">
-        <svg class="home-icon" viewBox="0 0 24 24" width="24" height="24">
-          <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-        </svg>
-      </button>
-
-      <button class="menu-toggle-btn" (click)="toggleMobileMenu()">☰</button>
-
-      <h1 class="app-title">{{ provider.displayName }}</h1>
-    </div>
-
-    <div class="toolbar-right">
-      <button class="yle-button" (click)="openInfoModal()" title="Tietoa sovelluksesta">
-        ℹ️
-      </button>
-      <app-login-panel></app-login-panel>
-    </div>
-  </header>  
 
   <div class="content-wrapper">
     <div class="sidebar-overlay" *ngIf="isMobileMenuOpen" 

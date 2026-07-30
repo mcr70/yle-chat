@@ -1,6 +1,8 @@
-<header class="app-header">
-  <h1>Valitse keskustelupalvelu</h1>
-</header>
+<app-toolbar 
+  title="Keskusteluja" 
+  [showHomeButton]="false"
+  [showMenuToggle]="false">
+</app-toolbar>
 
 <div class="main-layout">
   <div class="selection-card">
@@ -22,7 +24,7 @@
         <p class="description">{{ provider.description }}</p>
 
         <div class="action-row">
-          <button class="btn-primary" type="button">
+          <button class="yle-button" type="button">
             Siirry keskusteluihin &rarr;
           </button>
         </div>
