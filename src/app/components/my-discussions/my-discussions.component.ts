@@ -9,6 +9,7 @@ import { GroupedDiscussion } from '@app/models/my-history-service.interface';
 import { ProviderManager } from '@app/models/provider';
 
 import { SpinnerComponent } from '@components/spinner/spinner.component';
+import { SessionStateService } from '@app/services/session-state.service';
 
 @Component({
   selector: 'app-my-discussions',
@@ -40,7 +41,8 @@ export class MyDiscussionsComponent implements OnInit, OnDestroy {
 
   constructor(
     private providerManager: ProviderManager,
-    private route: ActivatedRoute 
+    private route: ActivatedRoute,
+    private sessionStateService: SessionStateService  
   ) {}
 
   ngOnInit(): void {
@@ -109,6 +111,7 @@ export class MyDiscussionsComponent implements OnInit, OnDestroy {
   }
 
   selectDiscussion(discussion: GroupedDiscussion): void {
+    this.sessionStateService.setSelectedArticleId(this.provider.id, discussion.articleId);
     this.discussionSelected.emit(discussion);
     this.articleIdFilterChange.emit(discussion.articleId);
   }  

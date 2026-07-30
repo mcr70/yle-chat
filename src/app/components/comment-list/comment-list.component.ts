@@ -19,6 +19,7 @@ import { PendingReply, PendingReplyService } from '@services/pending-reply.servi
 import { ProviderManager } from '@app/models/provider';
 
 import { SpinnerComponent } from '@components/spinner/spinner.component';
+import { SessionStateService } from '@app/services/session-state.service';
 
 const CURRENT_INFO_VERSION = '1.0';
 const INFO_VERSION_KEY = 'app_info_seen_version';
@@ -76,6 +77,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
     private providerManager: ProviderManager,
     private historyService: HistoryService,
     private pendingReplyService: PendingReplyService,
+    private sessionStateService: SessionStateService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
@@ -90,6 +92,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
 
       if (idFromUrl) {
         this.articleId = idFromUrl;
+        this.sessionStateService.setSelectedArticleId(this.currentProviderId, idFromUrl);
         this.loadComments(true);
       } 
       else {
@@ -99,6 +102,8 @@ export class CommentListComponent implements OnInit, OnDestroy {
           const latestArticle = history[0];
           this.articleTitle = latestArticle.title || '';
           this.articleId = latestArticle.id;
+          
+          this.sessionStateService.setSelectedArticleId(this.currentProviderId, latestArticle.id);
 
           this.loadComments(true); 
         }
@@ -314,6 +319,8 @@ export class CommentListComponent implements OnInit, OnDestroy {
         return; 
     }
     
+    this.sessionStateService.setSelectedArticleId(this.currentProviderId, parsedId);
+
     const currentUrlId = this.route.snapshot.paramMap.get('id');
 
     if (currentUrlId !== parsedId) {

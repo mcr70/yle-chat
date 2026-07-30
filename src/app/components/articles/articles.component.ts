@@ -6,6 +6,7 @@ import { catchError, finalize, ignoreElements, switchMap, tap } from 'rxjs/opera
 
 import { Provider, ProviderManager } from '@app/models/provider';
 import { SpinnerComponent } from '@components/spinner/spinner.component';
+import { SessionStateService } from '@services/session-state.service'; // Check correct path
 
 @Component({
   selector: 'app-articles',
@@ -33,7 +34,8 @@ export class ArticlesComponent implements OnInit, OnDestroy {
 
   constructor(
     private providerManager: ProviderManager,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private sessionStateService: SessionStateService
   ) { }
 
   ngOnInit(): void {
@@ -68,6 +70,14 @@ export class ArticlesComponent implements OnInit, OnDestroy {
         return this.provider.articleService.getArticles().pipe(
           tap(data => {
             this.articlesData$.next(data);
+            
+            // Handle automatic article restoration / default selection
+            if (data && data.length > 0) {
+              const savedArticleId = this.sessionStateService.getSelectedArticleId(this.provider.id);
+              const targetArticle = data.find(a => a.id === savedArticleId) || data[0];
+
+              this.selectArticleInternal(targetArticle);
+            }
           }),
           finalize(() => {
             this.articlesLoading.next(false);
@@ -91,11 +101,17 @@ export class ArticlesComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  // Handle article selection click
-  selectArticle(event: Event, article: any): void {
-    event.preventDefault();
+  // Internal selection logic (used both by auto-select and user click)
+  private selectArticleInternal(article: any): void {
+    this.sessionStateService.setSelectedArticleId(this.provider.id, article.id);
     this.articleSelected.emit(article);
     this.articleIdFilterChange.emit(article.id);
+  }
+
+  // Handle article selection click from template
+  selectArticle(event: Event, article: any): void {
+    event.preventDefault();
+    this.selectArticleInternal(article);
   }
 
   // Trigger manual or initial reload
