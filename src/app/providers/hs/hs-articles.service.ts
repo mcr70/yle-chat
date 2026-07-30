@@ -1,3 +1,7 @@
+/**
+ * Some articles:
+ *   curl 'https://www.hs.fi/api/laneitems/438218/list?listTemplate=numbered-right' | jq '.[] | {title, href}'
+ */
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';

@@ -36,7 +36,7 @@ export const routes: Routes = [
   },
 
   // 4. Authentication callback route
-  { path: 'auth-callback', component: AuthCallbackComponent },
+  //{ path: 'auth-callback', component: AuthCallbackComponent },
 
   // 5. Unknown routes redirect to the home page
   { path: '**', redirectTo: '', pathMatch: 'full' }

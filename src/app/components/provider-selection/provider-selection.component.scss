@@ -68,7 +68,7 @@
   justify-content: space-between;
   transition: all 0.2s ease-in-out;
   box-sizing: border-box;
-  width: 100%; /* Varmistetaan pysyminen vanhemman rajoissa */
+  width: 100%; 
 
   &:hover {
     background-color: #ffffff;
@@ -91,7 +91,6 @@
     }
   }
 
-  /* Break-word pitää huolen ettei pitkä teksti työnnä korttia yli */
   .description {
     color: #444;
     font-size: 0.95rem;
@@ -102,7 +101,6 @@
 }
 
 
-/* Badge-tunnisteet */
 .badge {
   font-size: 0.75rem;
   font-weight: 600;

@@ -1,5 +1,4 @@
 /**
- * HSCommentService.ts
  *
  * This service handles operations related to comments on Helsingin Sanomat articles.
  * This curl command demonstrates how to fetch comments for a specific article using the Helsingin Sanomat commenting API.
@@ -10,8 +9,6 @@
  * All(?) Comments:
  *   curl 'https://www.hs.fi/api/commenting/hs/articles/2000012131437/comments?sort=newest&onlyCommentsWithRealNames=false'
  * 
- * Some articles:
- *   curl 'https://www.hs.fi/api/laneitems/438218/list?listTemplate=numbered-right' | jq '.[] | {title, href}'
  */
 
 import { Injectable } from '@angular/core';

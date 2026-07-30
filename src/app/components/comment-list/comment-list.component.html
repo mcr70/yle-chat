@@ -41,7 +41,7 @@
             <div class="comment-header">
               <h3>{{ articleTitle || articleId }} <a href="{{ topicDetails?.articleLink }} " target="_blank" class="article-link-icon">↗️</a>
                 <span *ngIf="topicDetails?.acceptedCommentsCount != null" class="comment-count-info no-wrap">
-                  – {{ topicDetails?.acceptedCommentsCount }} kommenttia
+                  - {{ topicDetails?.acceptedCommentsCount }} kommenttia
                 </span>
 
                 <span *ngIf="commentsLocked" class="comment-locked-info no-wrap">
