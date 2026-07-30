@@ -1,34 +1,37 @@
-<ng-container *ngIf="isLoggedIn$ | async; else loginButton">
-    
-    <div class="user-info-container">
-        <button (click)="logoutAndCloseMenu()" class="yle-button">
-            Kirjaudu ulos
-        </button> 
+<ng-container *ngIf="provider.capabilities.supportsAuth">
+
+    <ng-container *ngIf="isLoggedIn$ | async; else loginButton">
+        <div class="user-info-container">
+            <button (click)="logoutAndCloseMenu()" class="yle-button">
+                Kirjaudu ulos
+            </button> 
+        </div>
+    </ng-container>
+
+    <ng-template #loginButton>
+        <button (click)="openLoginForm()" class="yle-button">Kirjaudu</button>
+    </ng-template>
+
+    <div *ngIf="isLoginFormVisible" class="login-modal-overlay">
+        <div class="login-form-container">
+            
+            <button (click)="closeLoginForm()" class="close-button">&times;</button>
+            <h3>Kirjaudu sisään</h3>
+            
+            <form (ngSubmit)="submitLogin()">
+                <label for="username">Käyttäjätunnus:</label>
+                <input class="yle-input" type="text" id="username" [(ngModel)]="loginUsername" 
+                    name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+                
+                <label for="password">Salasana:</label>
+                <input class="yle-input" type="password" id="password" [(ngModel)]="loginPassword" 
+                    name="password" autocomplete="current-password" required>
+                
+                <button type="submit" class="yle-button">
+                    Kirjaudu
+                </button>
+            </form>
+        </div>
     </div>
+
 </ng-container>
-
-<ng-template #loginButton>
-    <button (click)="openLoginForm()" class="yle-button">Kirjaudu</button>
-</ng-template>
-
-<div *ngIf="isLoginFormVisible" class="login-modal-overlay">
-    <div class="login-form-container">
-        
-        <button (click)="closeLoginForm()" class="close-button">&times;</button>
-        <h3>Kirjaudu sisään</h3>
-        
-        <form (ngSubmit)="submitLogin()">
-            <label for="username">Käyttäjätunnus:</label>
-            <input class="yle-input" type="text" id="username" [(ngModel)]="loginUsername" 
-                name="username" autocomplete="username" autocapitalize="none" spellcheck="false"required>
-            
-            <label for="password">Salasana:</label>
-            <input class="yle-input" type="password" id="password" [(ngModel)]="loginPassword" 
-                name="password" autocomplete="current-password" required>
-            
-            <button type="submit" class="yle-button">
-                Kirjaudu
-            </button>
-        </form>
-    </div>
-</div>

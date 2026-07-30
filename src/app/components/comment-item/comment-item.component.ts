@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { Provider } from '@app/models/provider';
@@ -19,7 +20,9 @@ import { ProviderManager } from '@app/models/provider';
 export class CommentItemComponent implements OnInit, OnDestroy {
 
   private authSubscription: Subscription | undefined;
-  public provider!: Provider;
+  
+  // Mahdollistetaan providerin syöttäminen parentilta
+  @Input() provider!: Provider;
   showCopiedTooltip: boolean = false;
 
   @Input() articleId!: string;
@@ -38,11 +41,15 @@ export class CommentItemComponent implements OnInit, OnDestroy {
 
   constructor(
     private providerManager: ProviderManager,
-    private pendingReplyService: PendingReplyService
+    private pendingReplyService: PendingReplyService,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
-    this.provider = this.providerManager.getProvider(this.articleId);
+    if (!this.provider) {
+      const providerId = this.route.snapshot.paramMap.get('provider') || 'yle';
+      this.provider = this.providerManager.getProvider(providerId);
+    }
 
     if (this.comment.isExpanded === undefined) {
       this.comment.isExpanded = false;

@@ -1,0 +1,28 @@
+<app-toolbar 
+  title="Keskusteluja" 
+  [showHomeButton]="false"
+  [showMenuToggle]="false">
+</app-toolbar>
+
+<div class="main-layout">
+  <div class="selection-card">
+    <p class="subtitle">Minkä uutispalvelun keskusteluja haluat selailla?</p>
+
+    <div class="provider-grid">
+      <div 
+        *ngFor="let provider of providers" 
+        class="provider-item"
+        (click)="selectProvider(provider.id)">
+        
+        <div class="provider-header">
+          <h2>{{ provider.name }}</h2>
+          <span class="badge" [ngClass]="provider.badgeClass">
+            {{ provider.badgeText }}
+          </span>
+        </div>
+
+        <p class="description">{{ provider.description }}</p>
+      </div>
+    </div>
+  </div>
+</div>

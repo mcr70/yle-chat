@@ -1,0 +1,66 @@
+<header class="main-toolbar">
+  <div class="toolbar-left">
+    <button 
+      *ngIf="showHomeButton" 
+      class="yle-button home-btn" 
+      (click)="goHome()" 
+      title="Palaa alkusivulle">
+      <svg class="home-icon" viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+    </button>
+
+    <button 
+      *ngIf="showMenuToggle" 
+      class="menu-toggle-btn" 
+      (click)="toggleMenu.emit()">
+      ☰
+    </button>
+
+    <h1 class="app-title" *ngIf="title">{{ title }}</h1>
+  </div>
+
+  <div class="toolbar-right">
+    <button class="yle-button info-btn" (click)="openInfoModal()" title="Tietoa sovelluksesta">
+      ℹ️
+    </button>
+    <app-login-panel></app-login-panel>
+  </div>
+</header>
+
+<!-- Info Modal suoraan Toolbarin sisällä -->
+<div class="modal-overlay" *ngIf="isInfoModalOpen" (click)="closeInfoModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <header class="modal-header">
+      <h2>Tietoa sovelluksesta</h2>
+      <button class="close-btn" (click)="closeInfoModal()">&times;</button>
+    </header>
+
+    <div class="modal-body">
+      <section>
+        <p>
+          Sovellus on tarkoitettu uutissivustojen kommentointipalveluiden käyttöön. 
+          Sovellus mahdollistaa kommenttien lukemisen, kirjoittamisen ja tykkäämisen toisenlaisessa käyttöliittymässä. 
+          Kirjoittaminen ja tykkääminen vaatii kirjautumisen kyseisen palvelun tunnuksella. 
+        </p>
+      </section>
+
+      <section>
+        <h3>Tietojen tallennus</h3>
+        <p>Sovellus ei käytä seuranta- tai markkinointievästeitä. Vain välttämättömät tiedot tallentuvat selaimeesi.</p>
+      </section>
+
+      <section>
+        <h3>Kirjautuminen ja kommentointi</h3>
+        <p>
+          Kirjautuminen ja kommenttien käsittely tapahtuu suoraan palveluntarjoajien palvelimilla. 
+          Salasanaasi tai kommenttejasi ei tallenneta erilliselle välipalvelimelle.
+        </p>
+      </section>
+    </div>
+
+    <footer class="modal-footer">
+      <button class="yle-button" (click)="closeInfoModal()">Selvä</button>
+    </footer>
+  </div>
+</div>

@@ -28,7 +28,9 @@
                 {{ article.title }}
               </a>
               
-              <span class="comment-badge" [title]="article.commentCount + ' kommenttia'">
+              <span 
+                *ngIf="article.commentCount && article.commentCount > 0"
+                class="comment-badge" [title]="article.commentCount + ' kommenttia'">
                 {{ article.commentCount }}
               </span>
             </div>

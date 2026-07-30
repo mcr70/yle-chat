@@ -67,7 +67,15 @@ export class LoginPanelComponent implements OnInit, OnDestroy {
   }
 
   openLoginForm(): void {
-    this.isLoginFormVisible = true;
+    if (!this.authService) return;
+
+    // Check if the service requires username/password input via modal
+    if (this.authService.requiresCredentials) {
+      this.isLoginFormVisible = true; // Open Yle modal
+    } else {
+      // HS / Popup flow: Call login directly without showing the form modal!
+      this.executeLogin();
+    }
   }
 
   closeLoginForm(): void {
@@ -76,22 +84,10 @@ export class LoginPanelComponent implements OnInit, OnDestroy {
     this.password = '';
   }
 
+  // Provdes username & password for login
   submitLogin(): void {
-    if (!this.authService) {
-      console.error('Authentication is not supported by the current provider.');
-      return;
-    }
-
     if (this.loginUsername && this.loginPassword) {
-      this.authService.login(this.loginUsername, this.loginPassword)
-        .subscribe({
-          next: () => {
-            this.closeLoginForm();
-          },
-          error: (error) => {
-            console.error('Kirjautuminen epäonnistui komponenteissa:', error);
-          }
-        });
+      this.executeLogin(this.loginUsername, this.loginPassword);
     } else {
       console.error('Tunnus tai salasana puuttuu.');
     }
@@ -111,4 +107,20 @@ export class LoginPanelComponent implements OnInit, OnDestroy {
   logoutAndCloseMenu(): void {
     this.logout(); 
   }  
+
+  /**
+   * Internal helper to execute the login call
+   */
+  private executeLogin(username?: string, password?: string): void {
+    if (!this.authService) return;
+
+    this.authService.login(username, password).subscribe({
+      next: () => {
+        this.closeLoginForm();
+      },
+      error: (error) => {
+        console.error('Kirjautuminen epäonnistui:', error);
+      }
+    });
+  }
 }

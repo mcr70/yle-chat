@@ -47,6 +47,7 @@ export class ArticlesComponent implements OnInit, OnDestroy {
 
     // Guard against providers without article listing capability
     if (!this.provider.capabilities.supportsArticleListing || !this.provider.articleService) {
+      console.warn(`Provider ${providerId} does not support article listing or lacks an article service.`);
       return;
     }
 

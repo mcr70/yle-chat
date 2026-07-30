@@ -1,17 +1,12 @@
+<app-toolbar 
+  [title]="provider.displayName"
+  [showHomeButton]="true"
+  [showMenuToggle]="provider.capabilities.supportsUserHistory || provider.capabilities.supportsArticleListing"
+  (toggleMenu)="toggleMobileMenu()"
+  (openInfo)="openInfoModal()">
+</app-toolbar>
+
 <div class="main-layout-container">
-
-  <header class="main-toolbar">
-    <button class="menu-toggle-btn" (click)="toggleMobileMenu()">☰</button>
-
-    <h1 class="app-title">Yle kommentointi</h1>
-
-    <div class="toolbar-right">
-      <button class="yle-button" (click)="openInfoModal()" title="Tietoa sovelluksesta">
-        ℹ️
-      </button>
-      <app-login-panel></app-login-panel>
-    </div>
-  </header>  
 
   <div class="content-wrapper">
     <div class="sidebar-overlay" *ngIf="isMobileMenuOpen" 
@@ -19,19 +14,23 @@
     </div>
 
     <div class="sidebar" 
+      *ngIf="provider.capabilities.supportsUserHistory || provider.capabilities.supportsArticleListing"
       [class.mobile-open]="isMobileMenuOpen"
       [style.width.px]="sidebarWidth">
 
       <app-my-discussions
+        *ngIf="provider.capabilities.supportsUserHistory"
         (discussionSelected)="handleDiscussionSelected($event)"      
         (articleIdFilterChange)="onArticleIdChanged($event)">
       </app-my-discussions>
 
       <app-articles 
+        *ngIf="provider.capabilities.supportsArticleListing"
         (articleIdFilterChange)="onArticleIdChanged($event)"
         (articleSelected)="handleArticleSelected($event)">
       </app-articles>
-<div class="sidebar-resizer" (mousedown)="startResizing($event)"></div>
+
+      <div class="sidebar-resizer" (mousedown)="startResizing($event)"></div>
     </div>
 
     <div class="comment-section">
@@ -42,7 +41,7 @@
             <div class="comment-header">
               <h3>{{ articleTitle || articleId }} <a href="{{ topicDetails?.articleLink }} " target="_blank" class="article-link-icon">↗️</a>
                 <span *ngIf="topicDetails?.acceptedCommentsCount != null" class="comment-count-info no-wrap">
-                  – {{ topicDetails?.acceptedCommentsCount }} kommenttia
+                  - {{ topicDetails?.acceptedCommentsCount }} kommenttia
                 </span>
 
                 <span *ngIf="commentsLocked" class="comment-locked-info no-wrap">

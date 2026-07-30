@@ -13,7 +13,7 @@ import { MyDiscussionsComponent } from '@components/my-discussions/my-discussion
 import { ArticleHistoryItem, HistoryService } from '@services/history.service';
 import { HistoryListComponent } from '@components/history-list/history-list.component';
 import { ArticlesComponent } from '@components/articles/articles.component';
-import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
+import { ToolbarComponent } from '@components/toolbar/toolbar.component';
 import { GroupedDiscussion } from '@app/models/my-history-service.interface';
 import { PendingReply, PendingReplyService } from '@services/pending-reply.service';
 import { ProviderManager } from '@app/models/provider';
@@ -26,11 +26,11 @@ const INFO_VERSION_KEY = 'app_info_seen_version';
 @Component({
   selector: 'app-comment-list',
   templateUrl: './comment-list.component.html',
-  styleUrls: ['./comment-list.component.scss', './new-main-comment.scss', './info-dialog.scss'],
+  styleUrls: ['./comment-list.component.scss', './new-main-comment.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule,
-    CommentItemComponent, LoginPanelComponent, MyDiscussionsComponent,
+    CommonModule, FormsModule, 
+    CommentItemComponent, ToolbarComponent, MyDiscussionsComponent,
     ArticlesComponent, RouterModule, SpinnerComponent
   ]
 })
@@ -113,6 +113,11 @@ export class CommentListComponent implements OnInit, OnDestroy {
       this.authSubscription.unsubscribe();
     }
   }
+
+  goHome(): void {
+    this.router.navigate(['/']);
+  }
+
 
   private setupProvider(providerId: string): void {
     this.provider = this.providerManager.getProvider(providerId);
