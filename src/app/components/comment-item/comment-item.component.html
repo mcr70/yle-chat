@@ -51,11 +51,27 @@
                 </button>
                 
                 <div class="reply-group">
-                    <span *ngIf="pendingReply" 
-                        class="pending-indicator no-wrap"
-                        [attr.title]="pendingReply.content">
-                        Käsittelyssä...
-                    </span>
+                    <div *ngIf="pendingReply" class="pending-popover-wrapper">
+                        <span class="pending-indicator no-wrap">
+                            Käsittelyssä...
+                        </span>
+
+                        <div class="pending-popover">
+                            <p class="popover-text">{{ pendingReply.content }}</p>
+                            <div class="popover-actions">
+                                <button class="popover-btn" 
+                                        (click)="copyPendingReply(); $event.stopPropagation()">
+                                    ❐ Kopioi
+                                    <span class="copy-tooltip" *ngIf="showPendingCopiedTooltip">Kopioitu!</span>
+                                </button>
+                                <button class="popover-btn remove-btn" 
+                                        (click)="cancelPendingReply(); $event.stopPropagation()"
+                                        title="Poista paikallinen käsittelytila (ei vaikuta Ylen moderointiin)">
+                                    ✖ Poista tila
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
                     <button class="reply-button" 
                             (click)="toggleReplyForm(); $event.stopPropagation()" 

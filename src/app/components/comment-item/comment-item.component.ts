@@ -38,6 +38,7 @@ export class CommentItemComponent implements OnInit, OnDestroy {
 
   isHoveringReplyButton: boolean = false;  
   pendingReply: PendingReply | null = null;
+  showPendingCopiedTooltip: boolean = false;
 
   constructor(
     private providerManager: ProviderManager,
@@ -189,6 +190,26 @@ export class CommentItemComponent implements OnInit, OnDestroy {
         console.error('Failed to send reply', err);
       }
     });
+  }
+
+  copyPendingReply(): void {
+    if (!this.pendingReply) return;
+
+    navigator.clipboard.writeText(this.pendingReply.content).then(() => {
+      this.showPendingCopiedTooltip = true;
+      setTimeout(() => {
+        this.showPendingCopiedTooltip = false;
+      }, 1500);
+    }).catch(err => {
+      console.error('Kopiointi epäonnistui: ', err);
+    });
+  }
+
+  cancelPendingReply(): void {
+    if (!this.pendingReply) return;
+
+    this.pendingReplyService.removePendingReply(this.pendingReply.replyId);    
+    this.pendingReply = null;
   }
 
   formatDate(dateString: string): string {

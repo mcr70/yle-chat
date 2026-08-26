@@ -211,14 +211,111 @@ textarea {
     gap: 10px; 
 }
 
+.pending-popover-wrapper {
+    position: relative;
+    display: inline-block;
+
+    // Kun hiiri viedään tekstin tai popoverin päälle, avataan popover
+    &:hover .pending-popover {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+}
+
 .pending-indicator {
     color: #d78a17; 
     font-weight: bold;
     font-size: 0.9em;
-    margin-right: 10px;
+    cursor: pointer;
+}
 
-    &[title] {
-        cursor: help; 
+.pending-popover {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    width: 280px;
+    
+    background-color: var(--color-background-primary, #e8e8e8);
+    border: 1px solid var(--common-border-color, #abc);
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: var(--common-shadow, 0 4px 12px rgba(0, 0, 0, 0.15));
+    z-index: 100;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        left: 0;
+        right: 0;
+        height: 8px;
+    }
+
+    .popover-text {
+        font-size: 0.85em;
+        color: var(--color-text-primary, #222);
+        margin: 0 0 8px 0;
+        white-space: pre-line;
+        max-height: 120px;
+        overflow-y: auto;
+    }
+
+    .popover-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        //border-top: 1px solid rgba(0, 0, 0, 0.1);
+        //padding-top: 8px;
+    }
+
+    .popover-btn {
+        background: transparent;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        font-size: 0.8em;
+        padding: 4px 8px;
+        border-radius: 4px;
+        color: var(--color-text-primary, #333);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        position: relative;
+        transition: background-color 0.15s ease;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.08);
+            color: #000;
+        }
+
+        &.remove-btn {
+            color: #c62828;
+            border-color: rgba(198, 40, 40, 0.3);
+
+            &:hover {
+                background-color: rgba(198, 40, 40, 0.12);
+            }
+        }
+
+        .copy-tooltip {
+            position: absolute;
+            bottom: 115%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            white-space: nowrap;
+            pointer-events: none;
+        }
     }
 }
 
