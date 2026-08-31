@@ -49,17 +49,6 @@
                   (suljettu)
                 </span>
               </h3>
-
-              <button class="refresh-button" title="{{ isLoading ? 'Ladataan...' : 'Päivitä kommentit' }}"
-                (click)="loadComments(true)" 
-                [disabled]="isLoading">
-
-                @if (!isLoading) {
-                  <span>🔄</span>
-                } @else {
-                  <app-spinner></app-spinner>
-                }
-              </button>
             </div>
 
           </div>

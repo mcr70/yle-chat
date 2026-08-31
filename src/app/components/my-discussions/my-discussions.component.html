@@ -1,22 +1,7 @@
 <div class="history-list-container">
   
-  <div class="discussions-header">
-      
+  <div class="discussions-header">      
     <h3>Omat keskustelut</h3>
-
-    <button 
-        *ngIf="isLoggedIn$ | async" 
-        (click)="refreshDiscussions()" 
-        [disabled]="isLoading$ | async"
-        class="refresh-button"
-        title="{{ (isLoading$ | async) ? 'Ladataan...' : 'Päivitä keskustelut' }}">
-        
-      @if (!(isLoading$ | async)) {
-        <span>🔄</span>
-      } @else {
-        <app-spinner></app-spinner>
-      }
-    </button>
   </div>
 
   

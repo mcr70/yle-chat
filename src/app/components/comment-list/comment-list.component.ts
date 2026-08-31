@@ -20,6 +20,7 @@ import { ProviderManager } from '@app/models/provider';
 
 import { SpinnerComponent } from '@components/spinner/spinner.component';
 import { SessionStateService } from '@app/services/session-state.service';
+import { RefreshService } from '@app/services/resfresh.service';
 
 const CURRENT_INFO_VERSION = '1.0';
 const INFO_VERSION_KEY = 'app_info_seen_version';
@@ -30,20 +31,22 @@ const INFO_VERSION_KEY = 'app_info_seen_version';
   styleUrls: ['./comment-list.component.scss', './new-main-comment.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule, 
+    CommonModule, FormsModule,
     CommentItemComponent, ToolbarComponent, MyDiscussionsComponent,
-    ArticlesComponent, RouterModule, SpinnerComponent
-  ]
+    ArticlesComponent, RouterModule
+]
 })
 export class CommentListComponent implements OnInit, OnDestroy {
 
   @ViewChild(HistoryListComponent) historyListComponent!: HistoryListComponent;
 
   public provider!: Provider;
+
+  private subscription = new Subscription();
+
   private authSubscription?: Subscription;
 
   private isManualInput = false;
-  private MIN_LOADING_TIME_MS = 500;
   private filterFoundMatches: boolean = false;
   private currentProviderId: string = 'yle';
 
@@ -73,11 +76,14 @@ export class CommentListComponent implements OnInit, OnDestroy {
 
   isInfoModalOpen = false;
 
+  private currentRouteArticleId: string | null = null;
+
   constructor(
     private providerManager: ProviderManager,
     private historyService: HistoryService,
     private pendingReplyService: PendingReplyService,
     private sessionStateService: SessionStateService,
+    private refreshService: RefreshService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
@@ -87,7 +93,16 @@ export class CommentListComponent implements OnInit, OnDestroy {
       this.currentProviderId = params.get('provider') || 'yle';
       const idFromUrl = params.get('id');
 
-      // Päivitetään aktiivinen provider ja haetaan sen auth-tila
+      const articleChanged =
+        this.currentRouteArticleId !== null &&
+        this.currentRouteArticleId !== idFromUrl;
+
+      this.currentRouteArticleId = idFromUrl;
+
+      if (articleChanged) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
       this.setupProvider(this.currentProviderId);
 
       if (idFromUrl) {
@@ -110,6 +125,13 @@ export class CommentListComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.subscription.add(
+      this.refreshService.refresh$.subscribe(() => {
+        console.log('CommentListComponent: Päivitetään kommentit...');
+        this.loadComments(true); 
+      })
+    );
+    
     this.checkIfInfoModalShouldOpen();
   }
 
@@ -117,6 +139,8 @@ export class CommentListComponent implements OnInit, OnDestroy {
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
     }
+
+    this.subscription.unsubscribe();
   }
 
   goHome(): void {
@@ -127,13 +151,11 @@ export class CommentListComponent implements OnInit, OnDestroy {
   private setupProvider(providerId: string): void {
     this.provider = this.providerManager.getProvider(providerId);
 
-    // Puretaan edellisen providerin auth-tilaus
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
       this.authSubscription = undefined;
     }
 
-    // Luodaan uusi tilaus jos alusta tukee autentikaatiota
     if (this.provider.capabilities.supportsAuth && this.provider.authService) {
       this.authSubscription = this.provider.authService.isLoggedIn$.subscribe(() => {
         if (this.articleId) {
@@ -191,7 +213,6 @@ export class CommentListComponent implements OnInit, OnDestroy {
     this.pendingMainComments = this.pendingReplyService.getPendingRepliesForArticle(this.articleId)
       .filter(r => r.parentId === null);
     this.isLoading = true;
-    const startTime = Date.now();
 
     let topicDetails$: Observable<TopicDetails | undefined> = reset 
       ? this.provider.commentService.getTopicDetails(this.articleId) 
@@ -241,22 +262,16 @@ export class CommentListComponent implements OnInit, OnDestroy {
         if (this.nicknameFilter.trim().length > 0) {
           this.provider.commentService.markNickname(this.comments, this.nicknameFilter);
         }        
-
-        const endTime = Date.now();
-        const elapsedTime = endTime - startTime;
-        const remainingDelay = Math.max(0, this.MIN_LOADING_TIME_MS - elapsedTime);
         
         if (this.historyListComponent) { 
           this.historyListComponent.reloadHistory(); 
         }
 
+        this.isLoading = false; 
+        this.currentMatchIndex = -1;
+        this.handleInitialAnchor();
+
         this.cleanupPendingReplies(); 
-        
-        setTimeout(() => { 
-          this.isLoading = false; 
-          this.currentMatchIndex = -1;
-          this.handleInitialAnchor();
-        }, remainingDelay);
       },
       error: (err: any) => {
         console.error('Failed to load (Topic/Comments):', err.status, err.message);

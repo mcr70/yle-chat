@@ -7,12 +7,13 @@ import { catchError, finalize, ignoreElements, switchMap, tap } from 'rxjs/opera
 import { Provider, ProviderManager } from '@app/models/provider';
 import { SpinnerComponent } from '@components/spinner/spinner.component';
 import { SessionStateService } from '@services/session-state.service'; // Check correct path
+import { RefreshService } from '@app/services/resfresh.service';
 
 @Component({
   selector: 'app-articles',
   templateUrl: './articles.component.html',
   styleUrls: ['./articles.component.scss'],
-  imports: [CommonModule, SpinnerComponent]
+  imports: [CommonModule]
 })
 export class ArticlesComponent implements OnInit, OnDestroy {
 
@@ -35,7 +36,8 @@ export class ArticlesComponent implements OnInit, OnDestroy {
   constructor(
     private providerManager: ProviderManager,
     private route: ActivatedRoute,
-    private sessionStateService: SessionStateService
+    private sessionStateService: SessionStateService,
+    private refreshService: RefreshService
   ) { }
 
   ngOnInit(): void {
@@ -70,7 +72,8 @@ export class ArticlesComponent implements OnInit, OnDestroy {
         return this.provider.articleService.getArticles().pipe(
           tap(data => {
             this.articlesData$.next(data);
-            
+            console.log(`Fetched ${data.length} articles from provider ${this.provider.id}.`);
+
             // Handle automatic article restoration / default selection
             if (data && data.length > 0) {
               const savedArticleId = this.sessionStateService.getSelectedArticleId(this.provider.id);
@@ -92,6 +95,13 @@ export class ArticlesComponent implements OnInit, OnDestroy {
     ).subscribe();
 
     this.subscription.add(sub);
+
+    this.subscription.add( // Listen for manual refresh from toolbar or other components
+      this.refreshService.refresh$.subscribe(() => {
+        this.refreshArticles();
+      })
+    );
+
 
     // Trigger the initial load automatically
     this.refreshArticles();

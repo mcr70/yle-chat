@@ -1,19 +1,6 @@
 <div class="articles-container">
   <div class="header-row">
     <h3>Keskusteluja</h3>
-    
-    <button 
-      (click)="refreshArticles()" 
-      [disabled]="isLoading$ | async"
-      class="refresh-button"
-      [title]="(isLoading$ | async) ? 'Ladataan...' : 'Päivitä keskustelut'">
-      
-      @if (!(isLoading$ | async)) {
-        <span>🔄</span>
-      } @else {
-        <app-spinner></app-spinner>
-      }
-    </button>
   </div>
 
     @if (articles$ | async; as articles) {

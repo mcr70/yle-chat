@@ -32,7 +32,7 @@ export class ProviderSelectionComponent {
       id: 'hs',
       name: 'Helsingin Sanomat',
       description: 'Selaa ja lue Helsingin Sanomien artikkelikohtaisia keskusteluja.',
-      badgeText: 'Lukutila (Anonyymi)',
+      badgeText: 'Anonyymi',
       badgeClass: 'badge-info'
     }
   ];

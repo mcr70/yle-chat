@@ -21,11 +21,20 @@
   </div>
 
   <div class="toolbar-right">
+    <button class="yle-button refresh-button" (click)="onRefresh()" [disabled]="isRefreshing" title="Päivitä">
+      @if (!isRefreshing) {
+        <span>🔄</span>
+      } @else {
+        <app-spinner [show]="isRefreshing"></app-spinner>
+      }
+    </button>
+
     <button class="yle-button info-btn" (click)="openInfoModal()" title="Tietoa sovelluksesta">
       ℹ️
     </button>
     <app-login-panel *ngIf="showLoginButton"></app-login-panel>
   </div>
+
 </header>
 
 <!-- Info Modal suoraan Toolbarin sisällä -->

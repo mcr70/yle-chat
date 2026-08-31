@@ -10,13 +10,14 @@ import { ProviderManager } from '@app/models/provider';
 
 import { SpinnerComponent } from '@components/spinner/spinner.component';
 import { SessionStateService } from '@app/services/session-state.service';
+import { RefreshService } from '@app/services/resfresh.service';
 
 @Component({
   selector: 'app-my-discussions',
   templateUrl: './my-discussions.component.html',
   styleUrls: ['./my-discussions.component.scss'],
   standalone: true,
-  imports: [ CommonModule, SpinnerComponent ]
+  imports: [CommonModule]
 })
 export class MyDiscussionsComponent implements OnInit, OnDestroy {
 
@@ -42,7 +43,8 @@ export class MyDiscussionsComponent implements OnInit, OnDestroy {
   constructor(
     private providerManager: ProviderManager,
     private route: ActivatedRoute,
-    private sessionStateService: SessionStateService  
+    private sessionStateService: SessionStateService,
+    private refreshService: RefreshService
   ) {}
 
   ngOnInit(): void {
@@ -71,6 +73,12 @@ export class MyDiscussionsComponent implements OnInit, OnDestroy {
     });
     this.subscription.add(authSub);
 
+    this.subscription.add( // Listen for manual refresh from toolbar or other components
+      this.refreshService.refresh$.subscribe(() => {
+        this.refreshDiscussions(); 
+      })
+    );
+
     // Trigger data fetch on auth state change (if logged in) or manual refresh
     const loadTrigger$ = merge(
       auth$.pipe(filter(isLoggedIn => isLoggedIn)),
@@ -91,6 +99,7 @@ export class MyDiscussionsComponent implements OnInit, OnDestroy {
         return this.provider.myHistoryService.fetchMyDiscussions().pipe(
           tap(data => {
             this.discussionsData$.next(data);
+            console.log(`Fetched ${data.length} discussions from provider ${this.provider.id}.`);
           }),
           finalize(() => {
             this.discussionsLoading.next(false);
