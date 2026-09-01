@@ -22,6 +22,9 @@ import { SpinnerComponent } from '@components/spinner/spinner.component';
 import { SessionStateService } from '@app/services/session-state.service';
 import { RefreshService } from '@app/services/resfresh.service';
 
+
+type SortOption = 'newest' | 'oldest' | 'mostLiked' | 'mostReplies';
+
 const CURRENT_INFO_VERSION = '1.0';
 const INFO_VERSION_KEY = 'app_info_seen_version';
 
@@ -47,9 +50,9 @@ export class CommentListComponent implements OnInit, OnDestroy {
   private authSubscription?: Subscription;
 
   private isManualInput = false;
-  private filterFoundMatches: boolean = false;
   private currentProviderId: string = 'yle';
 
+  activeSort: SortOption = 'mostLiked';
   sidebarWidth = 320;
   isMobileMenuOpen = false;
 
@@ -272,6 +275,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
         this.handleInitialAnchor();
 
         this.cleanupPendingReplies(); 
+        this.applySorting();
       },
       error: (err: any) => {
         console.error('Failed to load (Topic/Comments):', err.status, err.message);
@@ -285,6 +289,30 @@ export class CommentListComponent implements OnInit, OnDestroy {
     });
   }
 
+
+  applySorting(): void {
+    if (!this.comments || this.comments.length === 0) return;
+
+    switch (this.activeSort) {
+      case 'newest':
+        this.comments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+
+      case 'oldest':
+        this.comments.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        break;
+
+      case 'mostLiked':
+        this.comments.sort((a, b) => b.likes - a.likes);
+        break;
+
+      case 'mostReplies':
+        this.comments.sort((a, b) => (b.replies?.length || 0) - (a.replies?.length || 0));
+        break;
+    }
+  }
+
+
   private resetState(): void {
     this.comments = [];
     this.currentOffset = 0;
@@ -292,7 +320,6 @@ export class CommentListComponent implements OnInit, OnDestroy {
     this.topicDetails = null;
     this.articleTitle = '';
     this.commentsLocked = false;
-    this.filterFoundMatches = false;
     this.isLoading = false;
     this.currentMatchIndex = -1;
     this.showNewCommentForm = false;
@@ -309,9 +336,6 @@ export class CommentListComponent implements OnInit, OnDestroy {
 
     this.currentMatchIndex = -1;
 
-    this.filterFoundMatches = this.comments.some(comment => 
-      comment.hasNickname === true
-    );
   }
 
   get filteredComments(): Comment[] {

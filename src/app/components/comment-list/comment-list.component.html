@@ -57,6 +57,13 @@
           <div class="filter-controls">
             <div class="filter-row">
 
+              <select class="yle-input sort-select" [(ngModel)]="activeSort" (change)="applySorting()">
+                <option value="newest">Uusin</option>
+                <option value="oldest">Vanhin</option>
+                <option value="mostLiked">Suosituin</option>
+                <option value="mostReplies">Aktiivisin</option>
+              </select>             
+
               <input type="text" placeholder="esim. 74-20195254 tai URL..." 
                 class="filter-input article-id-input yle-input"
                 [(ngModel)]="articleId" 
