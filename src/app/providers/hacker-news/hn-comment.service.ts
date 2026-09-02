@@ -47,11 +47,11 @@ export class HNCommentService implements CommentService {
       map(story => {
         if (!story || !story.children) return [];
 
-        // Paginointi 1. tason kommenteille
+        // Pagination for top-level comments
         const pagedChildren = story.children.slice(startOffset, startOffset + limit);
 
         return pagedChildren
-          .filter(c => c.text !== null) // Suodatetaan poistetut
+          .filter(c => c.text !== null) // Filter out deleted comments
           .map(c => this.mapAlgoliaComment(c, topicId));
       }),
       catchError(() => of([]))
@@ -79,7 +79,7 @@ export class HNCommentService implements CommentService {
   }
 
   /**
-   * Rekyrsiivinen mäppäys Algolian puurakenteesta sovelluksesi Comment-malliin
+   * Mapping Algolia comment structure to our internal Comment interface.
    */
   private mapAlgoliaComment(raw: AlgoliaComment, topCommentId: string): Comment {
     return {
@@ -94,7 +94,7 @@ export class HNCommentService implements CommentService {
         .map(child => this.mapAlgoliaComment(child, topCommentId)),
       topCommentId: topCommentId,
       isLiked: false,
-      isExpanded: true,
+      isExpanded: false,
       isCollapsed: false
     };
   }
