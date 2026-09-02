@@ -485,6 +485,12 @@
       text-align: center;
       font-size: 1.1em;
     }
+
+    .top-btn {
+      //border-left: 1px solid rgba(255, 255, 255, 0.3);
+      padding-left: 10px;
+      margin-left: 4px;
+    }
   }
 }
 
@@ -511,4 +517,48 @@
   //background-color: var(--color-background-primary);
   color: var(--color-brand-primary); 
 
+}
+
+
+/* Takaisin ylös -leijuva nappi */
+/* Erillinen leijuva ylös-nappi silloin kun selaustabletti ei ole näkyvissä */
+.scroll-top-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1001;
+  
+  width: 44px;
+  height: 44px;
+  border-radius: 22px; /* Pyöreä pilleriilme */
+  
+  /* Käytetään samaa tummansinistä teemaa kuin selaustabletissa */
+  background-color: var(--yle-blue, #003380); 
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  
+  transition: transform 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--yle-blue-hover, #00225c);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Jos sininen selaustabletti on näkyvissä mobiilissa, 
+   siirretään nappia hieman ylemmäs, jotta ne eivät mene päällekkäin */
+.mobile-search-nav ~ .scroll-top-btn {
+  bottom: 80px; 
 }

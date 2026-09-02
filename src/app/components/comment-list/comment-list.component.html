@@ -154,6 +154,7 @@
   </div>
 </div>
 
+
 <div class="mobile-search-nav" *ngIf="matches.length > 0">
   <button (click)="navigateToMatch('prev')" class="nav-btn">←</button>
   
@@ -162,9 +163,21 @@
   </span>
   
   <button (click)="navigateToMatch('next')" class="nav-btn">→</button>
+
+  <!-- Lisätään ylös-nappi pillerin sisään -->
+  <button *ngIf="showScrollTop" (click)="scrollToTop()" class="nav-btn top-btn" title="Palaa alkuun">
+    ↑
+  </button>
 </div>
 
-
+<!-- Erillinen ylös-nappi näytetään VAIN silloin, kun selaustabletti EI ole näkyvissä -->
+<button 
+  *ngIf="showScrollTop && matches.length === 0" 
+  class="scroll-top-btn" 
+  (click)="scrollToTop()" 
+  title="Palaa alkuun">
+  ↑
+</button>
 
 
 <!-- info-modal -->

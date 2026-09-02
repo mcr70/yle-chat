@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -78,8 +78,10 @@ export class CommentListComponent implements OnInit, OnDestroy {
   newCommentText: string = '';
 
   isInfoModalOpen = false;
+  showScrollTop: boolean = false;
 
   private currentRouteArticleId: string | null = null;
+
 
   constructor(
     private providerManager: ProviderManager,
@@ -510,6 +512,19 @@ export class CommentListComponent implements OnInit, OnDestroy {
     this.isInfoModalOpen = false;
     localStorage.setItem(INFO_VERSION_KEY, CURRENT_INFO_VERSION);
   }
+
+  // Listen to skrolling events to show/hide the scroll-to-top button
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    const isMobile = window.innerWidth <= 600;
+    this.showScrollTop = isMobile ? window.scrollY > 300: window.scrollY > 5000;
+  }
+
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+
 
   private checkIfInfoModalShouldOpen(): void {
     const savedVersion = localStorage.getItem(INFO_VERSION_KEY);
