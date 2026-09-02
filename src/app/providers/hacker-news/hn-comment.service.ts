@@ -1,22 +1,24 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, forkJoin } from 'rxjs';
-import { map, switchMap, catchError } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { CommentService, TopicDetails, Comment } from '@app/models/comment-service.interface';
 
-interface HNItemRaw {
+interface AlgoliaComment {
   id: number;
-  by?: string;
-  text?: string;
-  time: number;
-  score?: number;
-  title?: string;
-  url?: string;
-  descendants?: number;
-  kids?: number[];
-  parent?: number;
-  deleted?: boolean;
-  dead?: boolean;
+  author: string;
+  text: string | null;
+  created_at: string;
+  parent_id: number | null;
+  children: AlgoliaComment[];
+}
+
+interface AlgoliaStoryResponse {
+  id: number;
+  title: string;
+  url: string;
+  points: number;
+  children: AlgoliaComment[];
 }
 
 @Injectable({
@@ -24,45 +26,35 @@ interface HNItemRaw {
 })
 export class HNCommentService implements CommentService {
   private http = inject(HttpClient);
-  private baseUrl = 'https://hacker-news.firebaseio.com/v0';
+  private baseUrl = 'https://hn.algolia.com/api/v1';
 
   getTopicDetails(topicId: string): Observable<TopicDetails> {
-    return this.fetchItem(parseInt(topicId, 10)).pipe(
-      map(item => {
-        if (!item) {
-          throw new Error(`Topic '${topicId}' not found`);
-        }
-        return {
-          title: item.title || '',
-          articleLink: item.url || `https://news.ycombinator.com/item?id=${item.id}`,
-          isLocked: false,
-          acceptedCommentsCount: item.descendants || 0,
-          externalId: item.id.toString()
-        };
-      })
+    return this.http.get<AlgoliaStoryResponse>(`${this.baseUrl}/items/${topicId}`).pipe(
+      map(story => ({
+        title: story.title || '',
+        articleLink: story.url || `https://news.ycombinator.com/item?id=${story.id}`,
+        isLocked: false,
+        acceptedCommentsCount: story.children ? story.children.length : 0,
+        externalId: story.id.toString()
+      }))
     );
   }
 
   getComments(topicId: string, offset: number | string, limit: number): Observable<Comment[]> {
-    const id = parseInt(topicId, 10);
     const startOffset = typeof offset === 'number' ? offset : parseInt(offset, 10) || 0;
 
-    return this.fetchItem(id).pipe(
-      switchMap(story => {
-        if (!story || !story.kids || story.kids.length === 0) {
-          return of([]);
-        }
+    return this.http.get<AlgoliaStoryResponse>(`${this.baseUrl}/items/${topicId}`).pipe(
+      map(story => {
+        if (!story || !story.children) return [];
 
-        const pagedKidIds = story.kids.slice(startOffset, startOffset + limit);
-        if (pagedKidIds.length === 0) {
-          return of([]);
-        }
+        // Paginointi 1. tason kommenteille
+        const pagedChildren = story.children.slice(startOffset, startOffset + limit);
 
-        return forkJoin(
-          pagedKidIds.map(kidId => this.fetchCommentTree(kidId, topicId))
-        );
+        return pagedChildren
+          .filter(c => c.text !== null) // Suodatetaan poistetut
+          .map(c => this.mapAlgoliaComment(c, topicId));
       }),
-      map(comments => comments.filter((c): c is Comment => c !== null))
+      catchError(() => of([]))
     );
   }
 
@@ -86,51 +78,24 @@ export class HNCommentService implements CommentService {
     comments.forEach(checkComment);
   }
 
-  // --- Rekyyrsiivinen kommenttipuun haku (1. ja 2. tason vastaukset) ---
-
-  private fetchCommentTree(commentId: number, topCommentId: string): Observable<Comment | null> {
-    return this.fetchItem(commentId).pipe(
-      switchMap(raw => {
-        if (!raw || raw.deleted || raw.dead || !raw.text) {
-          return of(null);
-        }
-
-        const baseComment: Comment = {
-          id: raw.id.toString(),
-          parentId: raw.parent ? raw.parent.toString() : null,
-          author: raw.by || 'Anonyymi',
-          content: raw.text,
-          likes: raw.score || 0,
-          createdAt: new Date(raw.time * 1000).toISOString(),
-          replies: [],
-          topCommentId: topCommentId,
-          isLiked: false,
-          isExpanded: true,
-          isCollapsed: false
-        };
-
-        if (!raw.kids || raw.kids.length === 0) {
-          return of(baseComment);
-        }
-
-        // Haetaan eka taso alavastauksia (rajoitetaan 5 suosituimpaan vastaukseen)
-        const childRequests = raw.kids.slice(0, 5).map(childId => 
-          this.fetchCommentTree(childId, topCommentId)
-        );
-
-        return forkJoin(childRequests).pipe(
-          map(replies => {
-            baseComment.replies = replies.filter((r): r is Comment => r !== null);
-            return baseComment;
-          })
-        );
-      })
-    );
-  }
-
-  private fetchItem(id: number): Observable<HNItemRaw | null> {
-    return this.http.get<HNItemRaw>(`${this.baseUrl}/item/${id}.json`).pipe(
-      catchError(() => of(null))
-    );
+  /**
+   * Rekyrsiivinen mäppäys Algolian puurakenteesta sovelluksesi Comment-malliin
+   */
+  private mapAlgoliaComment(raw: AlgoliaComment, topCommentId: string): Comment {
+    return {
+      id: raw.id.toString(),
+      parentId: raw.parent_id ? raw.parent_id.toString() : null,
+      author: raw.author || 'Anonyymi',
+      content: raw.text || '',
+      likes: 0,
+      createdAt: raw.created_at,
+      replies: (raw.children || [])
+        .filter(child => child.text !== null)
+        .map(child => this.mapAlgoliaComment(child, topCommentId)),
+      topCommentId: topCommentId,
+      isLiked: false,
+      isExpanded: true,
+      isCollapsed: false
+    };
   }
 }
