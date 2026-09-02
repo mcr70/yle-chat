@@ -499,12 +499,6 @@
   //min-width: 150px;
   max-width: 300px;
 
-  @media screen and (max-width: 600px) {
-    min-width: 0;
-    max-width: 100%;
-    width: 100%;
-  }  
-  
   font-size: 1em;
   font-weight: bold;
 
@@ -517,6 +511,11 @@
   //background-color: var(--color-background-primary);
   color: var(--color-brand-primary); 
 
+  @media screen and (max-width: 600px) {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }  
 }
 
 
