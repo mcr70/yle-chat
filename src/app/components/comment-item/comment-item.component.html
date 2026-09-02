@@ -40,7 +40,8 @@
         </div>
         
         <ng-container *ngIf="!comment.isCollapsed">
-            <p class="comment-text">{{ comment.content }}</p>
+            <!--<p class="comment-text">{{ comment.content }}</p>-->
+            <div class="comment-text" [innerHTML]="comment.content | safeHtml"></div>            
             
             <div class="comment-actions">    
                 <button 
