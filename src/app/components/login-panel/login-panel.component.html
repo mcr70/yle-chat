@@ -2,14 +2,26 @@
 
     <ng-container *ngIf="isLoggedIn$ | async; else loginButton">
         <div class="user-info-container">
-            <button (click)="logoutAndCloseMenu()" class="yle-button">
-                Kirjaudu ulos
+            <button (click)="logoutAndCloseMenu()" class="yle-button auth-btn" title="Kirjaudu ulos">
+                <svg class="auth-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span class="auth-text">Kirjaudu ulos</span>
             </button> 
         </div>
     </ng-container>
 
     <ng-template #loginButton>
-        <button (click)="openLoginForm()" class="yle-button">Kirjaudu</button>
+        <button (click)="openLoginForm()" class="yle-button auth-btn" title="Kirjaudu sisään">
+            <svg class="auth-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                <polyline points="10 17 15 12 10 7"></polyline>
+                <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+            <span class="auth-text">Kirjaudu</span>
+        </button>
     </ng-template>
 
     <div *ngIf="isLoginFormVisible" class="login-modal-overlay">

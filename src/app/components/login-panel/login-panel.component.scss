@@ -95,3 +95,38 @@
     cursor: pointer;
     color: #333;
 }
+
+.auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  .auth-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  // mobile view: show icon, hide text
+  @media (max-width: 600px) {
+    padding: 0.4rem 0.6rem;
+
+    .auth-icon {
+      display: block;
+    }
+
+    .auth-text {
+      display: none;
+    }
+  }
+
+  // desktop view: hide icon, show text
+  @media (min-width: 601px) {
+    .auth-icon {
+      display: none;
+    }
+
+    .auth-text {
+      display: inline;
+    }
+  }
+}
