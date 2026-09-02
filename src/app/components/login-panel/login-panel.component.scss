@@ -106,20 +106,39 @@
     height: 20px;
   }
 
-  // mobile view: show icon, hide text
   @media (max-width: 600px) {
-    padding: 0.4rem 0.6rem;
+    all: unset; // Clear all inherited styles for mobile view
+    
+    color: var(--color-brand-primary);
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    border: 1px solid #ccc !important; 
+    box-sizing: border-box !important;
+    cursor: pointer;
 
     .auth-icon {
-      display: block;
+      display: block !important;
+      margin: 0 !important;
     }
 
     .auth-text {
-      display: none;
+      display: none !important;
     }
   }
 
-  // desktop view: hide icon, show text
+  // Desktop view
   @media (min-width: 601px) {
     .auth-icon {
       display: none;
