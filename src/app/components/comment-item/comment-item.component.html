@@ -35,12 +35,14 @@
                     class="thumb-icon" 
                     [class.liked]="comment.isLiked">★</span>
                     
-                <span class="likes">{{ comment.likes || 0 }}</span>
+                <span *ngIf="comment.likes > 0 || provider.capabilities.supportsLiking"
+                    class="likes">{{ comment.likes || 0 }}</span>
             </div>
         </div>
         
         <ng-container *ngIf="!comment.isCollapsed">
-            <p class="comment-text">{{ comment.content }}</p>
+            <!--<p class="comment-text">{{ comment.content }}</p>-->
+            <div class="comment-text" [innerHTML]="comment.content | safeHtml"></div>            
             
             <div class="comment-actions">    
                 <button 
@@ -73,11 +75,12 @@
                         </div>
                     </div>
 
-                    <button class="reply-button" 
-                            (click)="toggleReplyForm(); $event.stopPropagation()" 
-                            [disabled]="isLocked || !!pendingReply || !isLoggedIn"
-                            [attr.title]="getReplyTooltip()">
-                            Vastaa ↵
+                    <button *ngIf="provider.capabilities.supportsReplying"
+                        class="reply-button" 
+                        (click)="toggleReplyForm(); $event.stopPropagation()" 
+                        [disabled]="isLocked || !!pendingReply || !isLoggedIn"
+                        [attr.title]="getReplyTooltip()">
+                        Vastaa ↵
                     </button>
                 </div>
             </div>

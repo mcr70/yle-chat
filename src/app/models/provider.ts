@@ -7,7 +7,7 @@ import { MyHistoryService } from './my-history-service.interface';
 
 import { YleProvider } from '@providers/yle/yle-provider.service';
 import { HSProvider } from '@providers/hs/hs-provider.service';
-
+import { HNProvider } from '@providers/hacker-news/hn-provider.service'
 export interface ProviderCapabilities {
   supportsAuth: boolean;
   supportsUserHistory: boolean;
@@ -36,10 +36,12 @@ export class ProviderManager {
 
   constructor(
     private yleProvider: YleProvider,
-    private hsProvider: HSProvider
+    private hsProvider: HSProvider,
+    private hnProvider: HNProvider
   ) {
     this.providers.set(this.yleProvider.id, this.yleProvider);
     this.providers.set(this.hsProvider.id, this.hsProvider);
+    this.providers.set(this.hnProvider.id, this.hnProvider);
   }
 
   /**

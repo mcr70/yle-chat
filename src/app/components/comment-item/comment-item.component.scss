@@ -151,6 +151,58 @@
     white-space: pre-line;
 }
 
+.comment-text {
+  white-space: pre-line;
+  margin-bottom: 8px;
+
+  p {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  /* pre / code*/
+  pre {
+    background-color: #21252b;
+    color: #abb2bf;
+    padding: 10px 14px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.88em;
+    line-height: 1.45;
+    margin: 8px 0;
+    white-space: pre; 
+
+    code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+      font-family: inherit;
+    }
+  }
+
+  /* code in comment */
+  code {
+    background-color: rgba(0, 0, 0, 0.06);
+    color: #d63200;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+  }
+
+  /* Links in comment */
+  a {
+    color: var(--color-brand-primary, #0066cc);
+    text-decoration: underline;
+    word-break: break-all;
+  }
+}
+
 .comment-actions {
     display: flex;
     justify-content: space-between; 

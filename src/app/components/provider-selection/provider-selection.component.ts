@@ -34,6 +34,13 @@ export class ProviderSelectionComponent {
       description: 'Selaa ja lue Helsingin Sanomien artikkelikohtaisia keskusteluja.',
       badgeText: 'Anonyymi',
       badgeClass: 'badge-info'
+    },
+    {
+      id: 'hn',
+      name: 'Hacker News',
+      description: 'Lue Hacker Newsin keskusteluja',
+      badgeText: 'Anonyymi',
+      badgeClass: 'badge-info'
     }
   ];
 

@@ -9,13 +9,14 @@ import { Comment } from '@app/models/comment-service.interface';
 
 import { PendingReplyService, PendingReply } from '@services/pending-reply.service'; 
 import { ProviderManager } from '@app/models/provider';
+import { SafeHtmlPipe } from '@app/pipes/safe-html.pipe';
 
 @Component({
   selector: 'app-comment-item',
   templateUrl: './comment-item.component.html',
   styleUrls: ['./comment-item.component.scss'],
   standalone: true,
-  imports: [ CommonModule, FormsModule ] 
+  imports: [ CommonModule, FormsModule, SafeHtmlPipe ] 
 })
 export class CommentItemComponent implements OnInit, OnDestroy {
 
