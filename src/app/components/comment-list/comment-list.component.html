@@ -95,11 +95,12 @@
                   </button>
                 </div>
 
-                <button class="yle-button" 
-                        [class.active]="showNewCommentForm"
-                        (click)="toggleNewCommentForm()" 
-                        [disabled]="commentsLocked || !articleId"
-                        title="Kirjoita uusi kommentti">
+                <button *ngIf="provider.capabilities.supportsReplying"
+                  class="yle-button" 
+                  [class.active]="showNewCommentForm"
+                  (click)="toggleNewCommentForm()" 
+                  [disabled]="commentsLocked || !articleId"
+                  title="Kirjoita uusi kommentti">
                   ✏️
                 </button>
               </div>

@@ -35,7 +35,8 @@
                     class="thumb-icon" 
                     [class.liked]="comment.isLiked">★</span>
                     
-                <span class="likes">{{ comment.likes || 0 }}</span>
+                <span *ngIf="comment.likes > 0 || provider.capabilities.supportsLiking"
+                    class="likes">{{ comment.likes || 0 }}</span>
             </div>
         </div>
         
@@ -74,11 +75,12 @@
                         </div>
                     </div>
 
-                    <button class="reply-button" 
-                            (click)="toggleReplyForm(); $event.stopPropagation()" 
-                            [disabled]="isLocked || !!pendingReply || !isLoggedIn"
-                            [attr.title]="getReplyTooltip()">
-                            Vastaa ↵
+                    <button *ngIf="provider.capabilities.supportsReplying"
+                        class="reply-button" 
+                        (click)="toggleReplyForm(); $event.stopPropagation()" 
+                        [disabled]="isLocked || !!pendingReply || !isLoggedIn"
+                        [attr.title]="getReplyTooltip()">
+                        Vastaa ↵
                     </button>
                 </div>
             </div>
