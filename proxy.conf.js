@@ -78,7 +78,22 @@ const PROXY_CONFIG = [
     secure: true,
     changeOrigin: true,
     logLevel: "debug"
-  }
+  },
+
+  // 6. Hacker News Auth API
+  {
+    context: ["/hn-api"],
+    target: "https://news.ycombinator.com",
+    secure: true,
+    changeOrigin: true,
+    logLevel: "debug",
+    pathRewrite: { "^/hn-api": "" },
+    headers: {
+      "Origin": "https://news.ycombinator.com",
+      "Referer": "https://news.ycombinator.com/",
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+    }
+  }  
 ];
 
 module.exports = PROXY_CONFIG;

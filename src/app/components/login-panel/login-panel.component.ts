@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -15,7 +15,9 @@ import { ProviderManager } from '@app/models/provider';
   templateUrl: './login-panel.component.html',
   styleUrls: ['./login-panel.component.scss'] 
 })
-export class LoginPanelComponent implements OnInit, OnDestroy {
+export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
+  @Input() provider?: Provider; // ALLOW PROVIDER FROM PARENT
+
   usernameDisplay = 'Käyttäjä'; 
   loginUsername = ''; 
   loginPassword = '';
@@ -27,7 +29,6 @@ export class LoginPanelComponent implements OnInit, OnDestroy {
   loginError: string | null = null;  
   
   public isLoggedIn$: Observable<boolean> = of(false);
-  public provider!: Provider;
   private authService?: AuthService;
   private subscription = new Subscription();
 
@@ -37,16 +38,39 @@ export class LoginPanelComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Resolve active provider ID from route or parent route
-    const providerId = 
-      this.route.snapshot.paramMap.get('provider') || 
-      this.route.snapshot.parent?.paramMap.get('provider') || 
-      'yle';
+    this.setupAuthService();
+  }
 
-    this.provider = this.providerManager.getProvider(providerId);
+  /**
+   * React to changes in the input properties, particularly the provider.
+   * @param changes The changes detected in the input properties.
+   */
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['provider']) {
+      this.setupAuthService();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  private setupAuthService(): void {
+    // Reset subscription when provider changes
+    this.subscription.unsubscribe();
+    this.subscription = new Subscription();
+
+    // Resolve provider from Input or Route as fallback
+    if (!this.provider) {
+      const providerId = 
+        this.route.snapshot.paramMap.get('provider') || 
+        this.route.snapshot.parent?.paramMap.get('provider') || 
+        'yle';
+      this.provider = this.providerManager.getProvider(providerId);
+    }
 
     // Ensure provider supports authentication
-    if (this.provider.capabilities.supportsAuth && this.provider.authService) {
+    if (this.provider?.capabilities.supportsAuth && this.provider.authService) {
       this.authService = this.provider.authService;
       this.isLoggedIn$ = this.authService.isLoggedIn$;
 
@@ -59,32 +83,28 @@ export class LoginPanelComponent implements OnInit, OnDestroy {
       });
 
       this.subscription.add(userSub);
+    } else {
+      this.authService = undefined;
+      this.isLoggedIn$ = of(false);
     }
-  }
-
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
   }
 
   openLoginForm(): void {
     if (!this.authService) return;
 
-    // Check if the service requires username/password input via modal
     if (this.authService.requiresCredentials) {
-      this.isLoginFormVisible = true; // Open Yle modal
+      this.isLoginFormVisible = true;
     } else {
-      // HS / Popup flow: Call login directly without showing the form modal!
       this.executeLogin();
     }
   }
 
   closeLoginForm(): void {
     this.isLoginFormVisible = false;
-    this.username = '';
-    this.password = '';
+    this.loginUsername = '';
+    this.loginPassword = '';
   }
 
-  // Provdes username & password for login
   submitLogin(): void {
     if (this.loginUsername && this.loginPassword) {
       this.executeLogin(this.loginUsername, this.loginPassword);
@@ -94,9 +114,7 @@ export class LoginPanelComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    if (!this.authService) {
-      return;
-    }
+    if (!this.authService) return;
 
     this.authService.logout().subscribe(() => {
       this.loginUsername = '';
@@ -108,9 +126,6 @@ export class LoginPanelComponent implements OnInit, OnDestroy {
     this.logout(); 
   }  
 
-  /**
-   * Internal helper to execute the login call
-   */
   private executeLogin(username?: string, password?: string): void {
     if (!this.authService) return;
 

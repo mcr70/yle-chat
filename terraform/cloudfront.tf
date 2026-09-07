@@ -5,6 +5,11 @@ locals {
       path_pattern    = "/hs-api/*"
       allowed_methods = ["GET", "HEAD", "OPTIONS"]
     },
+    HnApiOrigin = { // Hacker News Login & Logout
+      domain          = "news.ycombinator.com"
+      path_pattern    = "/hn-api/*"
+      allowed_methods = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
+    },    
     YleCommentsV1Origin = { // Reply, like/unlike needs POST
       domain          = "comments.api.yle.fi"
       path_pattern    = "/v1/topics/*"

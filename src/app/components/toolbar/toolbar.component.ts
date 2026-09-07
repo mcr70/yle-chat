@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
 import { RefreshService } from '@app/services/resfresh.service';
 import { SpinnerComponent } from '@components/spinner/spinner.component';
+import { Provider } from '@app/models/provider';
 
 const CURRENT_INFO_VERSION = '1.0';
 const INFO_VERSION_KEY = 'app_info_seen_version';
@@ -16,6 +17,7 @@ const INFO_VERSION_KEY = 'app_info_seen_version';
   styleUrls: ['./toolbar.component.scss', './info-dialog.scss']
 })
 export class ToolbarComponent implements OnInit {
+  @Input() provider?: Provider;
   @Input() title: string = '';
   @Input() showHomeButton: boolean = true;
   @Input() showMenuToggle: boolean = false;
