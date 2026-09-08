@@ -5,11 +5,16 @@ locals {
       path_pattern    = "/hs-api/*"
       allowed_methods = ["GET", "HEAD", "OPTIONS"]
     },
-    HnApiOrigin = { // Hacker News Login & Logout
+    HnApiOrigin = { // Hacker News API, login, and comment submission
       domain          = "news.ycombinator.com"
       path_pattern    = "/hn-api/*"
       allowed_methods = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
-    },    
+    },
+    HnConfirmationOrigin = { // HN redirects comment confirmation to /x?fnop=commconfirm
+      domain          = "news.ycombinator.com"
+      path_pattern    = "/x*"
+      allowed_methods = ["GET", "HEAD", "OPTIONS"]
+    },
     YleCommentsV1Origin = { // Reply, like/unlike needs POST
       domain          = "comments.api.yle.fi"
       path_pattern    = "/v1/topics/*"
@@ -49,6 +54,21 @@ resource "aws_cloudfront_function" "hs_api_rewrite" {
     function handler(event) {
         var request = event.request;
         request.uri = request.uri.replace(/^\/hs-api/, '');
+        return request;
+    }
+  EOT
+}
+
+resource "aws_cloudfront_function" "hn_api_rewrite" {
+  name    = "hn-api-path-rewrite"
+  runtime = "cloudfront-js-2.0"
+  comment = "Removes /hn-api prefix and uses HN as the request origin"
+  publish = true
+  code    = <<-EOT
+    function handler(event) {
+        var request = event.request;
+        request.uri = request.uri.replace(/^\/hn-api/, '');
+        request.headers.origin = { value: 'https://news.ycombinator.com' };
         return request;
     }
   EOT
@@ -131,7 +151,7 @@ resource "aws_cloudfront_distribution" "cdn" {
       
       forwarded_values {
         query_string = true
-        headers      = ["Authorization", "Origin", "User-Agent", "Referer"]
+        headers      = ["Authorization", "Origin", "User-Agent", "Referer", "x-hn-cookie"]
         
         cookies {
           forward = "all"
@@ -139,20 +159,20 @@ resource "aws_cloudfront_distribution" "cdn" {
       }
 
       dynamic "function_association" {
-        for_each = ordered_cache_behavior.key == "HsApiOrigin" ? [1] : []
+        for_each = contains(["HsApiOrigin", "HnApiOrigin"], ordered_cache_behavior.key) ? [ordered_cache_behavior.key] : []
 
         content {
           event_type   = "viewer-request"
-          function_arn = aws_cloudfront_function.hs_api_rewrite.arn
+          function_arn = function_association.value == "HsApiOrigin" ? aws_cloudfront_function.hs_api_rewrite.arn : aws_cloudfront_function.hn_api_rewrite.arn
         }
       }
 
       dynamic "lambda_function_association" {
-        for_each = ordered_cache_behavior.key == "YleLoginApiOrigin" ? [1] : []
+        for_each = contains(["YleLoginApiOrigin", "HnApiOrigin"], ordered_cache_behavior.key) ? [ordered_cache_behavior.key] : []
 
         content {
           event_type   = "origin-response" # Change response before it is sent to browser
-          lambda_arn   = aws_lambda_function.cookie_fix_lambda.qualified_arn 
+          lambda_arn   = lambda_function_association.value == "YleLoginApiOrigin" ? aws_lambda_function.cookie_fix_lambda.qualified_arn : aws_lambda_function.hn_cookie_fix_lambda.qualified_arn
           include_body = false
         }
       }

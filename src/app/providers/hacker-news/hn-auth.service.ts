@@ -51,33 +51,32 @@ login(username?: string, password?: string): Observable<HNLoginResponse> {
       responseType: 'text'
     }).pipe(
       switchMap(response => {
-        // 1. Luetaan proxyn poimima x-hn-cookie
-        const headerCookie = response.headers.get('x-hn-cookie') || '';
+        const loginCookie = response.headers.get('x-hn-cookie') || '';
 
-        // 2. Tehdään tarkistuspyyntö /news -sivulle JA LÄHETETÄÄN EVÄSTE MUKANA
-        const testHeaders = headerCookie 
-          ? new HttpHeaders({ 'x-hn-cookie': headerCookie }) 
+        const testHeaders = loginCookie
+          ? new HttpHeaders({ 'x-hn-cookie': loginCookie })
           : new HttpHeaders();
 
         return this.http.get(`${this.proxyUrl}/news`, {
           headers: testHeaders,
+          observe: 'response',
           responseType: 'text'
         }).pipe(
-          map(htmlPage => {
+          map(verificationResponse => {
+            const htmlPage = verificationResponse.body || '';
+            const sessionCookie = loginCookie || verificationResponse.headers.get('x-hn-cookie') || '';
+
             // Kaapataan authHex-token kirjautuneen sivun HTML-koodista
             const authMatch = htmlPage.match(/logout\?auth=([a-f0-9]+)/);
             const authHex = authMatch ? authMatch[1] : undefined;
 
-            if (!authHex && !headerCookie) {
+            if (!authHex || !sessionCookie) {
               throw new Error('Kirjautuminen epäonnistui: Tarkista tunnus ja salasana.');
             }
 
-            this.authHex = authHex || null;
+            this.authHex = authHex;
 
-            // Muodostetaan lopullinen HN-eväste
-            const finalCookie = authHex 
-              ? `user=${username}&${authHex}` 
-              : headerCookie;
+            const finalCookie = sessionCookie;
 
             this.userCookie = finalCookie;
             this.isLoggedInSubject.next(true);
@@ -89,7 +88,7 @@ login(username?: string, password?: string): Observable<HNLoginResponse> {
               success: true,
               username,
               cookie: finalCookie,
-              authHex: this.authHex || undefined
+              authHex: this.authHex
             };
           })
         );

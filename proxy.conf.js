@@ -82,7 +82,8 @@ const PROXY_CONFIG = [
 
 // 6. Hacker News Auth API & Commenting
   {
-    context: ["/hn-api"],
+    // /x is the target of HN's comment confirmation redirect (fnop=commconfirm).
+    context: ["/hn-api", "/x"],
     target: "https://news.ycombinator.com",
     secure: true,
     changeOrigin: true,
@@ -94,25 +95,40 @@ const PROXY_CONFIG = [
     },
 
     configure: (proxy) => {
-      proxy.on("proxyRes", (proxyRes, req, res) => {
-        const setCookieHeaders = proxyRes.headers['set-cookie'];
-        if (setCookieHeaders) {
-          const cookieStr = Array.isArray(setCookieHeaders) 
-            ? setCookieHeaders.join('; ') 
-            : setCookieHeaders;
-
-          proxyRes.headers['x-hn-cookie'] = cookieStr;
-          proxyRes.headers['access-control-expose-headers'] = 'x-hn-cookie, set-cookie';
+      proxy.on("proxyReq", (proxyReq, req) => {
+        // Browsers cannot set the Cookie header directly, so the app uses x-hn-cookie.
+        const hnCookie = req.headers['x-hn-cookie'] || req.headers.cookie;
+        if (hnCookie) {
+          proxyReq.setHeader('Cookie', hnCookie);
         }
       });
 
       proxy.on("proxyRes", (proxyRes, req, res) => {
         const setCookieHeaders = proxyRes.headers['set-cookie'];
+        let cookieStr = '';
         if (setCookieHeaders) {
-          const cookieStr = Array.isArray(setCookieHeaders) 
-            ? setCookieHeaders.join('; ') 
-            : setCookieHeaders;
+          const cookies = Array.isArray(setCookieHeaders) ? setCookieHeaders : [setCookieHeaders];
+          cookieStr = cookies.map(cookie => cookie.split(';', 1)[0]).join('; ');
 
+          // Make the HN session cookie available on localhost for the /x confirmation request.
+          proxyRes.headers['set-cookie'] = cookies.map(cookie =>
+            cookie
+              .replace(/Domain=[^;]+;?\s*/i, '')
+              .replace(/Secure;?\s*/i, '')
+              .replace(/Path=[^;]+;?\s*/i, 'Path=/; ')
+          );
+        } else if (req.headers['x-hn-cookie'] || req.headers.cookie) {
+          cookieStr = req.headers['x-hn-cookie'] || req.headers.cookie;
+        }
+
+        // Angular HttpClient follows 3xx responses automatically. Stop the login redirect so the
+        // app can read the original HN session cookie from the response headers.
+        if (req.url?.includes('/login') && proxyRes.statusCode && proxyRes.statusCode >= 300 && proxyRes.statusCode < 400) {
+          proxyRes.statusCode = 200;
+          delete proxyRes.headers.location;
+        }
+
+        if (cookieStr) {
           proxyRes.headers['x-hn-cookie'] = cookieStr;
           proxyRes.headers['access-control-expose-headers'] = 'x-hn-cookie, set-cookie';
         }

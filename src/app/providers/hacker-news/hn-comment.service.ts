@@ -85,6 +85,7 @@ export class HNCommentService implements CommentService {
           return throwError(() => new Error('HN Istunto vanhentunut. Kirjaudu uudelleen sisään.'));
         }
 
+        // HN provides the comment form's HMAC token only on the /reply page.
         const hmacMatch = htmlPage.match(/name="hmac"\s+value="([^"]+)"/);
         const gotoMatch = htmlPage.match(/name="goto"\s+value="([^"]*)"/);
 
@@ -112,11 +113,45 @@ export class HNCommentService implements CommentService {
           responseType: 'text'
         });
       }),
-      map((responseHtml: string) => {
-        console.log('=== HN COMMENT RESPONSE HTML ===');
-        console.log(responseHtml);
+      switchMap((responseHtml: string) => {
+        if (!responseHtml.includes('Please confirm that this is your comment')) {
+          return of(responseHtml);
+        }
 
-        if (responseHtml.includes('You have to be logged in') || responseHtml.includes('Unknown or expired link')) {
+        // HN may request a second submission, for example after the user signs in.
+        // The confirmation form has a new HMAC token, so the original one cannot be reused.
+        const document = new DOMParser().parseFromString(responseHtml, 'text/html');
+        const form = document.querySelector('form[action="comment"]');
+        const parent = form?.querySelector<HTMLInputElement>('input[name="parent"]')?.value;
+        const goto = form?.querySelector<HTMLInputElement>('input[name="goto"]')?.value;
+        const hmac = form?.querySelector<HTMLInputElement>('input[name="hmac"]')?.value;
+        const confirmedText = form?.querySelector<HTMLTextAreaElement>('textarea[name="text"]')?.value;
+
+        if (!parent || !goto || !hmac || confirmedText === undefined) {
+          return throwError(() => new Error('HN:n kommentin vahvistuslomake oli virheellinen.'));
+        }
+
+        const confirmationBody = new HttpParams()
+          .set('parent', parent)
+          .set('goto', goto)
+          .set('hmac', hmac)
+          .set('text', confirmedText);
+
+        return this.http.post(`${this.proxyUrl}/comment`, confirmationBody.toString(), {
+          headers: new HttpHeaders({
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'x-hn-cookie': cookie
+          }),
+          responseType: 'text'
+        });
+      }),
+      map((responseHtml: string) => {
+
+        if (
+          responseHtml.includes('You have to be logged in') ||
+          responseHtml.includes('Unknown or expired link') ||
+          responseHtml.includes('<app-root')
+        ) {
           throw new Error('HN hylkäsi kommentin.');
         }
         return { success: true };
