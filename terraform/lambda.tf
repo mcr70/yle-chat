@@ -1,9 +1,14 @@
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_dir  = "${path.module}/lambda-src"
+  source_dir  = "${path.module}/lambda-src/yle"
   output_path = "${path.module}/lambda_edge_cookie_fix.zip"
 }
 
+data "archive_file" "hn_lambda_zip" {
+  type        = "zip"
+  source_dir  = "${path.module}/lambda-src/hn"
+  output_path = "${path.module}/hn_lambda_edge_cookie_fix.zip"
+}
 
 
 # ---  IAM Role and policy for Lambda@Edgea  -----------------------------
@@ -70,9 +75,31 @@ resource "aws_lambda_function" "cookie_fix_lambda" {
   publish = true
 }
 
+# HN has distinct session and redirect behavior, so keep its edge logic separate from Yle's.
+resource "aws_lambda_function" "hn_cookie_fix_lambda" {
+  provider         = aws.us_east_1
+
+  filename         = data.archive_file.hn_lambda_zip.output_path
+  function_name    = "HnCloudFrontCookieFixer"
+  role             = aws_iam_role.cookie_fix_lambda_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs22.x"
+  timeout          = 5
+
+  source_code_hash = data.archive_file.hn_lambda_zip.output_base64sha256
+
+  publish = true
+}
+
 resource "aws_cloudwatch_log_group" "cookie_fix_log_group_us_east_1" {
   provider = aws.us_east_1 
   name              = "/aws/lambda/${aws_lambda_function.cookie_fix_lambda.function_name}"
   
   retention_in_days = 1 // Minimize retention
+}
+
+resource "aws_cloudwatch_log_group" "hn_cookie_fix_log_group_us_east_1" {
+  provider          = aws.us_east_1
+  name              = "/aws/lambda/${aws_lambda_function.hn_cookie_fix_lambda.function_name}"
+  retention_in_days = 1
 }

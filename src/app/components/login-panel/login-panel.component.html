@@ -1,4 +1,4 @@
-<ng-container *ngIf="provider.capabilities.supportsAuth">
+<ng-container *ngIf="provider?.capabilities?.supportsAuth">
 
     <ng-container *ngIf="isLoggedIn$ | async; else loginButton">
         <div class="user-info-container">
