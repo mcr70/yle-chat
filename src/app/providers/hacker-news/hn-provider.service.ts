@@ -16,7 +16,7 @@ export class HNProvider implements Provider {
     supportsUserHistory: false,
     supportsArticleListing: true,
     supportsLiking: false,
-    supportsReplying: false
+    supportsReplying: true
   };
 
   articleService = inject(HNArticleService);

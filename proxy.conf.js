@@ -80,7 +80,7 @@ const PROXY_CONFIG = [
     logLevel: "debug"
   },
 
-  // 6. Hacker News Auth API
+// 6. Hacker News Auth API & Commenting
   {
     context: ["/hn-api"],
     target: "https://news.ycombinator.com",
@@ -90,10 +90,35 @@ const PROXY_CONFIG = [
     pathRewrite: { "^/hn-api": "" },
     headers: {
       "Origin": "https://news.ycombinator.com",
-      "Referer": "https://news.ycombinator.com/",
       "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+    },
+
+    configure: (proxy) => {
+      proxy.on("proxyRes", (proxyRes, req, res) => {
+        const setCookieHeaders = proxyRes.headers['set-cookie'];
+        if (setCookieHeaders) {
+          const cookieStr = Array.isArray(setCookieHeaders) 
+            ? setCookieHeaders.join('; ') 
+            : setCookieHeaders;
+
+          proxyRes.headers['x-hn-cookie'] = cookieStr;
+          proxyRes.headers['access-control-expose-headers'] = 'x-hn-cookie, set-cookie';
+        }
+      });
+
+      proxy.on("proxyRes", (proxyRes, req, res) => {
+        const setCookieHeaders = proxyRes.headers['set-cookie'];
+        if (setCookieHeaders) {
+          const cookieStr = Array.isArray(setCookieHeaders) 
+            ? setCookieHeaders.join('; ') 
+            : setCookieHeaders;
+
+          proxyRes.headers['x-hn-cookie'] = cookieStr;
+          proxyRes.headers['access-control-expose-headers'] = 'x-hn-cookie, set-cookie';
+        }
+      });
     }
-  }  
+  }
 ];
 
 module.exports = PROXY_CONFIG;

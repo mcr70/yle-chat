@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from '@app/models/auth-service.interface';
 
 export interface HNLoginResponse {
@@ -23,7 +23,6 @@ export class HNAuthService implements AuthService {
   private userSubject = new BehaviorSubject<string | null>(null);
   user$: Observable<string | null> = this.userSubject.asObservable();
 
-  // local storage session data
   private userCookie: string | null = null;
   private authHex: string | null = null;
 
@@ -33,55 +32,75 @@ export class HNAuthService implements AuthService {
     this.restoreSession();
   }
 
-  /**
-   * Login to Hacker News using username and password.
-   */
 login(username?: string, password?: string): Observable<HNLoginResponse> {
-  if (!username || !password) {
-    return throwError(() => new Error('Username and password are required'));
+    if (!username || !password) {
+      return throwError(() => new Error('Username and password are required'));
+    }
+
+    const body = new HttpParams()
+      .set('acct', username)
+      .set('pw', password);
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    return this.http.post(`${this.proxyUrl}/login`, body.toString(), { 
+      headers,
+      observe: 'response',
+      responseType: 'text'
+    }).pipe(
+      switchMap(response => {
+        // 1. Luetaan proxyn poimima x-hn-cookie
+        const headerCookie = response.headers.get('x-hn-cookie') || '';
+
+        // 2. Tehdään tarkistuspyyntö /news -sivulle JA LÄHETETÄÄN EVÄSTE MUKANA
+        const testHeaders = headerCookie 
+          ? new HttpHeaders({ 'x-hn-cookie': headerCookie }) 
+          : new HttpHeaders();
+
+        return this.http.get(`${this.proxyUrl}/news`, {
+          headers: testHeaders,
+          responseType: 'text'
+        }).pipe(
+          map(htmlPage => {
+            // Kaapataan authHex-token kirjautuneen sivun HTML-koodista
+            const authMatch = htmlPage.match(/logout\?auth=([a-f0-9]+)/);
+            const authHex = authMatch ? authMatch[1] : undefined;
+
+            if (!authHex && !headerCookie) {
+              throw new Error('Kirjautuminen epäonnistui: Tarkista tunnus ja salasana.');
+            }
+
+            this.authHex = authHex || null;
+
+            // Muodostetaan lopullinen HN-eväste
+            const finalCookie = authHex 
+              ? `user=${username}&${authHex}` 
+              : headerCookie;
+
+            this.userCookie = finalCookie;
+            this.isLoggedInSubject.next(true);
+            this.userSubject.next(username);
+
+            this.saveSession(username, finalCookie, this.authHex || undefined);
+
+            return {
+              success: true,
+              username,
+              cookie: finalCookie,
+              authHex: this.authHex || undefined
+            };
+          })
+        );
+      }),
+      catchError(error => {
+        console.error('HN Login failed:', error);
+        return throwError(() => error);
+      })
+    );
   }
-
-  const body = new HttpParams()
-    .set('acct', username)
-    .set('pw', password);
-
-  const headers = new HttpHeaders({
-    'Content-Type': 'application/x-www-form-urlencoded'
-  });
-
-  return this.http.post(`${this.proxyUrl}/login`, body.toString(), { 
-    headers,
-    observe: 'response',
-    responseType: 'text' // Estetään JSON-parsintavirhe
-  }).pipe(
-    map(response => {
-      // Luetaan Set-Cookie vastauksen otsakkeista
-      const cookieHeader = response.headers.get('set-cookie') || response.headers.get('x-hn-cookie') || '';
-      
-      const successData: HNLoginResponse = {
-        success: true,
-        username: username,
-        cookie: cookieHeader
-      };
-
-      this.userCookie = cookieHeader;
-      this.isLoggedInSubject.next(true);
-      this.userSubject.next(username);
-
-      this.saveSession(username, cookieHeader);
-      return successData;
-    }),
-    catchError(error => {
-      console.error('HN Login failed:', error);
-      return throwError(() => error);
-    })
-  );
-}
-
-
-  /**
-   * Logout from Hacker News and clear session data.
-   */
+  
   logout(): Observable<boolean> {
     const logout$: Observable<unknown> = this.authHex
       ? this.http.get(`${this.proxyUrl}/logout`, {
@@ -107,10 +126,6 @@ login(username?: string, password?: string): Observable<HNLoginResponse> {
     );
   }
 
-
-  /**
-   * Returns the active HN cookie for other services (such as commenting/voting)
-   */
   getUserCookie(): string | null {
     return this.userCookie;
   }
@@ -125,10 +140,14 @@ login(username?: string, password?: string): Observable<HNLoginResponse> {
     if (saved) {
       try {
         const { username, cookie, authHex } = JSON.parse(saved);
-        this.userCookie = cookie;
-        this.authHex = authHex || null;
-        this.isLoggedInSubject.next(true);
-        this.userSubject.next(username);
+        if (username && cookie) {
+          this.userCookie = cookie;
+          this.authHex = authHex || null;
+          this.isLoggedInSubject.next(true);
+          this.userSubject.next(username);
+        } else {
+          this.clearSession();
+        }
       } catch (e) {
         this.clearSession();
       }
