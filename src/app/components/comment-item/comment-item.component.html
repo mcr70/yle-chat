@@ -22,7 +22,7 @@
                 </span>
             </div>
             
-            <div class="likes-container">
+            <div class="likes-container" *ngIf="provider.capabilities.supportsLiking">
                 <button 
                     *ngIf="isLoggedIn && !comment.isCollapsed"
                     (click)="toggleLike(); $event.stopPropagation()" 
@@ -35,8 +35,7 @@
                     class="thumb-icon" 
                     [class.liked]="comment.isLiked">★</span>
                     
-                <span *ngIf="comment.likes > 0 || provider.capabilities.supportsLiking"
-                    class="likes">{{ comment.likes || 0 }}</span>
+                <span class="likes">{{ comment.likes || 0 }}</span>
             </div>
         </div>
         
