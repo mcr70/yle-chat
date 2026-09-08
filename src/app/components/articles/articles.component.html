@@ -1,6 +1,6 @@
 <div class="articles-container">
   <div class="header-row">
-    <h3>Keskusteluja</h3>
+    <h3>{{ 'ARTICLES.TITLE' | translate }}</h3>
   </div>
 
     @if (articles$ | async; as articles) {
@@ -17,7 +17,7 @@
               
               <span 
                 *ngIf="article.commentCount && article.commentCount > 0"
-                class="comment-badge" [title]="article.commentCount + ' kommenttia'">
+                class="comment-badge" [attr.title]="'ARTICLES.COMMENT_COUNT' | translate:{ count: article.commentCount }">
                 {{ article.commentCount }}
               </span>
             </div>
@@ -29,12 +29,12 @@
               
               @if (article.published) {
                 @if (article.category) { <span class="separator">|</span> }
-                <span class="publish-time">{{ article.published | date:'d.M. \'klo\' HH.mm' }}</span>
+                <span class="publish-time">{{ article.published | date:('ARTICLES.DATE_FORMAT' | translate) }}</span>
               }
 
               @if (!article.isActive) {
                 <span class="separator">|</span>
-                <span class="status-badge">(Suljettu)</span>
+                <span class="status-badge">{{ 'ARTICLES.CLOSED' | translate }}</span>
               }
             </div>
           </li>

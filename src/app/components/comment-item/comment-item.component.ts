@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -16,7 +17,7 @@ import { SafeHtmlPipe } from '@app/pipes/safe-html.pipe';
   templateUrl: './comment-item.component.html',
   styleUrls: ['./comment-item.component.scss'],
   standalone: true,
-  imports: [ CommonModule, FormsModule, SafeHtmlPipe ] 
+  imports: [CommonModule, FormsModule, SafeHtmlPipe, TranslatePipe] 
 })
 export class CommentItemComponent implements OnInit, OnDestroy {
 
@@ -138,16 +139,16 @@ export class CommentItemComponent implements OnInit, OnDestroy {
 
   getReplyTooltip(): string | null {
     if (!this.provider.capabilities.supportsReplying) {
-      return 'Vastaaminen ei ole tuettu tällä alustalla';
+      return 'COMMENTS.REPLY_UNSUPPORTED';
     }
     if (this.isLocked) {
-      return 'Keskustelu on suljettu';
+      return 'COMMENTS.DISCUSSION_CLOSED';
     }
     if (this.pendingReply) {
-      return `Vastauksesi on käsittelyssä: "${this.pendingReply.content.substring(0, 50)}..."`;
+      return 'COMMENTS.PENDING_TOOLTIP';
     }
     if (this.provider.capabilities.supportsAuth && !this.isLoggedIn) { 
-      return 'Kirjaudu sisään vastataksesi'; 
+      return 'COMMENTS.LOGIN_TO_REPLY';
     }
     return null;
   }

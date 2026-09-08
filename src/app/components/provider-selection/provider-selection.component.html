@@ -1,12 +1,12 @@
 <app-toolbar 
-  title="Keskusteluja" 
+  [title]="'ARTICLES.TITLE' | translate" 
   [showHomeButton]="false"
   [showMenuToggle]="false">
 </app-toolbar>
 
 <div class="main-layout">
   <div class="selection-card">
-    <p class="subtitle">Minkä uutispalvelun keskusteluja haluat selailla?</p>
+    <p class="subtitle">{{ 'PROVIDERS.SELECT_PROMPT' | translate }}</p>
 
     <div class="provider-grid">
       <div 
@@ -17,11 +17,11 @@
         <div class="provider-header">
           <h2>{{ provider.name }}</h2>
           <span class="badge" [ngClass]="provider.badgeClass">
-            {{ provider.badgeText }}
+            {{ provider.badgeTextKey | translate }}
           </span>
         </div>
 
-        <p class="description">{{ provider.description }}</p>
+        <p class="description">{{ provider.descriptionKey | translate }}</p>
       </div>
     </div>
   </div>

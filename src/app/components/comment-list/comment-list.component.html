@@ -42,11 +42,11 @@
             <div class="comment-header">
               <h3>{{ articleTitle || articleId }} <a href="{{ topicDetails?.articleLink }} " target="_blank" class="article-link-icon">↗️</a>
                 <span *ngIf="topicDetails && topicDetails.acceptedCommentsCount != null" class="comment-count-info no-wrap">
-                  - {{ topicDetails.acceptedCommentsCount }} kommenttia
+                  - {{ 'COMMENTS.COUNT' | translate:{ count: topicDetails.acceptedCommentsCount } }}
                 </span>
 
                 <span *ngIf="commentsLocked" class="comment-locked-info no-wrap">
-                  (suljettu)
+                  {{ 'COMMENTS.CLOSED' | translate }}
                 </span>
               </h3>
             </div>
@@ -58,20 +58,20 @@
             <div class="filter-row">
 
               <select class="yle-input sort-select" [(ngModel)]="activeSort" (change)="applySorting()">
-                <option value="newest">Uusin</option>
-                <option value="oldest">Vanhin</option>
-                <option value="mostLiked">Suosituin</option>
-                <option value="mostReplies">Aktiivisin</option>
+                <option value="newest">{{ 'COMMENTS.SORT_NEWEST' | translate }}</option>
+                <option value="oldest">{{ 'COMMENTS.SORT_OLDEST' | translate }}</option>
+                <option value="mostLiked">{{ 'COMMENTS.SORT_MOST_LIKED' | translate }}</option>
+                <option value="mostReplies">{{ 'COMMENTS.SORT_MOST_REPLIES' | translate }}</option>
               </select>             
 
-              <input type="text" placeholder="esim. 74-20195254 tai URL..." 
+              <input type="text" [placeholder]="'COMMENTS.ARTICLE_ID_PLACEHOLDER' | translate" 
                 class="filter-input article-id-input yle-input"
                 [(ngModel)]="articleId" 
                 (ngModelChange)="onArticleIdChanged($event)"
               />
 
               <div class="nickname-filter-container">
-                <input type="text" placeholder="Hae nimimerkkiä..." class="yle-input filter-input"
+                <input type="text" [placeholder]="'COMMENTS.NICKNAME_SEARCH_PLACEHOLDER' | translate" class="yle-input filter-input"
                   [value]="nicknameFilter"
                   (input)="onNicknameChanged($any($event.target).value)"
                 />
@@ -100,7 +100,7 @@
                   [class.active]="showNewCommentForm"
                   (click)="toggleNewCommentForm()" 
                   [disabled]="commentsLocked || !articleId"
-                  title="Kirjoita uusi kommentti">
+                  [attr.title]="'COMMENTS.NEW_COMMENT' | translate">
                   ✏️
                 </button>
               </div>
@@ -109,17 +109,17 @@
 
           <div class="new-main-comment-form" *ngIf="showNewCommentForm">
             <textarea 
-              placeholder="Kirjoita uusi kommentti tähän..." 
+              [placeholder]="'COMMENTS.NEW_COMMENT_PLACEHOLDER' | translate" 
               class="yle-input new-comment-textarea"
               [(ngModel)]="newCommentText"
               rows="4">
             </textarea>
             <div class="new-comment-actions">
               <button class="yle-button" (click)="submitNewComment()" [disabled]="!newCommentText.trim() || isLoading">
-                Lähetä kommentti
+                {{ 'COMMENTS.SEND_COMMENT' | translate }}
               </button>
               <button class="yle-button" (click)="toggleNewCommentForm()">
-                Peruuta
+                {{ 'COMMON.CANCEL' | translate }}
               </button>
             </div>
           </div>
@@ -141,13 +141,13 @@
               (click)="loadMoreComments()" 
               [disabled]="isLoading" 
               class="load-more-button">
-              {{ isLoading ? 'Ladataan...' : 'Lataa lisää kommentteja' }}
+              {{ isLoading ? ('COMMON.LOADING' | translate) : ('COMMENTS.LOAD_MORE' | translate) }}
           </button>
           </div>    
         </ng-container>
 
         <ng-template #noComments>
-          <p>Ei kommentteja.</p>
+          <p>{{ 'COMMENTS.NO_COMMENTS' | translate }}</p>
         </ng-template>
 
       </div>
@@ -166,7 +166,7 @@
   <button (click)="navigateToMatch('next')" class="nav-btn">→</button>
 
   <!-- Lisätään ylös-nappi pillerin sisään -->
-  <button *ngIf="showScrollTop" (click)="scrollToTop()" class="nav-btn top-btn" title="Palaa alkuun">
+  <button *ngIf="showScrollTop" (click)="scrollToTop()" class="nav-btn top-btn" [attr.title]="'COMMON.BACK_TO_TOP' | translate">
     ↑
   </button>
 </div>
@@ -176,7 +176,7 @@
   *ngIf="showScrollTop && matches.length === 0" 
   class="scroll-top-btn" 
   (click)="scrollToTop()" 
-  title="Palaa alkuun">
+  [attr.title]="'COMMON.BACK_TO_TOP' | translate">
   ↑
 </button>
 
@@ -185,36 +185,32 @@
 <div class="modal-overlay" *ngIf="isInfoModalOpen" (click)="closeInfoModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <header class="modal-header">
-      <h2>Tietoa sovelluksesta</h2>
+      <h2>{{ 'INFO.TITLE' | translate }}</h2>
       <button class="close-btn" (click)="closeInfoModal()">&times;</button>
     </header>
 
     <div class="modal-body">
       <section>
         <p>
-          Sovellus on tarkoitettu Ylen verkkosivuston kommentointipalvelun käyttöön. 
-          Sovellus mahdollistaa kommenttien lukemisen, kirjoittamisen ja tykkäämisen toisenlaisessa käyttöliittymässä. 
-          Kirjoittaminen ja tykkääminen vaatii kirjautumisen Yle-tunnuksella. 
+          {{ 'INFO.PROVIDER_DESCRIPTION' | translate }}
         </p>
       </section>
 
       <section>
-        <h3> Tietojen tallennus</h3>
-        <p> Sovellus ei käytä seuranta- tai markkinointievästeitä. Vain välttämättömät tiedot tallentuvat selaimeesi.</p>
+        <h3>{{ 'INFO.STORAGE_TITLE' | translate }}</h3>
+        <p>{{ 'INFO.STORAGE_DESCRIPTION' | translate }}</p>
       </section>
 
       <section>
-        <h3> Kirjautuminen ja kommentointi</h3>
+        <h3>{{ 'INFO.AUTH_TITLE' | translate }}</h3>
         <p>
-          Kirjautuminen ja kommenttien käsittely tapahtuu suoraan Ylen palvelimilla. 
-          Salasanaasi tai kommenttejasi ei siis tallenneta erilliselle palvelimelle, 
-          vaan kaikki tiedot kulkevat suoraan Ylen järjestelmiin.
+          {{ 'INFO.AUTH_DESCRIPTION' | translate }}
         </p>
       </section>
     </div>
 
     <footer class="modal-footer">
-      <button class="primary-btn" (click)="closeInfoModal()">Selvä</button>
+      <button class="primary-btn" (click)="closeInfoModal()">{{ 'COMMON.DONE' | translate }}</button>
     </footer>
   </div>
 </div>

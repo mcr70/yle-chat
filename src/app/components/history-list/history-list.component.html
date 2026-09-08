@@ -1,11 +1,11 @@
 
 <div class="history-header">
-    <h3>Historia</h3>
+    <h3>{{ 'HISTORY.TITLE' | translate }}</h3>
 </div>
 
 <div class="history-list-container">
     
-    <p *ngIf="!historyItems.length">Ei katsottua historiaa.</p>
+    <p *ngIf="!historyItems.length">{{ 'HISTORY.NO_VIEWED' | translate }}</p>
 
     <ul class="history-list">
         <li *ngFor="let item of historyItems | slice:0:displayLimit">            
@@ -20,7 +20,7 @@
     <button *ngIf="historyItems.length > displayLimit" 
         (click)="displayLimit = displayLimit + 10" 
         class="load-more-button">
-    Näytä lisää
+    {{ 'COMMON.SHOW_MORE' | translate }}
     </button>
 
 </div>

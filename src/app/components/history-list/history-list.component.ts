@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { HistoryService, ArticleHistoryItem } from '@services/history.service'; 
 
@@ -9,7 +10,7 @@ import { HistoryService, ArticleHistoryItem } from '@services/history.service';
   templateUrl: './history-list.component.html',
   styleUrls: ['./history-list.component.scss'],
   standalone: true, 
-  imports: [CommonModule, FormsModule] 
+    imports: [CommonModule, FormsModule, TranslatePipe] 
 })
 export class HistoryListComponent implements OnInit {
     

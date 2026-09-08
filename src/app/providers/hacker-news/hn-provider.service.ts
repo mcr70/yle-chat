@@ -3,6 +3,7 @@ import { Provider, ProviderCapabilities } from '@app/models/provider';
 import { HNArticleService } from './hn-article.service';
 import { HNCommentService } from './hn-comment.service';
 import { HNAuthService } from './hn-auth.service';
+import { HNMyHistoryService } from './hn-my-hostory.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,7 @@ export class HNProvider implements Provider {
 
   readonly capabilities: ProviderCapabilities = {
     supportsAuth: true,
-    supportsUserHistory: false,
+    supportsUserHistory: true,
     supportsArticleListing: true,
     supportsLiking: false,
     supportsReplying: true
@@ -22,4 +23,5 @@ export class HNProvider implements Provider {
   articleService = inject(HNArticleService);
   commentService = inject(HNCommentService);
   authService = inject(HNAuthService);
+  myHistoryService = inject(HNMyHistoryService);
 }

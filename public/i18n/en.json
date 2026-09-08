@@ -1,0 +1,96 @@
+{
+  "APP": {
+    "TITLE": "Yle & HS Discussions"
+  },
+  "PREFERENCES": {
+    "BUTTON": "Preferences",
+    "TITLE": "Preferences",
+    "LANGUAGE": "Language",
+    "SELECT_LANGUAGE": "Select language"
+  },
+  "TOOLBAR": {
+    "HOME": "Back to home page",
+    "REFRESH": "Refresh",
+    "INFO": "About this application"
+  },
+  "COMMON": {
+    "CANCEL": "Cancel",
+    "CLOSE": "Close",
+    "DONE": "Done",
+    "LOADING": "Loading...",
+    "LOAD_MORE": "Load more",
+    "SHOW_MORE": "Show more",
+    "BACK_TO_TOP": "Back to top"
+  },
+  "ARTICLES": {
+    "TITLE": "Discussions",
+    "COMMENT_COUNT": "{{count}} comments",
+    "CLOSED": "(Closed)",
+    "DATE_FORMAT": "MMM d, HH:mm"
+  },
+  "COMMENTS": {
+    "COUNT": "{{count}} comments",
+    "CLOSED": "(closed)",
+    "NO_COMMENTS": "No comments.",
+    "SORT_NEWEST": "Newest",
+    "SORT_OLDEST": "Oldest",
+    "SORT_MOST_LIKED": "Most liked",
+    "SORT_MOST_REPLIES": "Most active",
+    "ARTICLE_ID_PLACEHOLDER": "e.g. 74-20195254 or URL...",
+    "NICKNAME_SEARCH_PLACEHOLDER": "Search by nickname...",
+    "NEW_COMMENT": "Write a new comment",
+    "NEW_COMMENT_PLACEHOLDER": "Write a new comment here...",
+    "SEND_COMMENT": "Send comment",
+    "LOAD_MORE": "Load more comments",
+    "REPLY_COUNT_ONE": "Show {{count}} reply ▼",
+    "REPLY_COUNT_MANY": "Show {{count}} replies ▼",
+    "HIDE_REPLIES": "Hide replies ▲",
+    "COPY_LINK": "Copy link to comment",
+    "COPIED": "Copied!",
+    "PENDING": "Processing...",
+    "COPY": "Copy",
+    "REMOVE_PENDING": "Remove status",
+    "REMOVE_PENDING_TITLE": "Remove local processing status (does not affect Yle moderation)",
+    "REPLY": "Reply ↵",
+    "REPLY_PLACEHOLDER": "Write your reply here...",
+    "SEND_REPLY": "Send reply",
+    "REPLY_UNSUPPORTED": "Replying is not supported on this platform",
+    "DISCUSSION_CLOSED": "The discussion is closed",
+    "LOGIN_TO_REPLY": "Log in to reply",
+    "PENDING_TOOLTIP": "Your reply is being processed: \"{{content}}...\""
+  },
+  "HISTORY": {
+    "TITLE": "History",
+    "NO_VIEWED": "No viewed history."
+  },
+  "MY_DISCUSSIONS": {
+    "TITLE": "My discussions",
+    "NO_HISTORY": "No commented history.",
+    "COMMENT_ONE": "{{count}} comment",
+    "COMMENT_MANY": "{{count}} comments",
+    "LOGIN_PROMPT": "Log in to view your discussions"
+  },
+  "AUTH": {
+    "LOGIN": "Log in",
+    "LOG_IN": "Log in",
+    "LOG_OUT": "Log out",
+    "USERNAME": "Username:",
+    "PASSWORD": "Password:"
+  },
+  "PROVIDERS": {
+    "SELECT_PROMPT": "Which news service discussions would you like to browse?",
+    "YLE_DESCRIPTION": "Browse and read discussions on Yle news.",
+    "HS_DESCRIPTION": "Browse and read article discussions from Helsingin Sanomat.",
+    "HN_DESCRIPTION": "Read Hacker News discussions",
+    "FULL_SUPPORT": "Full support",
+    "ANONYMOUS": "Anonymous"
+  },
+  "INFO": {
+    "TITLE": "About this application",
+    "STORAGE_TITLE": "Data storage",
+    "AUTH_TITLE": "Login and commenting",
+    "PROVIDER_DESCRIPTION": "This application is intended for news site commenting services. It allows you to read, write, and like comments in an alternative interface. Logging in with the service provider's account is required for writing and liking.",
+    "STORAGE_DESCRIPTION": "The application does not use tracking or marketing cookies. Only necessary data is stored in your browser.",
+    "AUTH_DESCRIPTION": "Login and comment processing happen directly on the service providers' servers. Your password and comments are not stored on an intermediary server."
+  }
+}
