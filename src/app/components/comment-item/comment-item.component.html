@@ -12,9 +12,9 @@
                 <strong>{{ comment.author }}</strong> 
                 <span class="author-date"> {{ formatDate(comment.createdAt) }}</span>
                 <button class="share-btn" (click)="copyLink(comment.id); $event.stopPropagation()" 
-                      title="Kopioi linkki kommenttiin">
+                      [attr.title]="'COMMENTS.COPY_LINK' | translate">
                     <span class="share-icon">🔗</span>
-                    <span class="copy-tooltip" *ngIf="showCopiedTooltip">Kopioitu!</span>
+                    <span class="copy-tooltip" *ngIf="showCopiedTooltip">{{ 'COMMENTS.COPIED' | translate }}</span>
                 </button>
 
                 <span *ngIf="comment.isCollapsed" class="header-preview"> 
@@ -48,13 +48,15 @@
                     *ngIf="comment.replies && comment.replies.length > 0"
                     (click)="toggleReplies(); $event.stopPropagation()"
                     class="toggle-button">
-                    {{ comment.isExpanded ? 'Piilota vastaukset ▲' : 'Näytä ' + comment.replies.length + ' vastausta ▼' }}
+                                        {{ comment.isExpanded
+                                            ? ('COMMENTS.HIDE_REPLIES' | translate)
+                                            : ((comment.replies.length === 1 ? 'COMMENTS.REPLY_COUNT_ONE' : 'COMMENTS.REPLY_COUNT_MANY') | translate:{ count: comment.replies.length }) }}
                 </button>
                 
                 <div class="reply-group">
                     <div *ngIf="pendingReply" class="pending-popover-wrapper">
                         <span class="pending-indicator no-wrap">
-                            Käsittelyssä...
+                            {{ 'COMMENTS.PENDING' | translate }}
                         </span>
 
                         <div class="pending-popover">
@@ -62,13 +64,13 @@
                             <div class="popover-actions">
                                 <button class="popover-btn" 
                                         (click)="copyPendingReply(); $event.stopPropagation()">
-                                    ❐ Kopioi
-                                    <span class="copy-tooltip" *ngIf="showPendingCopiedTooltip">Kopioitu!</span>
+                                    ❐ {{ 'COMMENTS.COPY' | translate }}
+                                    <span class="copy-tooltip" *ngIf="showPendingCopiedTooltip">{{ 'COMMENTS.COPIED' | translate }}</span>
                                 </button>
                                 <button class="popover-btn remove-btn" 
                                         (click)="cancelPendingReply(); $event.stopPropagation()"
-                                        title="Poista paikallinen käsittelytila (ei vaikuta Ylen moderointiin)">
-                                    ✖ Poista tila
+                                        [attr.title]="'COMMENTS.REMOVE_PENDING_TITLE' | translate">
+                                    ✖ {{ 'COMMENTS.REMOVE_PENDING' | translate }}
                                 </button>
                             </div>
                         </div>
@@ -78,19 +80,19 @@
                         class="reply-button" 
                         (click)="toggleReplyForm(); $event.stopPropagation()" 
                         [disabled]="isLocked || !!pendingReply || !isLoggedIn"
-                        [attr.title]="getReplyTooltip()">
-                        Vastaa ↵
+                        [attr.title]="getReplyTooltip() | translate:{ content: pendingReply?.content?.substring(0, 50) }">
+                        {{ 'COMMENTS.REPLY' | translate }}
                     </button>
                 </div>
             </div>
             
             <div *ngIf="isReplying && !isLocked" class="reply-form-wrapper"> 
-                <textarea [(ngModel)]="replyText" placeholder="Kirjoita vastauksesi tähän..." rows="4"></textarea>
+                <textarea [(ngModel)]="replyText" [placeholder]="'COMMENTS.REPLY_PLACEHOLDER' | translate" rows="4"></textarea>
                 <div class="reply-controls">
                     <button class="yle-button" (click)="sendReply()" [disabled]="isLocked">
-                        Lähetä vastaus
+                        {{ 'COMMENTS.SEND_REPLY' | translate }}
                     </button>
-                    <button class="yle-button" (click)="toggleReplyForm()">Peruuta</button>
+                    <button class="yle-button" (click)="toggleReplyForm()">{{ 'COMMON.CANCEL' | translate }}</button>
                 </div>
             </div>
         </ng-container>

@@ -1,21 +1,22 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { ToolbarComponent } from '@components/toolbar/toolbar.component';
 
 interface ProviderOption {
   id: string;
   name: string;
-  description: string;
-  badgeText: string;
+  descriptionKey: string;
+  badgeTextKey: string;
   badgeClass: string;
 }
 
 @Component({
   selector: 'app-provider-selection',
   standalone: true,
-  imports: [CommonModule, RouterModule, ToolbarComponent],
+  imports: [CommonModule, RouterModule, ToolbarComponent, TranslatePipe],
   templateUrl: './provider-selection.component.html',
   styleUrls: ['./provider-selection.component.scss']
 })
@@ -24,22 +25,22 @@ export class ProviderSelectionComponent {
     {
       id: 'yle',
       name: 'Yle',
-      description: 'Selaa ja lue Ylen uutisten keskusteluja.',
-      badgeText: 'Täysi tuki',
+      descriptionKey: 'PROVIDERS.YLE_DESCRIPTION',
+      badgeTextKey: 'PROVIDERS.FULL_SUPPORT',
       badgeClass: 'badge-success'
     },
     {
       id: 'hs',
       name: 'Helsingin Sanomat',
-      description: 'Selaa ja lue Helsingin Sanomien artikkelikohtaisia keskusteluja.',
-      badgeText: 'Anonyymi',
+      descriptionKey: 'PROVIDERS.HS_DESCRIPTION',
+      badgeTextKey: 'PROVIDERS.ANONYMOUS',
       badgeClass: 'badge-info'
     },
     {
       id: 'hn',
       name: 'Hacker News',
-      description: 'Lue Hacker Newsin keskusteluja',
-      badgeText: 'Anonyymi',
+      descriptionKey: 'PROVIDERS.HN_DESCRIPTION',
+      badgeTextKey: 'PROVIDERS.ANONYMOUS',
       badgeClass: 'badge-info'
     }
   ];

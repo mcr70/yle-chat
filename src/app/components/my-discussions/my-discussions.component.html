@@ -1,14 +1,14 @@
 <div class="history-list-container">
   
   <div class="discussions-header">      
-    <h3>Omat keskustelut</h3>
+    <h3>{{ 'MY_DISCUSSIONS.TITLE' | translate }}</h3>
   </div>
 
   
   <ng-container *ngIf="isLoggedIn$ | async; else notLoggedIn">      
     <ng-container *ngIf="(myDiscussions$ | async) as discussions">
         
-      <p *ngIf="!discussions.length && !(isLoading$ | async)">Ei kommentoitua historiaa.</p>
+      <p *ngIf="!discussions.length && !(isLoading$ | async)">{{ 'MY_DISCUSSIONS.NO_HISTORY' | translate }}</p>
 
       <ul class="history-list">
         <li *ngFor="let item of discussions | slice:0:displayLimit">
@@ -24,7 +24,7 @@
 
           <p class="comment-preview">
             <span class="comment-count">
-              {{ item.commentCount }} kommentti{{ item.commentCount > 1 ? 'a' : '' }}
+              {{ (item.commentCount === 1 ? 'MY_DISCUSSIONS.COMMENT_ONE' : 'MY_DISCUSSIONS.COMMENT_MANY') | translate:{ count: item.commentCount } }}
             </span>
           </p>
         </li>
@@ -33,13 +33,13 @@
       <button *ngIf="discussions.length > displayLimit" 
           (click)="displayLimit = displayLimit + 5" 
           class="load-more-button">
-        Näytä lisää
+        {{ 'COMMON.SHOW_MORE' | translate }}
       </button>
     </ng-container>
   </ng-container>
   
   <ng-template #notLoggedIn>
-      <p class="login-prompt">Kirjaudu sisään osallistuaksesi keskusteluihin</p>
+      <p class="login-prompt">{{ 'MY_DISCUSSIONS.LOGIN_PROMPT' | translate }}</p>
   </ng-template>
 
 </div>

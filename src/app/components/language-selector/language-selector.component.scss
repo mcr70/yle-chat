@@ -1,0 +1,30 @@
+.language-selector {
+  display: grid;
+  gap: 8px;
+  min-width: 180px;
+}
+
+.language-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.language-options {
+  display: flex;
+  gap: 6px;
+}
+
+.language-option {
+  border: 1px solid var(--color-border-secondary, #abc);
+  border-radius: 4px;
+  padding: 6px 10px;
+  background: var(--color-background-primary, #fff);
+  color: inherit;
+  cursor: pointer;
+}
+
+.language-option.active {
+  border-color: var(--color-brand-primary, #003780);
+  background: var(--color-brand-primary, #003780);
+  color: #fff;
+}

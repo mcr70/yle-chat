@@ -99,6 +99,36 @@
   }
 }
 
+.preferences-container {
+  position: relative;
+}
+
+.main-toolbar button.yle-button.preferences-btn {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.preferences-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 10;
+  min-width: 220px;
+  padding: 16px;
+  border: 1px solid var(--common-border-color, #abc);
+  border-radius: 4px;
+  background: var(--color-background-primary, #fff);
+  box-shadow: var(--common-shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.preferences-menu h2 {
+  margin: 0 0 14px;
+  font-size: 1rem;
+}
+
 .refresh-button {
   background-color: #f0f0f0; 
   color: #333; 

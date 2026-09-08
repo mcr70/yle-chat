@@ -1,0 +1,96 @@
+{
+  "APP": {
+    "TITLE": "Yle & HS Keskustelut"
+  },
+  "PREFERENCES": {
+    "BUTTON": "Asetukset",
+    "TITLE": "Asetukset",
+    "LANGUAGE": "Kieli",
+    "SELECT_LANGUAGE": "Valitse kieli"
+  },
+  "TOOLBAR": {
+    "HOME": "Palaa alkusivulle",
+    "REFRESH": "Päivitä",
+    "INFO": "Tietoa sovelluksesta"
+  },
+  "COMMON": {
+    "CANCEL": "Peruuta",
+    "CLOSE": "Sulje",
+    "DONE": "Selvä",
+    "LOADING": "Ladataan...",
+    "LOAD_MORE": "Lataa lisää",
+    "SHOW_MORE": "Näytä lisää",
+    "BACK_TO_TOP": "Palaa alkuun"
+  },
+  "ARTICLES": {
+    "TITLE": "Keskusteluja",
+    "COMMENT_COUNT": "{{count}} kommenttia",
+    "CLOSED": "(Suljettu)",
+    "DATE_FORMAT": "d.M. 'klo' HH.mm"
+  },
+  "COMMENTS": {
+    "COUNT": "{{count}} kommenttia",
+    "CLOSED": "(suljettu)",
+    "NO_COMMENTS": "Ei kommentteja.",
+    "SORT_NEWEST": "Uusin",
+    "SORT_OLDEST": "Vanhin",
+    "SORT_MOST_LIKED": "Suosituin",
+    "SORT_MOST_REPLIES": "Aktiivisin",
+    "ARTICLE_ID_PLACEHOLDER": "esim. 74-20195254 tai URL...",
+    "NICKNAME_SEARCH_PLACEHOLDER": "Hae nimimerkkiä...",
+    "NEW_COMMENT": "Kirjoita uusi kommentti",
+    "NEW_COMMENT_PLACEHOLDER": "Kirjoita uusi kommentti tähän...",
+    "SEND_COMMENT": "Lähetä kommentti",
+    "LOAD_MORE": "Lataa lisää kommentteja",
+    "REPLY_COUNT_ONE": "Näytä {{count}} vastaus ▼",
+    "REPLY_COUNT_MANY": "Näytä {{count}} vastausta ▼",
+    "HIDE_REPLIES": "Piilota vastaukset ▲",
+    "COPY_LINK": "Kopioi linkki kommenttiin",
+    "COPIED": "Kopioitu!",
+    "PENDING": "Käsittelyssä...",
+    "COPY": "Kopioi",
+    "REMOVE_PENDING": "Poista tila",
+    "REMOVE_PENDING_TITLE": "Poista paikallinen käsittelytila (ei vaikuta Ylen moderointiin)",
+    "REPLY": "Vastaa ↵",
+    "REPLY_PLACEHOLDER": "Kirjoita vastauksesi tähän...",
+    "SEND_REPLY": "Lähetä vastaus",
+    "REPLY_UNSUPPORTED": "Vastaaminen ei ole tuettu tällä alustalla",
+    "DISCUSSION_CLOSED": "Keskustelu on suljettu",
+    "LOGIN_TO_REPLY": "Kirjaudu sisään vastataksesi",
+    "PENDING_TOOLTIP": "Vastauksesi on käsittelyssä: \"{{content}}...\""
+  },
+  "HISTORY": {
+    "TITLE": "Historia",
+    "NO_VIEWED": "Ei katsottua historiaa."
+  },
+  "MY_DISCUSSIONS": {
+    "TITLE": "Omat keskustelut",
+    "NO_HISTORY": "Ei kommentoitua historiaa.",
+    "COMMENT_ONE": "{{count}} kommentti",
+    "COMMENT_MANY": "{{count}} kommenttia",
+    "LOGIN_PROMPT": "Kirjaudu sisään nähdäksesi omat keskustelusi"
+  },
+  "AUTH": {
+    "LOGIN": "Kirjaudu",
+    "LOG_IN": "Kirjaudu sisään",
+    "LOG_OUT": "Kirjaudu ulos",
+    "USERNAME": "Käyttäjätunnus:",
+    "PASSWORD": "Salasana:"
+  },
+  "PROVIDERS": {
+    "SELECT_PROMPT": "Minkä uutispalvelun keskusteluja haluat selailla?",
+    "YLE_DESCRIPTION": "Selaa ja lue Ylen uutisten keskusteluja.",
+    "HS_DESCRIPTION": "Selaa ja lue Helsingin Sanomien artikkelikohtaisia keskusteluja.",
+    "HN_DESCRIPTION": "Lue Hacker Newsin keskusteluja",
+    "FULL_SUPPORT": "Täysi tuki",
+    "ANONYMOUS": "Anonyymi"
+  },
+  "INFO": {
+    "TITLE": "Tietoa sovelluksesta",
+    "STORAGE_TITLE": "Tietojen tallennus",
+    "AUTH_TITLE": "Kirjautuminen ja kommentointi",
+    "PROVIDER_DESCRIPTION": "Sovellus on tarkoitettu uutissivustojen kommentointipalveluiden käyttöön. Sovellus mahdollistaa kommenttien lukemisen, kirjoittamisen ja tykkäämisen toisenlaisessa käyttöliittymässä. Kirjoittaminen ja tykkääminen vaatii kirjautumisen kyseisen palvelun tunnuksella.",
+    "STORAGE_DESCRIPTION": "Sovellus ei käytä seuranta- tai markkinointievästeitä. Vain välttämättömät tiedot tallentuvat selaimeesi.",
+    "AUTH_DESCRIPTION": "Kirjautuminen ja kommenttien käsittely tapahtuu suoraan palveluntarjoajien palvelimilla. Salasanaasi tai kommenttejasi ei tallenneta erilliselle välipalvelimelle."
+  }
+}

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Observable, Subscription, forkJoin, of } from 'rxjs';
 
@@ -34,7 +35,7 @@ const INFO_VERSION_KEY = 'app_info_seen_version';
   styleUrls: ['./comment-list.component.scss', './new-main-comment.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule,
+    CommonModule, FormsModule, TranslatePipe,
     CommentItemComponent, ToolbarComponent, MyDiscussionsComponent,
     ArticlesComponent, RouterModule
 ]
@@ -132,7 +133,6 @@ export class CommentListComponent implements OnInit, OnDestroy {
 
     this.subscription.add(
       this.refreshService.refresh$.subscribe(() => {
-        console.log('CommentListComponent: Päivitetään kommentit...');
         this.loadComments(true); 
       })
     );
@@ -224,8 +224,6 @@ export class CommentListComponent implements OnInit, OnDestroy {
       : of(undefined);
 
     const fetchOffset = reset ? 0 : this.currentOffset;
-
-    console.log(`Load comments for ${this.articleId}, offset ${this.currentOffset}, limit ${this.limit}`);
     const comments$: Observable<Comment[]> = this.provider.commentService.getComments(this.articleId, fetchOffset, this.limit);
 
     const combinedLoad$: Observable<any> = forkJoin({
@@ -278,9 +276,16 @@ export class CommentListComponent implements OnInit, OnDestroy {
 
         this.cleanupPendingReplies(); 
         this.applySorting();
+        console.log(`Loaded ${newComments.length} comments for article ${this.articleId}.`);
       },
       error: (err: any) => {
-        console.error('Failed to load (Topic/Comments):', err.status, err.message);
+        console.error('Failed to load comments', {
+          articleId: this.articleId,
+          offset: fetchOffset,
+          limit: this.limit,
+          error: err
+        });
+  
         this.isLoading = false; 
         this.hasMoreComments = false;
 

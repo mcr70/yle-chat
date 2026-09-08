@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, EMPTY, merge, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, filter, finalize, switchMap, tap } from 'rxjs/operators';
@@ -17,7 +18,7 @@ import { RefreshService } from '@app/services/resfresh.service';
   templateUrl: './my-discussions.component.html',
   styleUrls: ['./my-discussions.component.scss'],
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule, TranslatePipe]
 })
 export class MyDiscussionsComponent implements OnInit, OnDestroy {
 
