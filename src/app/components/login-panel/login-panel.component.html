@@ -25,10 +25,21 @@
     </ng-template>
 
     <div *ngIf="isLoginFormVisible" class="login-modal-overlay">
-        <div class="login-form-container">
+        <div
+            class="login-form-container"
+            [class.login-error]="loginError"
+            [class.login-error-pulse]="loginErrorPulse">
             
             <button (click)="closeLoginForm()" class="close-button">&times;</button>
             <h3>{{ 'AUTH.LOG_IN' | translate }}</h3>
+
+            <p
+                class="login-error-message"
+                [class.login-error-message-visible]="loginError"
+                role="alert"
+                aria-live="assertive">
+                {{ loginError | translate }}
+            </p>
             
             <form (ngSubmit)="submitLogin()">
                 <label for="username">{{ 'AUTH.USERNAME' | translate }}</label>
@@ -39,8 +50,8 @@
                 <input class="yle-input" type="password" id="password" [(ngModel)]="loginPassword" 
                     name="password" autocomplete="current-password" required>
                 
-                <button type="submit" class="yle-button">
-                    {{ 'AUTH.LOGIN' | translate }}
+                <button type="submit" class="yle-button" [disabled]="isLoggingIn">
+                    {{ isLoggingIn ? ('COMMON.LOADING' | translate) : ('AUTH.LOGIN' | translate) }}
                 </button>
             </form>
         </div>

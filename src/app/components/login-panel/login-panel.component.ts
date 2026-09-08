@@ -6,7 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable, of, Subscription } from 'rxjs';
 
 import { Provider } from '@app/models/provider';
-import { AuthService } from '@app/models/auth-service.interface';
+import { AuthError, AuthErrorCode, AuthService } from '@app/models/auth-service.interface';
 import { ProviderManager } from '@app/models/provider';
 
 @Component({
@@ -28,6 +28,9 @@ export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
   isLoginFormVisible: boolean = false;
 
   loginError: string | null = null;  
+  loginErrorPulse = false;
+  isLoggingIn = false;
+  private loginErrorPulseTimeout?: ReturnType<typeof setTimeout>;
   
   public isLoggedIn$: Observable<boolean> = of(false);
   private authService?: AuthService;
@@ -93,6 +96,8 @@ export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
   openLoginForm(): void {
     if (!this.authService) return;
 
+    this.loginError = null;
+
     if (this.authService.requiresCredentials) {
       this.isLoginFormVisible = true;
     } else {
@@ -104,13 +109,15 @@ export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
     this.isLoginFormVisible = false;
     this.loginUsername = '';
     this.loginPassword = '';
+    this.loginError = null;
+    this.loginErrorPulse = false;
   }
 
   submitLogin(): void {
-    if (this.loginUsername && this.loginPassword) {
+    if (this.loginUsername.trim() && this.loginPassword) {
       this.executeLogin(this.loginUsername, this.loginPassword);
     } else {
-      console.error('Tunnus tai salasana puuttuu.');
+      this.showLoginError('AUTH.REQUIRED_FIELDS');
     }
   }
 
@@ -130,13 +137,52 @@ export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
   private executeLogin(username?: string, password?: string): void {
     if (!this.authService) return;
 
+    this.loginError = null;
+    this.isLoggingIn = true;
+
     this.authService.login(username, password).subscribe({
       next: () => {
+        this.isLoggingIn = false;
         this.closeLoginForm();
       },
       error: (error) => {
+        this.isLoggingIn = false;
+        this.showLoginError(this.getLoginErrorKey(error));
         console.error('Kirjautuminen epäonnistui:', error);
       }
+    });
+  }
+
+  private getLoginErrorKey(error: unknown): string {
+    const code = error instanceof AuthError
+      ? error.code
+      : (error as { code?: AuthErrorCode } | null)?.code;
+
+    switch (code) {
+      case 'AUTH_INVALID_CREDENTIALS':
+        return 'AUTH.INVALID_CREDENTIALS';
+      case 'AUTH_CANCELLED':
+        return 'AUTH.LOGIN_CANCELLED';
+      case 'AUTH_POPUP_BLOCKED':
+        return 'AUTH.POPUP_BLOCKED';
+      default:
+        return 'AUTH.LOGIN_FAILED';
+    }
+  }
+
+  private showLoginError(errorKey: string): void {
+    this.loginError = errorKey;
+    this.loginErrorPulse = false;
+
+    if (this.loginErrorPulseTimeout) {
+      clearTimeout(this.loginErrorPulseTimeout);
+    }
+
+    requestAnimationFrame(() => {
+      this.loginErrorPulse = true;
+      this.loginErrorPulseTimeout = setTimeout(() => {
+        this.loginErrorPulse = false;
+      }, 700);
     });
   }
 }

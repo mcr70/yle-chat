@@ -1,18 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, of } from 'rxjs';
+import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
+import { AuthError, AuthService } from '@app/models/auth-service.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class YleAuthService {
+export class YleAuthService implements AuthService {
   private readonly LOGIN_PROXY_PREFIX = '';//'/yle-login';
   
   private readonly APP_PARAMS = 'app_id=tunnus_shared_ui_202004_prod&app_key=0aded2b7c4387042dbfb19cfcf152663&initiating_app=uutiset';
 
   private userSubject = new BehaviorSubject<string | null>(null); 
-  user$: Observable<any | null> = this.userSubject.asObservable();
+  user$: Observable<string | null> = this.userSubject.asObservable();
 
   private loggedInSubject = new BehaviorSubject<boolean>(false);
   isLoggedIn$ = this.loggedInSubject.asObservable();
@@ -30,7 +31,11 @@ export class YleAuthService {
    * @param password 
    * @returns 
    */
-  login(username: string, password: string): Observable<any> {
+  login(username?: string, password?: string): Observable<unknown> {
+    if (!username || !password) {
+      return throwError(() => new AuthError('AUTH_INVALID_CREDENTIALS'));
+    }
+
     const url = `${this.LOGIN_PROXY_PREFIX}/v1/user/login?${this.APP_PARAMS}`;
     
     const body = new URLSearchParams();
@@ -53,8 +58,11 @@ export class YleAuthService {
           sessionStorage.setItem('isLoggedInFlag', 'true');
         }
         else {
-          console.log("Problems in login", response.status);
-          sessionStorage.setItem('isLoggedInFlag', 'false');
+          throw new AuthError(
+            response.status === 401 || response.status === 403
+              ? 'AUTH_INVALID_CREDENTIALS'
+              : 'AUTH_LOGIN_FAILED'
+          );
         }
       }),
       catchError(error => {
@@ -62,7 +70,12 @@ export class YleAuthService {
         console.warn('failed to login');
         sessionStorage.setItem('isLoggedInFlag', 'false');
 
-        return of(null);
+        return throwError(() => new AuthError(
+          error?.status === 401 || error?.status === 403
+            ? 'AUTH_INVALID_CREDENTIALS'
+            : 'AUTH_LOGIN_FAILED',
+          error?.message
+        ));
       })
     );
   }

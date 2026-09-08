@@ -75,7 +75,12 @@
     "LOG_IN": "Log in",
     "LOG_OUT": "Log out",
     "USERNAME": "Username:",
-    "PASSWORD": "Password:"
+    "PASSWORD": "Password:",
+    "INVALID_CREDENTIALS": "Invalid username or password.",
+    "LOGIN_FAILED": "Login failed. Please try again.",
+    "LOGIN_CANCELLED": "Login was cancelled.",
+    "POPUP_BLOCKED": "The login window was blocked by the browser.",
+    "REQUIRED_FIELDS": "Enter both username and password."
   },
   "PROVIDERS": {
     "SELECT_PROMPT": "Which news service discussions would you like to browse?",

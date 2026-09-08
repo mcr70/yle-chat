@@ -75,7 +75,12 @@
     "LOG_IN": "Kirjaudu sisään",
     "LOG_OUT": "Kirjaudu ulos",
     "USERNAME": "Käyttäjätunnus:",
-    "PASSWORD": "Salasana:"
+    "PASSWORD": "Salasana:",
+    "INVALID_CREDENTIALS": "Virheellinen käyttäjätunnus tai salasana.",
+    "LOGIN_FAILED": "Kirjautuminen epäonnistui. Yritä uudelleen.",
+    "LOGIN_CANCELLED": "Kirjautuminen peruutettiin.",
+    "POPUP_BLOCKED": "Selain esti kirjautumisikkunan avaamisen.",
+    "REQUIRED_FIELDS": "Syötä sekä käyttäjätunnus että salasana."
   },
   "PROVIDERS": {
     "SELECT_PROMPT": "Minkä uutispalvelun keskusteluja haluat selailla?",
