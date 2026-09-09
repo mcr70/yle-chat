@@ -68,12 +68,12 @@
     "NO_HISTORY": "No commented history.",
     "COMMENT_ONE": "{{count}} comment",
     "COMMENT_MANY": "{{count}} comments",
-    "LOGIN_PROMPT": "Log in to view your discussions"
+    "LOGIN_PROMPT": "Login to view your discussions"
   },
   "AUTH": {
-    "LOGIN": "Log in",
-    "LOG_IN": "Log in",
-    "LOG_OUT": "Log out",
+    "LOGIN": "Login",
+    "LOG_IN": "Login",
+    "LOG_OUT": "Logout",
     "USERNAME": "Username:",
     "PASSWORD": "Password:",
     "INVALID_CREDENTIALS": "Invalid username or password.",
