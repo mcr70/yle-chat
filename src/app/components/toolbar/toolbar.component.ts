@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -16,6 +16,7 @@ const INFO_VERSION_KEY = 'app_info_seen_version';
   standalone: true,
   imports: [TranslatePipe, LoginPanelComponent, SpinnerComponent, LanguageSelectorComponent],
   templateUrl: './toolbar.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./toolbar.component.scss', './info-dialog.scss']
 })
 export class ToolbarComponent implements OnInit {

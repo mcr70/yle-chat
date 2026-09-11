@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -18,6 +18,7 @@ interface ProviderOption {
   standalone: true,
   imports: [CommonModule, RouterModule, ToolbarComponent, TranslatePipe],
   templateUrl: './provider-selection.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./provider-selection.component.scss']
 })
 export class ProviderSelectionComponent {

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -10,6 +10,7 @@ import { HistoryService, ArticleHistoryItem } from '@services/history.service';
   templateUrl: './history-list.component.html',
   styleUrls: ['./history-list.component.scss'],
   standalone: true, 
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, TranslatePipe] 
 })
 export class HistoryListComponent implements OnInit {

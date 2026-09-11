@@ -1,8 +1,9 @@
 // auth-callback.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-auth-callback',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<div style="display: flex; justify-content: center; margin-top: 50px; font-family: sans-serif;">Logging you in...</div>'
 })
 export class AuthCallbackComponent implements OnInit {
