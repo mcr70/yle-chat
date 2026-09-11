@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-spinner',
   standalone: true,
-  imports: [CommonModule],
-  template: `<span *ngIf="visible" class="spinner">🔄</span>`,
+  imports: [],
+  template: `@if (visible) {<span class="spinner">🔄</span>}`,
   styleUrls: ['./spinner.component.scss']
 })
 export class SpinnerComponent {

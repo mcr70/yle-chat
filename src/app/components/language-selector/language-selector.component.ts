@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -7,7 +7,7 @@ import { LanguageService, SupportedLanguage } from '@app/services/language.servi
 @Component({
   selector: 'app-language-selector',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [TranslatePipe],
   templateUrl: './language-selector.component.html',
   styleUrls: ['./language-selector.component.scss']
 })

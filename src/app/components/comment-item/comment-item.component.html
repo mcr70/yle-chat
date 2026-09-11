@@ -1,112 +1,124 @@
-<div [id]="'comment-' + comment.id" 
-     [ngClass]="{'top-comment-item': level === 0, 'child-comment-item': level > 0}">
-    
-    <div class="comment-box" 
-         [ngClass]="{'special-comment-box': isSpecialComment(), 'collapsed-box': comment.isCollapsed}">
-        
-        <div class="comment-header" (click)="toggleCollapse()" style="cursor: pointer;"> 
-            <div class="header-left">
-                <span class="collapse-arrow">
-                    {{ comment.isCollapsed ? '▶&#xFE0E;' : '▼&#xFE0E;' }}
-                </span>
-                <strong>{{ comment.author }}</strong> 
-                <span class="author-date"> {{ formatDate(comment.createdAt) }}</span>
-                <button class="share-btn" (click)="copyLink(comment.id); $event.stopPropagation()" 
-                      [attr.title]="'COMMENTS.COPY_LINK' | translate">
-                    <span class="share-icon">🔗</span>
-                    <span class="copy-tooltip" *ngIf="showCopiedTooltip">{{ 'COMMENTS.COPIED' | translate }}</span>
-                </button>
+<div [id]="'comment-' + comment.id"
+  [ngClass]="{'top-comment-item': level === 0, 'child-comment-item': level > 0}">
 
-                <span *ngIf="comment.isCollapsed" class="header-preview"> 
-                    – {{ comment.content | slice:0:130 }}...
-                </span>
-            </div>
-            
-            <div class="likes-container" *ngIf="provider.capabilities.supportsLiking">
-                <button 
-                    *ngIf="isLoggedIn && !comment.isCollapsed"
-                    (click)="toggleLike(); $event.stopPropagation()" 
-                    class="like-button"
-                    [class.liked]="comment.isLiked">
-                    <span class="thumb-icon" [class.liked]="comment.isLiked">★</span> 
-                </button>
-                
-                <span *ngIf="comment.isCollapsed" 
-                    class="thumb-icon" 
-                    [class.liked]="comment.isLiked">★</span>
-                    
-                <span class="likes">{{ comment.likes || 0 }}</span>
-            </div>
+  <div class="comment-box"
+    [ngClass]="{'special-comment-box': isSpecialComment(), 'collapsed-box': comment.isCollapsed}">
+
+    <div class="comment-header" (click)="toggleCollapse()" style="cursor: pointer;">
+      <div class="header-left">
+        <span class="collapse-arrow">
+          {{ comment.isCollapsed ? '▶&#xFE0E;' : '▼&#xFE0E;' }}
+        </span>
+        <strong>{{ comment.author }}</strong>
+        <span class="author-date"> {{ formatDate(comment.createdAt) }}</span>
+        <button class="share-btn" (click)="copyLink(comment.id); $event.stopPropagation()"
+          [attr.title]="'COMMENTS.COPY_LINK' | translate">
+          <span class="share-icon">🔗</span>
+          @if (showCopiedTooltip()) {
+            <span class="copy-tooltip">{{ 'COMMENTS.COPIED' | translate }}</span>
+          }
+        </button>
+
+        @if (comment.isCollapsed) {
+          <span class="header-preview">
+            – {{ comment.content | slice:0:130 }}...
+          </span>
+        }
+      </div>
+
+      @if (provider.capabilities.supportsLiking) {
+        <div class="likes-container">
+          @if (isLoggedIn() && !comment.isCollapsed) {
+            <button
+              (click)="toggleLike(); $event.stopPropagation()"
+              class="like-button"
+              [class.liked]="comment.isLiked">
+              <span class="thumb-icon" [class.liked]="comment.isLiked">★</span>
+            </button>
+          }
+          @if (comment.isCollapsed) {
+            <span
+              class="thumb-icon"
+            [class.liked]="comment.isLiked">★</span>
+          }
+          <span class="likes">{{ comment.likes || 0 }}</span>
         </div>
-        
-        <ng-container *ngIf="!comment.isCollapsed">
-            <!--<p class="comment-text">{{ comment.content }}</p>-->
-            <div class="comment-text" [innerHTML]="comment.content | safeHtml"></div>            
-            
-            <div class="comment-actions">    
-                <button 
-                    *ngIf="comment.replies && comment.replies.length > 0"
-                    (click)="toggleReplies(); $event.stopPropagation()"
-                    class="toggle-button">
-                                        {{ comment.isExpanded
-                                            ? ('COMMENTS.HIDE_REPLIES' | translate)
-                                            : ((comment.replies.length === 1 ? 'COMMENTS.REPLY_COUNT_ONE' : 'COMMENTS.REPLY_COUNT_MANY') | translate:{ count: comment.replies.length }) }}
-                </button>
-                
-                <div class="reply-group">
-                    <div *ngIf="pendingReply" class="pending-popover-wrapper">
-                        <span class="pending-indicator no-wrap">
-                            {{ 'COMMENTS.PENDING' | translate }}
-                        </span>
+      }
+    </div>
 
-                        <div class="pending-popover">
-                            <p class="popover-text">{{ pendingReply.content }}</p>
-                            <div class="popover-actions">
-                                <button class="popover-btn" 
-                                        (click)="copyPendingReply(); $event.stopPropagation()">
-                                    ❐ {{ 'COMMENTS.COPY' | translate }}
-                                    <span class="copy-tooltip" *ngIf="showPendingCopiedTooltip">{{ 'COMMENTS.COPIED' | translate }}</span>
-                                </button>
-                                <button class="popover-btn remove-btn" 
-                                        (click)="cancelPendingReply(); $event.stopPropagation()"
-                                        [attr.title]="'COMMENTS.REMOVE_PENDING_TITLE' | translate">
-                                    ✖ {{ 'COMMENTS.REMOVE_PENDING' | translate }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+    @if (!comment.isCollapsed) {
+      <!--<p class="comment-text">{{ comment.content }}</p>-->
+      <div class="comment-text" [innerHTML]="comment.content | safeHtml"></div>
+      <div class="comment-actions">
+        @if (comment.replies && comment.replies.length > 0) {
+          <button
+            (click)="toggleReplies(); $event.stopPropagation()"
+            class="toggle-button">
+            {{ comment.isExpanded
+            ? ('COMMENTS.HIDE_REPLIES' | translate)
+            : ((comment.replies.length === 1 ? 'COMMENTS.REPLY_COUNT_ONE' : 'COMMENTS.REPLY_COUNT_MANY') | translate:{ count: comment.replies.length }) }}
+          </button>
+        }
+        <div class="reply-group">
+          @if (pendingReply(); as pending) {
+            <div class="pending-popover-wrapper">
+              <span class="pending-indicator no-wrap">
+                {{ 'COMMENTS.PENDING' | translate }}
+              </span>
+              <div class="pending-popover">
+                <p class="popover-text">{{ pending.content }}</p>
+                <div class="popover-actions">
+                  <button class="popover-btn"
+                    (click)="copyPendingReply(); $event.stopPropagation()">
+                    ❐ {{ 'COMMENTS.COPY' | translate }}
+                    @if (showPendingCopiedTooltip()) {
+                      <span class="copy-tooltip">{{ 'COMMENTS.COPIED' | translate }}</span>
+                    }
+                  </button>
+                  <button class="popover-btn remove-btn"
+                    (click)="cancelPendingReply(); $event.stopPropagation()"
+                    [attr.title]="'COMMENTS.REMOVE_PENDING_TITLE' | translate">
+                    ✖ {{ 'COMMENTS.REMOVE_PENDING' | translate }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+          @if (provider.capabilities.supportsReplying) {
+            <button
+              class="reply-button"
+              (click)="toggleReplyForm(); $event.stopPropagation()"
+              [disabled]="isLocked || !!pendingReply() || !isLoggedIn()"
+              [attr.title]="getReplyTooltip() | translate:{ content: pendingReply()?.content?.substring(0, 50) }">
+              {{ 'COMMENTS.REPLY' | translate }}
+            </button>
+          }
+        </div>
+      </div>
+      @if (isReplying() && !isLocked) {
+        <div class="reply-form-wrapper">
+          <textarea [ngModel]="replyText()" (ngModelChange)="replyText.set($event)" [placeholder]="'COMMENTS.REPLY_PLACEHOLDER' | translate" rows="4"></textarea>
+          <div class="reply-controls">
+            <button class="yle-button" (click)="sendReply()" [disabled]="isLocked">
+              {{ 'COMMENTS.SEND_REPLY' | translate }}
+            </button>
+            <button class="yle-button" (click)="toggleReplyForm()">{{ 'COMMON.CANCEL' | translate }}</button>
+          </div>
+        </div>
+      }
+    }
+  </div>
 
-                    <button *ngIf="provider.capabilities.supportsReplying"
-                        class="reply-button" 
-                        (click)="toggleReplyForm(); $event.stopPropagation()" 
-                        [disabled]="isLocked || !!pendingReply || !isLoggedIn"
-                        [attr.title]="getReplyTooltip() | translate:{ content: pendingReply?.content?.substring(0, 50) }">
-                        {{ 'COMMENTS.REPLY' | translate }}
-                    </button>
-                </div>
-            </div>
-            
-            <div *ngIf="isReplying && !isLocked" class="reply-form-wrapper"> 
-                <textarea [(ngModel)]="replyText" [placeholder]="'COMMENTS.REPLY_PLACEHOLDER' | translate" rows="4"></textarea>
-                <div class="reply-controls">
-                    <button class="yle-button" (click)="sendReply()" [disabled]="isLocked">
-                        {{ 'COMMENTS.SEND_REPLY' | translate }}
-                    </button>
-                    <button class="yle-button" (click)="toggleReplyForm()">{{ 'COMMON.CANCEL' | translate }}</button>
-                </div>
-            </div>
-        </ng-container>
-    </div> 
-    
-    <ng-container *ngIf="!comment.isCollapsed && comment.isExpanded">
-      <div class="replies-wrapper">
-        <app-comment-item 
-            *ngFor="let child of comment.replies" 
-            [comment]="child" 
-            [level]="level + 1" 
-            [isLocked]="isLocked" 
-            [articleId]="articleId">
+  @if (!comment.isCollapsed && comment.isExpanded) {
+    <div class="replies-wrapper">
+      @for (child of comment.replies; track child.id) {
+        <app-comment-item
+          [comment]="child"
+          [level]="level + 1"
+          [isLocked]="isLocked"
+          [articleId]="articleId">
         </app-comment-item>
-      </div>  
-    </ng-container>
+      }
+    </div>
+  }
 </div>

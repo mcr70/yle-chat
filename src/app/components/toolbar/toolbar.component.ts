@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter, OnInit, signal } from '@angular/core';
+
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
@@ -14,7 +14,7 @@ const INFO_VERSION_KEY = 'app_info_seen_version';
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, LoginPanelComponent, SpinnerComponent, LanguageSelectorComponent],
+  imports: [TranslatePipe, LoginPanelComponent, SpinnerComponent, LanguageSelectorComponent],
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.scss', './info-dialog.scss']
 })
@@ -28,9 +28,9 @@ export class ToolbarComponent implements OnInit {
   // Event emitted when the menu toggle button is clicked (mobile view)
   @Output() toggleMenu = new EventEmitter<void>();
 
-  isRefreshing: boolean = false;
-  isInfoModalOpen: boolean = false;
-  isPreferencesOpen: boolean = false;
+  isRefreshing = signal(false);
+  isInfoModalOpen = signal(false);
+  isPreferencesOpen = signal(false);
 
   constructor(
     private router: Router,
@@ -50,35 +50,35 @@ export class ToolbarComponent implements OnInit {
   }
 
   openInfoModal(): void {
-    this.isInfoModalOpen = true;
+    this.isInfoModalOpen.set(true);
   }
 
   closeInfoModal(): void {
-    this.isInfoModalOpen = false;
+    this.isInfoModalOpen.set(false);
     localStorage.setItem(INFO_VERSION_KEY, CURRENT_INFO_VERSION);
   }
 
   togglePreferences(): void {
-    this.isPreferencesOpen = !this.isPreferencesOpen;
+    this.isPreferencesOpen.update(v => !v);
   }
 
   closePreferences(): void {
-    this.isPreferencesOpen = false;
+    this.isPreferencesOpen.set(false);
   }
 
   onRefresh(): void {
     this.refreshService.triggerRefresh();
 
-    this.isRefreshing = true;
+    this.isRefreshing.set(true);
     setTimeout(() => {
-      this.isRefreshing = false;
+      this.isRefreshing.set(false);
     }, 1000); // Reset the refresh state after 1 second
   }
 
   private checkIfInfoModalShouldOpen(): void {
     const savedVersion = localStorage.getItem(INFO_VERSION_KEY);
     if (!savedVersion || savedVersion !== CURRENT_INFO_VERSION) {
-      this.isInfoModalOpen = true;
+      this.isInfoModalOpen.set(true);
     }
   }
 }

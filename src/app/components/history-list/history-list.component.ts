@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -10,23 +10,23 @@ import { HistoryService, ArticleHistoryItem } from '@services/history.service';
   templateUrl: './history-list.component.html',
   styleUrls: ['./history-list.component.scss'],
   standalone: true, 
-    imports: [CommonModule, FormsModule, TranslatePipe] 
+  imports: [CommonModule, FormsModule, TranslatePipe] 
 })
 export class HistoryListComponent implements OnInit {
     
-    historyItems: ArticleHistoryItem[] = [];
-    displayLimit = 10; // Limit for displayed history items
+    historyItems = signal<ArticleHistoryItem[]>([]);
+    displayLimit = signal<number>(10); // Limit for displayed history items
 
     @Input() articleIdFilter: string = ''; 
     @Output() articleSelected = new EventEmitter<ArticleHistoryItem>(); 
 
-    constructor(private historyService: HistoryService) {} 
+    constructor(
+      private historyService: HistoryService
+    ) {} 
 
     ngOnInit(): void {
         this.loadHistory(); 
     }
-    
-
 
     // Called to reload history from storage
     public reloadHistory(): void {
@@ -36,11 +36,11 @@ export class HistoryListComponent implements OnInit {
     loadHistory(): void {
         const rawItems = this.historyService.getHistory();
         
-        this.historyItems = rawItems.map(item => ({
+        this.historyItems.set(rawItems.map(item => ({
             ...item,
             isEditing: false, 
             editableTitle: item.title || item.id 
-        }));
+        })));
     }
 
     selectArticle(item: ArticleHistoryItem): void {

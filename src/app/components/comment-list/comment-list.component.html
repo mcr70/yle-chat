@@ -1,4 +1,4 @@
-<app-toolbar 
+<app-toolbar
   [title]="provider.displayName"
   [showHomeButton]="true"
   [showMenuToggle]="provider.capabilities.supportsUserHistory || provider.capabilities.supportsArticleListing"
@@ -10,112 +10,124 @@
 <div class="main-layout-container">
 
   <div class="content-wrapper">
-    <div class="sidebar-overlay" *ngIf="isMobileMenuOpen" 
+    @if (isMobileMenuOpen()) {
+      <div class="sidebar-overlay"
         (click)="toggleMobileMenu()">
-    </div>
+      </div>
+    }
 
-    <div class="sidebar" 
-      *ngIf="provider.capabilities.supportsUserHistory || provider.capabilities.supportsArticleListing"
-      [class.mobile-open]="isMobileMenuOpen"
-      [style.width.px]="sidebarWidth">
-
-      <app-my-discussions
-        *ngIf="provider.capabilities.supportsUserHistory"
-        (discussionSelected)="handleDiscussionSelected($event)"      
-        (articleIdFilterChange)="onArticleIdChanged($event)">
-      </app-my-discussions>
-
-      <app-articles 
-        *ngIf="provider.capabilities.supportsArticleListing"
-        (articleIdFilterChange)="onArticleIdChanged($event)"
-        (articleSelected)="handleArticleSelected($event)">
-      </app-articles>
-
-      <div class="sidebar-resizer" (mousedown)="startResizing($event)"></div>
-    </div>
+    @if (provider.capabilities.supportsUserHistory || provider.capabilities.supportsArticleListing) {
+      <div class="sidebar"
+        [class.mobile-open]="isMobileMenuOpen()"
+        [style.width.px]="sidebarWidth()">
+        @if (provider.capabilities.supportsUserHistory) {
+          <app-my-discussions
+            (discussionSelected)="handleDiscussionSelected($event)"
+            (articleIdFilterChange)="onArticleIdChanged($event)">
+          </app-my-discussions>
+        }
+        @if (provider.capabilities.supportsArticleListing) {
+          <app-articles
+            (articleIdFilterChange)="onArticleIdChanged($event)"
+            (articleSelected)="handleArticleSelected($event)">
+          </app-articles>
+        }
+        <div class="sidebar-resizer" (mousedown)="startResizing($event)"></div>
+      </div>
+    }
 
     <div class="comment-section">
       <div class="comment-container">
         <div class="sticky-controls-wrapper">
           <div class="comment-controls-top">
-            
-            <div class="comment-header">
-              <h3>{{ articleTitle || articleId }} <a href="{{ topicDetails?.articleLink }} " target="_blank" class="article-link-icon">↗️</a>
-                <span *ngIf="topicDetails && topicDetails.acceptedCommentsCount != null" class="comment-count-info no-wrap">
-                  - {{ 'COMMENTS.COUNT' | translate:{ count: topicDetails.acceptedCommentsCount } }}
-                </span>
 
-                <span *ngIf="commentsLocked" class="comment-locked-info no-wrap">
+            <div class="comment-header">
+              <h3>{{ articleTitle() || articleId() }} <a href="{{ topicDetails()?.articleLink }}" target="_blank" class="article-link-icon">↗️</a>
+              @if (topicDetails(); as details) {
+                @if (details.acceptedCommentsCount != null) {
+                  <span class="comment-count-info no-wrap">
+                    - {{ 'COMMENTS.COUNT' | translate:{ count: details.acceptedCommentsCount } }}
+                  </span>
+                }
+              }
+
+              @if (commentsLocked()) {
+                <span class="comment-locked-info no-wrap">
                   {{ 'COMMENTS.CLOSED' | translate }}
                 </span>
-              </h3>
-            </div>
-
+              }
+            </h3>
           </div>
 
+        </div>
 
-          <div class="filter-controls">
-            <div class="filter-row">
 
-              <select class="yle-input sort-select" [(ngModel)]="activeSort" (change)="applySorting()">
-                <option value="newest">{{ 'COMMENTS.SORT_NEWEST' | translate }}</option>
-                <option value="oldest">{{ 'COMMENTS.SORT_OLDEST' | translate }}</option>
-                <option value="mostLiked">{{ 'COMMENTS.SORT_MOST_LIKED' | translate }}</option>
-                <option value="mostReplies">{{ 'COMMENTS.SORT_MOST_REPLIES' | translate }}</option>
-              </select>             
+        <div class="filter-controls">
+          <div class="filter-row">
 
-              <input type="text" [placeholder]="'COMMENTS.ARTICLE_ID_PLACEHOLDER' | translate" 
-                class="filter-input article-id-input yle-input"
-                [(ngModel)]="articleId" 
-                (ngModelChange)="onArticleIdChanged($event)"
+            <select class="yle-input sort-select" [ngModel]="activeSort()" (ngModelChange)="activeSort.set($event); applySorting()">
+              <option value="newest">{{ 'COMMENTS.SORT_NEWEST' | translate }}</option>
+              <option value="oldest">{{ 'COMMENTS.SORT_OLDEST' | translate }}</option>
+              <option value="mostLiked">{{ 'COMMENTS.SORT_MOST_LIKED' | translate }}</option>
+              <option value="mostReplies">{{ 'COMMENTS.SORT_MOST_REPLIES' | translate }}</option>
+            </select>
+
+            <input type="text" [placeholder]="'COMMENTS.ARTICLE_ID_PLACEHOLDER' | translate"
+              class="filter-input article-id-input yle-input"
+              [ngModel]="articleId()"
+              (ngModelChange)="onArticleIdChanged($event)"
               />
 
-              <div class="nickname-filter-container">
-                <input type="text" [placeholder]="'COMMENTS.NICKNAME_SEARCH_PLACEHOLDER' | translate" class="yle-input filter-input"
-                  [value]="nicknameFilter"
-                  (input)="onNicknameChanged($any($event.target).value)"
+            <div class="nickname-filter-container">
+              <input type="text" [placeholder]="'COMMENTS.NICKNAME_SEARCH_PLACEHOLDER' | translate" class="yle-input filter-input"
+                [value]="nicknameFilter()"
+                (input)="onNicknameChanged($any($event.target).value)"
                 />
 
-                <div class="search-nav-group" *ngIf="nicknameFilter">
-                  <button class="nav-btn" (click)="navigateToMatch('prev')" [disabled]="matches.length === 0">
-                      &larr;
+              @if (nicknameFilter()) {
+                <div class="search-nav-group">
+                  <button class="nav-btn" (click)="navigateToMatch('prev')" [disabled]="matches().length === 0">
+                    &larr;
                   </button>
-                  
                   <span class="nav-counter">
-                    <ng-container *ngIf="matches.length > 0">
-                      {{ currentMatchIndex === -1 ? '?' : currentMatchIndex + 1 }} / {{ matches.length }}
-                    </ng-container>
-                    <ng-container *ngIf="matches.length === 0">
+                    @if (matches().length > 0) {
+                      {{ currentMatchIndex() === -1 ? '?' : currentMatchIndex() + 1 }} / {{ matches().length }}
+                    }
+                    @if (matches().length === 0) {
                       0 / 0
-                    </ng-container>
+                    }
                   </span>
-
-                  <button class="nav-btn" (click)="navigateToMatch('next')" [disabled]="matches.length === 0">
-                      &rarr;
+                  <button class="nav-btn" (click)="navigateToMatch('next')" [disabled]="matches().length === 0">
+                    &rarr;
                   </button>
                 </div>
+              }
 
-                <button *ngIf="provider.capabilities.supportsReplying"
-                  class="yle-button" 
-                  [class.active]="showNewCommentForm"
-                  (click)="toggleNewCommentForm()" 
-                  [disabled]="commentsLocked || !articleId"
+              @if (provider.capabilities.supportsReplying) {
+                <button
+                  class="yle-button"
+                  [class.active]="showNewCommentForm()"
+                  (click)="toggleNewCommentForm()"
+                  [disabled]="commentsLocked() || !articleId()"
                   [attr.title]="'COMMENTS.NEW_COMMENT' | translate">
                   ✏️
                 </button>
-              </div>
+              }
             </div>
           </div>
+        </div>
 
-          <div class="new-main-comment-form" *ngIf="showNewCommentForm">
-            <textarea 
-              [placeholder]="'COMMENTS.NEW_COMMENT_PLACEHOLDER' | translate" 
+        @if (showNewCommentForm()) {
+          <div class="new-main-comment-form">
+            <textarea
+              [placeholder]="'COMMENTS.NEW_COMMENT_PLACEHOLDER' | translate"
               class="yle-input new-comment-textarea"
-              [(ngModel)]="newCommentText"
+              [ngModel]="newCommentText()"
+              (ngModelChange)="newCommentText.set($event)"
               rows="4">
             </textarea>
             <div class="new-comment-actions">
-              <button class="yle-button" (click)="submitNewComment()" [disabled]="!newCommentText.trim() || isLoading">
+              <button class="yle-button" (click)="submitNewComment()" [disabled]="!newCommentText().trim() || isLoading()">
                 {{ 'COMMENTS.SEND_COMMENT' | translate }}
               </button>
               <button class="yle-button" (click)="toggleNewCommentForm()">
@@ -123,94 +135,96 @@
               </button>
             </div>
           </div>
+        }
       </div>
-          
-        
 
-        <ng-container *ngIf="comments.length > 0; else noComments">
-          <app-comment-item 
-            *ngFor="let comment of filteredComments" 
+
+
+      @if (comments().length > 0) {
+        @for (comment of filteredComments; track comment.id) {
+          <app-comment-item
             [comment]="comment"
             [level]="0"
-            [articleId]="articleId"
-            [isLocked]="commentsLocked">
+            [articleId]="articleId()"
+            [isLocked]="commentsLocked()">
           </app-comment-item>
-
-          <div class="load-more-container" *ngIf="hasMoreComments">
-          <button 
-              (click)="loadMoreComments()" 
-              [disabled]="isLoading" 
+        }
+        @if (hasMoreComments()) {
+          <div class="load-more-container">
+            <button
+              (click)="loadMoreComments()"
+              [disabled]="isLoading()"
               class="load-more-button">
-              {{ isLoading ? ('COMMON.LOADING' | translate) : ('COMMENTS.LOAD_MORE' | translate) }}
-          </button>
-          </div>    
-        </ng-container>
+              {{ isLoading() ? ('COMMON.LOADING' | translate) : ('COMMENTS.LOAD_MORE' | translate) }}
+            </button>
+          </div>
+        }
+      } @else {
+        <p>{{ 'COMMENTS.NO_COMMENTS' | translate }}</p>
+      }
 
-        <ng-template #noComments>
-          <p>{{ 'COMMENTS.NO_COMMENTS' | translate }}</p>
-        </ng-template>
 
-      </div>
     </div>
   </div>
 </div>
-
-
-<div class="mobile-search-nav" *ngIf="matches.length > 0">
-  <button (click)="navigateToMatch('prev')" class="nav-btn">←</button>
-  
-  <span class="nav-counter">
-    {{ currentMatchIndex === -1 ? '?' : currentMatchIndex + 1 }} / {{ matches.length }}
-  </span>
-  
-  <button (click)="navigateToMatch('next')" class="nav-btn">→</button>
-
-  <!-- Lisätään ylös-nappi pillerin sisään -->
-  <button *ngIf="showScrollTop" (click)="scrollToTop()" class="nav-btn top-btn" [attr.title]="'COMMON.BACK_TO_TOP' | translate">
-    ↑
-  </button>
 </div>
 
+
+@if (matches().length > 0) {
+  <div class="mobile-search-nav">
+    <button (click)="navigateToMatch('prev')" class="nav-btn">←</button>
+    <span class="nav-counter">
+      {{ currentMatchIndex() === -1 ? '?' : currentMatchIndex() + 1 }} / {{ matches().length }}
+    </span>
+    <button (click)="navigateToMatch('next')" class="nav-btn">→</button>
+    <!-- Lisätään ylös-nappi pillerin sisään -->
+    @if (showScrollTop()) {
+      <button (click)="scrollToTop()" class="nav-btn top-btn" [attr.title]="'COMMON.BACK_TO_TOP' | translate">
+        ↑
+      </button>
+    }
+  </div>
+}
+
 <!-- Erillinen ylös-nappi näytetään VAIN silloin, kun selaustabletti EI ole näkyvissä -->
-<button 
-  *ngIf="showScrollTop && matches.length === 0" 
-  class="scroll-top-btn" 
-  (click)="scrollToTop()" 
-  [attr.title]="'COMMON.BACK_TO_TOP' | translate">
-  ↑
-</button>
+@if (showScrollTop() && matches().length === 0) {
+  <button
+    class="scroll-top-btn"
+    (click)="scrollToTop()"
+    [attr.title]="'COMMON.BACK_TO_TOP' | translate">
+    ↑
+  </button>
+}
 
 
 <!-- info-modal -->
-<div class="modal-overlay" *ngIf="isInfoModalOpen" (click)="closeInfoModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <header class="modal-header">
-      <h2>{{ 'INFO.TITLE' | translate }}</h2>
-      <button class="close-btn" (click)="closeInfoModal()">&times;</button>
-    </header>
-
-    <div class="modal-body">
-      <section>
-        <p>
-          {{ 'INFO.PROVIDER_DESCRIPTION' | translate }}
-        </p>
-      </section>
-
-      <section>
-        <h3>{{ 'INFO.STORAGE_TITLE' | translate }}</h3>
-        <p>{{ 'INFO.STORAGE_DESCRIPTION' | translate }}</p>
-      </section>
-
-      <section>
-        <h3>{{ 'INFO.AUTH_TITLE' | translate }}</h3>
-        <p>
-          {{ 'INFO.AUTH_DESCRIPTION' | translate }}
-        </p>
-      </section>
+@if (isInfoModalOpen()) {
+  <div class="modal-overlay" (click)="closeInfoModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <h2>{{ 'INFO.TITLE' | translate }}</h2>
+        <button class="close-btn" (click)="closeInfoModal()">&times;</button>
+      </header>
+      <div class="modal-body">
+        <section>
+          <p>
+            {{ 'INFO.PROVIDER_DESCRIPTION' | translate }}
+          </p>
+        </section>
+        <section>
+          <h3>{{ 'INFO.STORAGE_TITLE' | translate }}</h3>
+          <p>{{ 'INFO.STORAGE_DESCRIPTION' | translate }}</p>
+        </section>
+        <section>
+          <h3>{{ 'INFO.AUTH_TITLE' | translate }}</h3>
+          <p>
+            {{ 'INFO.AUTH_DESCRIPTION' | translate }}
+          </p>
+        </section>
+      </div>
+      <footer class="modal-footer">
+        <button class="primary-btn" (click)="closeInfoModal()">{{ 'COMMON.DONE' | translate }}</button>
+      </footer>
     </div>
-
-    <footer class="modal-footer">
-      <button class="primary-btn" (click)="closeInfoModal()">{{ 'COMMON.DONE' | translate }}</button>
-    </footer>
   </div>
-</div>
+}
