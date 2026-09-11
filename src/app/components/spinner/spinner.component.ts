@@ -9,7 +9,7 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./spinner.component.scss']
 })
 export class SpinnerComponent {
-  // Oletusminimiaika 1000 ms. Voidaan myös ylikirjoittaa tarvittaessa ([minDisplayTime]="500")
+  // Default minimum display time is 1000 ms. Can also be overridden if needed ([minDisplayTime]="500")
   @Input() minDisplayTime: number = 1000;
 
   visible: boolean = false;

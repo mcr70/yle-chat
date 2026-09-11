@@ -23,7 +23,7 @@ export class CommentItemComponent implements OnInit, OnDestroy {
 
   private authSubscription: Subscription | undefined;
   
-  // Mahdollistetaan providerin syöttäminen parentilta
+  // Allow provider injection from parent
   @Input() provider!: Provider;
   showCopiedTooltip = signal(false);
 
@@ -203,7 +203,7 @@ export class CommentItemComponent implements OnInit, OnDestroy {
         this.showPendingCopiedTooltip.set(false);
       }, 1500);
     }).catch(err => {
-      console.error('Kopiointi epäonnistui: ', err);
+      console.error('Copy failed: ', err);
     });
   }
 

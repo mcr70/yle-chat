@@ -519,8 +519,8 @@
 }
 
 
-/* Takaisin ylös -leijuva nappi */
-/* Erillinen leijuva ylös-nappi silloin kun selaustabletti ei ole näkyvissä */
+/* Back to top floating button */
+/* Separate floating back-to-top button when search pill is not visible */
 .scroll-top-btn {
   position: fixed;
   bottom: 20px;
@@ -529,9 +529,9 @@
   
   width: 44px;
   height: 44px;
-  border-radius: 22px; /* Pyöreä pilleriilme */
+  border-radius: 22px; /* Rounded pill appearance */
   
-  /* Käytetään samaa tummansinistä teemaa kuin selaustabletissa */
+  /* Use the same dark blue theme as in the search pill */
   background-color: var(--yle-blue, #003380); 
   color: #ffffff;
   border: none;

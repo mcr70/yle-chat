@@ -233,7 +233,7 @@ readonly id = 'yle';
   postComment(articleId: string, content: string, parentId?: string): Observable<any> {
     
     if (!articleId || !content) {
-        return throwError(() => new Error('Puuttuvat tiedot vastauksen lähettämiseen.'));
+        return throwError(() => new Error('Missing details for sending reply.'));
     }
 
     const url = this.REPLY_URL_TEMPLATE.replace('{articleId}', articleId);   

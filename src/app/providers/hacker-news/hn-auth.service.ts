@@ -66,12 +66,12 @@ login(username?: string, password?: string): Observable<HNLoginResponse> {
             const htmlPage = verificationResponse.body || '';
             const sessionCookie = loginCookie || verificationResponse.headers.get('x-hn-cookie') || '';
 
-            // Kaapataan authHex-token kirjautuneen sivun HTML-koodista
+            // Extract authHex token from the logged-in page HTML
             const authMatch = htmlPage.match(/logout\?auth=([a-f0-9]+)/);
             const authHex = authMatch ? authMatch[1] : undefined;
 
             if (!authHex || !sessionCookie) {
-              throw new Error('Kirjautuminen epäonnistui: Tarkista tunnus ja salasana.');
+              throw new Error('Login failed: Check username and password.');
             }
 
             this.authHex = authHex;

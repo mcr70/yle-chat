@@ -151,7 +151,7 @@ export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
       error: (error) => {
         this.isLoggingIn.set(false);
         this.showLoginError(this.getLoginErrorKey(error));
-        console.error('Kirjautuminen epäonnistui:', error);
+        console.error('Login failed:', error);
       }
     });
   }

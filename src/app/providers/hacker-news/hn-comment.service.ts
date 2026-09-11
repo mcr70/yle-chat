@@ -67,7 +67,7 @@ export class HNCommentService implements CommentService {
     const cookie = this.authService.getUserCookie();
 
     if (!cookie) {
-      return throwError(() => new Error('Kirjaudu sisään lähettääksesi kommentin.'));
+      return throwError(() => new Error('Please log in to submit a comment.'));
     }
 
     const requestHeaders = new HttpHeaders({
@@ -82,7 +82,7 @@ export class HNCommentService implements CommentService {
     }).pipe(
       switchMap((htmlPage: string) => {
         if (htmlPage.includes('You have to be logged in to reply')) {
-          return throwError(() => new Error('HN Istunto vanhentunut. Kirjaudu uudelleen sisään.'));
+          return throwError(() => new Error('HN session expired. Please log in again.'));
         }
 
         // HN provides the comment form's HMAC token only on the /reply page.
@@ -90,7 +90,7 @@ export class HNCommentService implements CommentService {
         const gotoMatch = htmlPage.match(/name="goto"\s+value="([^"]*)"/);
 
         if (!hmacMatch || !hmacMatch[1]) {
-          return throwError(() => new Error('HMAC-turvatokenia ei löytynyt sivulta.'));
+          return throwError(() => new Error('HMAC security token was not found on the page.'));
         }
 
         const hmac = hmacMatch[1];
@@ -102,7 +102,7 @@ export class HNCommentService implements CommentService {
           .set('hmac', hmac)
           .set('text', content);
 
-        // Älä aseta Referer- tai Cookie-otsakkeita täällä – selain kieltää ne
+        // Do not set Referer or Cookie headers here - browser restricts them
         const postHeaders = new HttpHeaders({
           'Content-Type': 'application/x-www-form-urlencoded',
           'x-hn-cookie': cookie
@@ -128,7 +128,7 @@ export class HNCommentService implements CommentService {
         const confirmedText = form?.querySelector<HTMLTextAreaElement>('textarea[name="text"]')?.value;
 
         if (!parent || !goto || !hmac || confirmedText === undefined) {
-          return throwError(() => new Error('HN:n kommentin vahvistuslomake oli virheellinen.'));
+          return throwError(() => new Error('HN comment confirmation form was invalid.'));
         }
 
         const confirmationBody = new HttpParams()
@@ -152,7 +152,7 @@ export class HNCommentService implements CommentService {
           responseHtml.includes('Unknown or expired link') ||
           responseHtml.includes('<app-root')
         ) {
-          throw new Error('HN hylkäsi kommentin.');
+          throw new Error('HN rejected the comment.');
         }
         return { success: true };
       }),

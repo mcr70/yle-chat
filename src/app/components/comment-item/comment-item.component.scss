@@ -267,7 +267,7 @@ textarea {
     position: relative;
     display: inline-block;
 
-    // Kun hiiri viedään tekstin tai popoverin päälle, avataan popover
+    // When hovering over text or popover, open the popover
     &:hover .pending-popover {
         opacity: 1;
         visibility: visible;
