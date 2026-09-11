@@ -1,5 +1,5 @@
-<app-toolbar 
-  [title]="'ARTICLES.TITLE' | translate" 
+<app-toolbar
+  [title]="'ARTICLES.TITLE' | translate"
   [showHomeButton]="false"
   [showMenuToggle]="false">
 </app-toolbar>
@@ -9,20 +9,19 @@
     <p class="subtitle">{{ 'PROVIDERS.SELECT_PROMPT' | translate }}</p>
 
     <div class="provider-grid">
-      <div 
-        *ngFor="let provider of providers" 
-        class="provider-item"
-        (click)="selectProvider(provider.id)">
-        
-        <div class="provider-header">
-          <h2>{{ provider.name }}</h2>
-          <span class="badge" [ngClass]="provider.badgeClass">
-            {{ provider.badgeTextKey | translate }}
-          </span>
+      @for (provider of providers; track provider.id) {
+        <div
+          class="provider-item"
+          (click)="selectProvider(provider.id)">
+          <div class="provider-header">
+            <h2>{{ provider.name }}</h2>
+            <span class="badge" [ngClass]="provider.badgeClass">
+              {{ provider.badgeTextKey | translate }}
+            </span>
+          </div>
+          <p class="description">{{ provider.descriptionKey | translate }}</p>
         </div>
-
-        <p class="description">{{ provider.descriptionKey | translate }}</p>
-      </div>
+      }
     </div>
   </div>
 </div>

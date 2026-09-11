@@ -1,26 +1,32 @@
 
 <div class="history-header">
-    <h3>{{ 'HISTORY.TITLE' | translate }}</h3>
+  <h3>{{ 'HISTORY.TITLE' | translate }}</h3>
 </div>
 
 <div class="history-list-container">
-    
-    <p *ngIf="!historyItems.length">{{ 'HISTORY.NO_VIEWED' | translate }}</p>
 
-    <ul class="history-list">
-        <li *ngFor="let item of historyItems | slice:0:displayLimit">            
-            <a href="#" 
-                (click)="selectArticle(item); $event.preventDefault()" 
-                title="{{ item.title || item.id }}">
-                {{ item.title || item.id }}
-            </a>
-        </li>
-    </ul>
+  @if (!historyItems.length) {
+    <p>{{ 'HISTORY.NO_VIEWED' | translate }}</p>
+  }
 
-    <button *ngIf="historyItems.length > displayLimit" 
-        (click)="displayLimit = displayLimit + 10" 
-        class="load-more-button">
-    {{ 'COMMON.SHOW_MORE' | translate }}
+  <ul class="history-list">
+    @for (item of historyItems | slice:0:displayLimit; track item.id) {
+      <li>
+        <a href="#"
+          (click)="selectArticle(item); $event.preventDefault()"
+          title="{{ item.title || item.id }}">
+          {{ item.title || item.id }}
+        </a>
+      </li>
+    }
+  </ul>
+
+  @if (historyItems.length > displayLimit) {
+    <button
+      (click)="displayLimit = displayLimit + 10"
+      class="load-more-button">
+      {{ 'COMMON.SHOW_MORE' | translate }}
     </button>
+  }
 
 </div>

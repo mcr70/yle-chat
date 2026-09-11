@@ -1,14 +1,15 @@
 <div class="language-selector" role="group" [attr.aria-label]="'PREFERENCES.SELECT_LANGUAGE' | translate">
   <span class="language-label">{{ 'PREFERENCES.LANGUAGE' | translate }}</span>
   <div class="language-options">
-    <button
-      *ngFor="let language of languages"
-      type="button"
-      class="language-option"
-      [class.active]="currentLang() === language.code"
-      [attr.aria-pressed]="currentLang() === language.code"
-      (click)="selectLanguage(language.code)">
-      {{ language.label }}
-    </button>
+    @for (language of languages; track language.code) {
+      <button
+        type="button"
+        class="language-option"
+        [class.active]="currentLang() === language.code"
+        [attr.aria-pressed]="currentLang() === language.code"
+        (click)="selectLanguage(language.code)">
+        {{ language.label }}
+      </button>
+    }
   </div>
 </div>

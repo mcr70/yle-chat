@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -35,9 +35,13 @@ const INFO_VERSION_KEY = 'app_info_seen_version';
   styleUrls: ['./comment-list.component.scss', './new-main-comment.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule, TranslatePipe,
-    CommentItemComponent, ToolbarComponent, MyDiscussionsComponent,
-    ArticlesComponent, RouterModule
+    FormsModule,
+    TranslatePipe,
+    CommentItemComponent,
+    ToolbarComponent,
+    MyDiscussionsComponent,
+    ArticlesComponent,
+    RouterModule
 ]
 })
 export class CommentListComponent implements OnInit, OnDestroy {

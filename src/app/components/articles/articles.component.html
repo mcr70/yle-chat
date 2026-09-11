@@ -3,43 +3,44 @@
     <h3>{{ 'ARTICLES.TITLE' | translate }}</h3>
   </div>
 
-    @if (articles$ | async; as articles) {
-      <ul class="articles-list">
-        @for (article of articles; track article.id) {
-          <li class="article-item">
-            <div class="article-link-row">
-              <a class="article-link" 
-                 href="#" 
-                 [title]="article.title" 
-                 (click)="selectArticle($event, article)">
-                {{ article.title }}
-              </a>
-              
-              <span 
-                *ngIf="article.commentCount && article.commentCount > 0"
+  @if (articles$ | async; as articles) {
+    <ul class="articles-list">
+      @for (article of articles; track article.id) {
+        <li class="article-item">
+          <div class="article-link-row">
+            <a class="article-link"
+              href="#"
+              [title]="article.title"
+              (click)="selectArticle($event, article)">
+              {{ article.title }}
+            </a>
+
+            @if (article.commentCount && article.commentCount > 0) {
+              <span
                 class="comment-badge" [attr.title]="'ARTICLES.COMMENT_COUNT' | translate:{ count: article.commentCount }">
                 {{ article.commentCount }}
               </span>
-            </div>
-            
-            <div class="article-meta">
-              @if (article.category) {
-                <span class="category-tag">{{ article.category }}</span>
-              }
-              
-              @if (article.published) {
-                @if (article.category) { <span class="separator">|</span> }
-                <span class="publish-time">{{ article.published | date:('ARTICLES.DATE_FORMAT' | translate) }}</span>
-              }
+            }
+          </div>
 
-              @if (!article.isActive) {
-                <span class="separator">|</span>
-                <span class="status-badge">{{ 'ARTICLES.CLOSED' | translate }}</span>
-              }
-            </div>
-          </li>
-        }
-      </ul>
-    }
-  
+          <div class="article-meta">
+            @if (article.category) {
+              <span class="category-tag">{{ article.category }}</span>
+            }
+
+            @if (article.published) {
+              @if (article.category) { <span class="separator">|</span> }
+              <span class="publish-time">{{ article.published | date:('ARTICLES.DATE_FORMAT' | translate) }}</span>
+            }
+
+            @if (!article.isActive) {
+              <span class="separator">|</span>
+              <span class="status-badge">{{ 'ARTICLES.CLOSED' | translate }}</span>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+
 </div>

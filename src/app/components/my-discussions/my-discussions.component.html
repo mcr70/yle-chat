@@ -1,45 +1,45 @@
 <div class="history-list-container">
-  
-  <div class="discussions-header">      
+
+  <div class="discussions-header">
     <h3>{{ 'MY_DISCUSSIONS.TITLE' | translate }}</h3>
   </div>
 
-  
-  <ng-container *ngIf="isLoggedIn$ | async; else notLoggedIn">      
-    <ng-container *ngIf="(myDiscussions$ | async) as discussions">
-        
-      <p *ngIf="!discussions.length && !(isLoading$ | async)">{{ 'MY_DISCUSSIONS.NO_HISTORY' | translate }}</p>
 
+  @if (isLoggedIn$ | async) {
+    @if ((myDiscussions$ | async); as discussions) {
+      @if (!discussions.length && !(isLoading$ | async)) {
+        <p>{{ 'MY_DISCUSSIONS.NO_HISTORY' | translate }}</p>
+      }
       <ul class="history-list">
-        <li *ngFor="let item of discussions | slice:0:displayLimit">
-          <div class="list-item-header"> 
-              
-              <a href="#" 
-                 (click)="selectDiscussion(item); $event.preventDefault()" 
-                 title="{{ item.articleTitle }}"
-                 [class.truncated-title]="true"                     
-                 class="article-title-link">                        
-                {{ item.articleTitle }} </a>
-          </div>
-
-          <p class="comment-preview">
-            <span class="comment-count">
-              {{ (item.commentCount === 1 ? 'MY_DISCUSSIONS.COMMENT_ONE' : 'MY_DISCUSSIONS.COMMENT_MANY') | translate:{ count: item.commentCount } }}
-            </span>
-          </p>
-        </li>
+        @for (item of discussions | slice:0:displayLimit; track item.articleId) {
+          <li>
+            <div class="list-item-header">
+              <a href="#"
+                (click)="selectDiscussion(item); $event.preventDefault()"
+                title="{{ item.articleTitle }}"
+                [class.truncated-title]="true"
+                class="article-title-link">
+              {{ item.articleTitle }} </a>
+            </div>
+            <p class="comment-preview">
+              <span class="comment-count">
+                {{ (item.commentCount === 1 ? 'MY_DISCUSSIONS.COMMENT_ONE' : 'MY_DISCUSSIONS.COMMENT_MANY') | translate:{ count: item.commentCount } }}
+              </span>
+            </p>
+          </li>
+        }
       </ul>
-
-      <button *ngIf="discussions.length > displayLimit" 
-          (click)="displayLimit = displayLimit + 5" 
+      @if (discussions.length > displayLimit) {
+        <button
+          (click)="displayLimit = displayLimit + 5"
           class="load-more-button">
-        {{ 'COMMON.SHOW_MORE' | translate }}
-      </button>
-    </ng-container>
-  </ng-container>
-  
-  <ng-template #notLoggedIn>
-      <p class="login-prompt">{{ 'MY_DISCUSSIONS.LOGIN_PROMPT' | translate }}</p>
-  </ng-template>
+          {{ 'COMMON.SHOW_MORE' | translate }}
+        </button>
+      }
+    }
+  } @else {
+    <p class="login-prompt">{{ 'MY_DISCUSSIONS.LOGIN_PROMPT' | translate }}</p>
+  }
+
 
 </div>

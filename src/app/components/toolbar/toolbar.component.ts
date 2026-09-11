@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LoginPanelComponent } from '@components/login-panel/login-panel.component';
@@ -14,7 +14,7 @@ const INFO_VERSION_KEY = 'app_info_seen_version';
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, LoginPanelComponent, SpinnerComponent, LanguageSelectorComponent],
+  imports: [TranslatePipe, LoginPanelComponent, SpinnerComponent, LanguageSelectorComponent],
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.scss', './info-dialog.scss']
 })
