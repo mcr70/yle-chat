@@ -10,7 +10,7 @@
 <div class="main-layout-container">
 
   <div class="content-wrapper">
-    @if (isMobileMenuOpen) {
+    @if (isMobileMenuOpen()) {
       <div class="sidebar-overlay"
         (click)="toggleMobileMenu()">
       </div>
@@ -18,8 +18,8 @@
 
     @if (provider.capabilities.supportsUserHistory || provider.capabilities.supportsArticleListing) {
       <div class="sidebar"
-        [class.mobile-open]="isMobileMenuOpen"
-        [style.width.px]="sidebarWidth">
+        [class.mobile-open]="isMobileMenuOpen()"
+        [style.width.px]="sidebarWidth()">
         @if (provider.capabilities.supportsUserHistory) {
           <app-my-discussions
             (discussionSelected)="handleDiscussionSelected($event)"
@@ -42,14 +42,16 @@
           <div class="comment-controls-top">
 
             <div class="comment-header">
-              <h3>{{ articleTitle || articleId }} <a href="{{ topicDetails?.articleLink }} " target="_blank" class="article-link-icon">↗️</a>
-              @if (topicDetails && topicDetails.acceptedCommentsCount != null) {
-                <span class="comment-count-info no-wrap">
-                  - {{ 'COMMENTS.COUNT' | translate:{ count: topicDetails.acceptedCommentsCount } }}
-                </span>
+              <h3>{{ articleTitle() || articleId() }} <a href="{{ topicDetails()?.articleLink }}" target="_blank" class="article-link-icon">↗️</a>
+              @if (topicDetails(); as details) {
+                @if (details.acceptedCommentsCount != null) {
+                  <span class="comment-count-info no-wrap">
+                    - {{ 'COMMENTS.COUNT' | translate:{ count: details.acceptedCommentsCount } }}
+                  </span>
+                }
               }
 
-              @if (commentsLocked) {
+              @if (commentsLocked()) {
                 <span class="comment-locked-info no-wrap">
                   {{ 'COMMENTS.CLOSED' | translate }}
                 </span>
@@ -63,7 +65,7 @@
         <div class="filter-controls">
           <div class="filter-row">
 
-            <select class="yle-input sort-select" [(ngModel)]="activeSort" (change)="applySorting()">
+            <select class="yle-input sort-select" [ngModel]="activeSort()" (ngModelChange)="activeSort.set($event); applySorting()">
               <option value="newest">{{ 'COMMENTS.SORT_NEWEST' | translate }}</option>
               <option value="oldest">{{ 'COMMENTS.SORT_OLDEST' | translate }}</option>
               <option value="mostLiked">{{ 'COMMENTS.SORT_MOST_LIKED' | translate }}</option>
@@ -72,30 +74,30 @@
 
             <input type="text" [placeholder]="'COMMENTS.ARTICLE_ID_PLACEHOLDER' | translate"
               class="filter-input article-id-input yle-input"
-              [(ngModel)]="articleId"
+              [ngModel]="articleId()"
               (ngModelChange)="onArticleIdChanged($event)"
               />
 
             <div class="nickname-filter-container">
               <input type="text" [placeholder]="'COMMENTS.NICKNAME_SEARCH_PLACEHOLDER' | translate" class="yle-input filter-input"
-                [value]="nicknameFilter"
+                [value]="nicknameFilter()"
                 (input)="onNicknameChanged($any($event.target).value)"
                 />
 
-              @if (nicknameFilter) {
+              @if (nicknameFilter()) {
                 <div class="search-nav-group">
-                  <button class="nav-btn" (click)="navigateToMatch('prev')" [disabled]="matches.length === 0">
+                  <button class="nav-btn" (click)="navigateToMatch('prev')" [disabled]="matches().length === 0">
                     &larr;
                   </button>
                   <span class="nav-counter">
-                    @if (matches.length > 0) {
-                      {{ currentMatchIndex === -1 ? '?' : currentMatchIndex + 1 }} / {{ matches.length }}
+                    @if (matches().length > 0) {
+                      {{ currentMatchIndex() === -1 ? '?' : currentMatchIndex() + 1 }} / {{ matches().length }}
                     }
-                    @if (matches.length === 0) {
+                    @if (matches().length === 0) {
                       0 / 0
                     }
                   </span>
-                  <button class="nav-btn" (click)="navigateToMatch('next')" [disabled]="matches.length === 0">
+                  <button class="nav-btn" (click)="navigateToMatch('next')" [disabled]="matches().length === 0">
                     &rarr;
                   </button>
                 </div>
@@ -104,9 +106,9 @@
               @if (provider.capabilities.supportsReplying) {
                 <button
                   class="yle-button"
-                  [class.active]="showNewCommentForm"
+                  [class.active]="showNewCommentForm()"
                   (click)="toggleNewCommentForm()"
-                  [disabled]="commentsLocked || !articleId"
+                  [disabled]="commentsLocked() || !articleId()"
                   [attr.title]="'COMMENTS.NEW_COMMENT' | translate">
                   ✏️
                 </button>
@@ -115,16 +117,17 @@
           </div>
         </div>
 
-        @if (showNewCommentForm) {
+        @if (showNewCommentForm()) {
           <div class="new-main-comment-form">
             <textarea
               [placeholder]="'COMMENTS.NEW_COMMENT_PLACEHOLDER' | translate"
               class="yle-input new-comment-textarea"
-              [(ngModel)]="newCommentText"
+              [ngModel]="newCommentText()"
+              (ngModelChange)="newCommentText.set($event)"
               rows="4">
             </textarea>
             <div class="new-comment-actions">
-              <button class="yle-button" (click)="submitNewComment()" [disabled]="!newCommentText.trim() || isLoading">
+              <button class="yle-button" (click)="submitNewComment()" [disabled]="!newCommentText().trim() || isLoading()">
                 {{ 'COMMENTS.SEND_COMMENT' | translate }}
               </button>
               <button class="yle-button" (click)="toggleNewCommentForm()">
@@ -137,22 +140,22 @@
 
 
 
-      @if (comments.length > 0) {
+      @if (comments().length > 0) {
         @for (comment of filteredComments; track comment.id) {
           <app-comment-item
             [comment]="comment"
             [level]="0"
-            [articleId]="articleId"
-            [isLocked]="commentsLocked">
+            [articleId]="articleId()"
+            [isLocked]="commentsLocked()">
           </app-comment-item>
         }
-        @if (hasMoreComments) {
+        @if (hasMoreComments()) {
           <div class="load-more-container">
             <button
               (click)="loadMoreComments()"
-              [disabled]="isLoading"
+              [disabled]="isLoading()"
               class="load-more-button">
-              {{ isLoading ? ('COMMON.LOADING' | translate) : ('COMMENTS.LOAD_MORE' | translate) }}
+              {{ isLoading() ? ('COMMON.LOADING' | translate) : ('COMMENTS.LOAD_MORE' | translate) }}
             </button>
           </div>
         }
@@ -167,15 +170,15 @@
 </div>
 
 
-@if (matches.length > 0) {
+@if (matches().length > 0) {
   <div class="mobile-search-nav">
     <button (click)="navigateToMatch('prev')" class="nav-btn">←</button>
     <span class="nav-counter">
-      {{ currentMatchIndex === -1 ? '?' : currentMatchIndex + 1 }} / {{ matches.length }}
+      {{ currentMatchIndex() === -1 ? '?' : currentMatchIndex() + 1 }} / {{ matches().length }}
     </span>
     <button (click)="navigateToMatch('next')" class="nav-btn">→</button>
     <!-- Lisätään ylös-nappi pillerin sisään -->
-    @if (showScrollTop) {
+    @if (showScrollTop()) {
       <button (click)="scrollToTop()" class="nav-btn top-btn" [attr.title]="'COMMON.BACK_TO_TOP' | translate">
         ↑
       </button>
@@ -184,7 +187,7 @@
 }
 
 <!-- Erillinen ylös-nappi näytetään VAIN silloin, kun selaustabletti EI ole näkyvissä -->
-@if (showScrollTop && matches.length === 0) {
+@if (showScrollTop() && matches().length === 0) {
   <button
     class="scroll-top-btn"
     (click)="scrollToTop()"
@@ -195,7 +198,7 @@
 
 
 <!-- info-modal -->
-@if (isInfoModalOpen) {
+@if (isInfoModalOpen()) {
   <div class="modal-overlay" (click)="closeInfoModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <header class="modal-header">

@@ -25,11 +25,11 @@
   </div>
 
   <div class="toolbar-right">
-    <button class="yle-button refresh-button" (click)="onRefresh()" [disabled]="isRefreshing" [attr.title]="'TOOLBAR.REFRESH' | translate">
-      @if (!isRefreshing) {
+    <button class="yle-button refresh-button" (click)="onRefresh()" [disabled]="isRefreshing()" [attr.title]="'TOOLBAR.REFRESH' | translate">
+      @if (!isRefreshing()) {
         <span>🔄</span>
       } @else {
-        <app-spinner [show]="isRefreshing"></app-spinner>
+        <app-spinner [show]="isRefreshing()"></app-spinner>
       }
     </button>
 
@@ -41,12 +41,12 @@
         class="yle-button preferences-btn"
         type="button"
         (click)="togglePreferences()"
-        [attr.aria-expanded]="isPreferencesOpen"
+        [attr.aria-expanded]="isPreferencesOpen()"
         [attr.title]="'PREFERENCES.BUTTON' | translate">
         ⚙️
       </button>
 
-      @if (isPreferencesOpen) {
+      @if (isPreferencesOpen()) {
         <div class="preferences-menu">
           <h2>{{ 'PREFERENCES.TITLE' | translate }}</h2>
           <app-language-selector (languageSelected)="closePreferences()"></app-language-selector>
@@ -61,7 +61,7 @@
 </header>
 
 <!-- Info Modal suoraan Toolbarin sisällä -->
-@if (isInfoModalOpen) {
+@if (isInfoModalOpen()) {
   <div class="modal-overlay" (click)="closeInfoModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <header class="modal-header">

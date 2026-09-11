@@ -14,7 +14,7 @@
         <button class="share-btn" (click)="copyLink(comment.id); $event.stopPropagation()"
           [attr.title]="'COMMENTS.COPY_LINK' | translate">
           <span class="share-icon">🔗</span>
-          @if (showCopiedTooltip) {
+          @if (showCopiedTooltip()) {
             <span class="copy-tooltip">{{ 'COMMENTS.COPIED' | translate }}</span>
           }
         </button>
@@ -28,7 +28,7 @@
 
       @if (provider.capabilities.supportsLiking) {
         <div class="likes-container">
-          @if (isLoggedIn && !comment.isCollapsed) {
+          @if (isLoggedIn() && !comment.isCollapsed) {
             <button
               (click)="toggleLike(); $event.stopPropagation()"
               class="like-button"
@@ -60,18 +60,18 @@
           </button>
         }
         <div class="reply-group">
-          @if (pendingReply) {
+          @if (pendingReply(); as pending) {
             <div class="pending-popover-wrapper">
               <span class="pending-indicator no-wrap">
                 {{ 'COMMENTS.PENDING' | translate }}
               </span>
               <div class="pending-popover">
-                <p class="popover-text">{{ pendingReply.content }}</p>
+                <p class="popover-text">{{ pending.content }}</p>
                 <div class="popover-actions">
                   <button class="popover-btn"
                     (click)="copyPendingReply(); $event.stopPropagation()">
                     ❐ {{ 'COMMENTS.COPY' | translate }}
-                    @if (showPendingCopiedTooltip) {
+                    @if (showPendingCopiedTooltip()) {
                       <span class="copy-tooltip">{{ 'COMMENTS.COPIED' | translate }}</span>
                     }
                   </button>
@@ -88,16 +88,16 @@
             <button
               class="reply-button"
               (click)="toggleReplyForm(); $event.stopPropagation()"
-              [disabled]="isLocked || !!pendingReply || !isLoggedIn"
-              [attr.title]="getReplyTooltip() | translate:{ content: pendingReply?.content?.substring(0, 50) }">
+              [disabled]="isLocked || !!pendingReply() || !isLoggedIn()"
+              [attr.title]="getReplyTooltip() | translate:{ content: pendingReply()?.content?.substring(0, 50) }">
               {{ 'COMMENTS.REPLY' | translate }}
             </button>
           }
         </div>
       </div>
-      @if (isReplying && !isLocked) {
+      @if (isReplying() && !isLocked) {
         <div class="reply-form-wrapper">
-          <textarea [(ngModel)]="replyText" [placeholder]="'COMMENTS.REPLY_PLACEHOLDER' | translate" rows="4"></textarea>
+          <textarea [ngModel]="replyText()" (ngModelChange)="replyText.set($event)" [placeholder]="'COMMENTS.REPLY_PLACEHOLDER' | translate" rows="4"></textarea>
           <div class="reply-controls">
             <button class="yle-button" (click)="sendReply()" [disabled]="isLocked">
               {{ 'COMMENTS.SEND_REPLY' | translate }}

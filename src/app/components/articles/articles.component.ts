@@ -1,13 +1,12 @@
-import { Component, OnInit, OnDestroy, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, EMPTY, merge, Observable, Subject, Subscription } from 'rxjs';
+import { EMPTY, merge, Subject, Subscription } from 'rxjs';
 import { catchError, finalize, ignoreElements, switchMap, tap } from 'rxjs/operators';
 
 import { Provider, ProviderManager } from '@app/models/provider';
-import { SpinnerComponent } from '@components/spinner/spinner.component';
-import { SessionStateService } from '@services/session-state.service'; // Check correct path
+import { SessionStateService } from '@services/session-state.service';
 import { RefreshService } from '@app/services/resfresh.service';
 
 @Component({
@@ -18,14 +17,12 @@ import { RefreshService } from '@app/services/resfresh.service';
 })
 export class ArticlesComponent implements OnInit, OnDestroy {
 
-  // Data storage and public stream for template
-  private articlesData$ = new BehaviorSubject<any[]>([]);
-  public readonly articles$: Observable<any[]> = this.articlesData$.asObservable();
+  // Signals for state
+  public articles = signal<any[]>([]);
+  public isLoading = signal<boolean>(false);
 
-  // Triggers and loading states
+  // Triggers
   private refreshTrigger = new Subject<void>();
-  private articlesLoading = new BehaviorSubject<boolean>(false);
-  isLoading$: Observable<boolean> = this.articlesLoading.asObservable();
 
   // Outputs to change active article in the main panel
   @Output() articleSelected = new EventEmitter<any>();
@@ -38,8 +35,7 @@ export class ArticlesComponent implements OnInit, OnDestroy {
     private providerManager: ProviderManager,
     private route: ActivatedRoute,
     private sessionStateService: SessionStateService,
-    private refreshService: RefreshService,
-    private cdr: ChangeDetectorRef
+    private refreshService: RefreshService
   ) { }
 
   ngOnInit(): void {
@@ -66,16 +62,11 @@ export class ArticlesComponent implements OnInit, OnDestroy {
           return EMPTY;
         }
 
-        // Prevent NG0100 ExpressionChangedAfterItHasBeenCheckedError
-        setTimeout(() => {
-          this.articlesLoading.next(true);
-          this.cdr.markForCheck();
-        }, 0);
+        this.isLoading.set(true);
 
         return this.provider.articleService.getArticles().pipe(
           tap(data => {
-            this.articlesData$.next(data);
-            this.cdr.markForCheck();
+            this.articles.set(data);
             console.log(`Fetched ${data.length} articles from provider ${this.provider.id}.`);
 
             // Handle automatic article restoration / default selection
@@ -87,8 +78,7 @@ export class ArticlesComponent implements OnInit, OnDestroy {
             }
           }),
           finalize(() => {
-            this.articlesLoading.next(false);
-            this.cdr.markForCheck();
+            this.isLoading.set(false);
           }),
           catchError((err) => {
             console.error('Failed to fetch articles:', err);

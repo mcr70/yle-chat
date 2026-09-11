@@ -3,9 +3,9 @@
     <h3>{{ 'ARTICLES.TITLE' | translate }}</h3>
   </div>
 
-  @if (articles$ | async; as articles) {
+  @if (articles(); as articlesList) {
     <ul class="articles-list">
-      @for (article of articles; track article.id) {
+      @for (article of articlesList; track article.id) {
         <li class="article-item">
           <div class="article-link-row">
             <a class="article-link"

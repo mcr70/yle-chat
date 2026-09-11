@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -25,28 +25,26 @@ export class CommentItemComponent implements OnInit, OnDestroy {
   
   // Mahdollistetaan providerin syöttäminen parentilta
   @Input() provider!: Provider;
-  showCopiedTooltip: boolean = false;
+  showCopiedTooltip = signal(false);
 
   @Input() articleId!: string;
   @Input() comment!: Comment;
   @Input() level: number = 0; 
   @Input() isLocked: boolean = true;
 
-  isLoggedIn: boolean = false;
-  isReplying: boolean = false;
-  isCollapsed: boolean = false;
+  isLoggedIn = signal(false);
+  isReplying = signal(false);
 
-  replyText: string = '';
+  replyText = signal('');
 
-  isHoveringReplyButton: boolean = false;  
-  pendingReply: PendingReply | null = null;
-  showPendingCopiedTooltip: boolean = false;
+  isHoveringReplyButton = signal(false);  
+  pendingReply = signal<PendingReply | null>(null);
+  showPendingCopiedTooltip = signal(false);
 
   constructor(
     private providerManager: ProviderManager,
     private pendingReplyService: PendingReplyService,
-    private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
@@ -63,8 +61,7 @@ export class CommentItemComponent implements OnInit, OnDestroy {
 
     if (this.provider.capabilities.supportsAuth && this.provider.authService) {
       this.authSubscription = this.provider.authService.isLoggedIn$.subscribe(isLoggedIn => {
-        this.isLoggedIn = isLoggedIn;
-        this.cdr.markForCheck();
+        this.isLoggedIn.set(isLoggedIn);
       });
     }
   }
@@ -80,11 +77,9 @@ export class CommentItemComponent implements OnInit, OnDestroy {
     const shareUrl = `${baseUrl}#comment-${commentId}`;
 
     navigator.clipboard.writeText(shareUrl).then(() => {
-      this.showCopiedTooltip = true;
-      this.cdr.markForCheck();
+      this.showCopiedTooltip.set(true);
       setTimeout(() => {
-        this.showCopiedTooltip = false;
-        this.cdr.markForCheck();
+        this.showCopiedTooltip.set(false);
       }, 1500);      
     }).catch(err => {
       console.error('Could not copy link: ', err);
@@ -118,12 +113,10 @@ export class CommentItemComponent implements OnInit, OnDestroy {
             next: () => {
               this.comment.isLiked = false;
               this.comment.likes = (this.comment.likes || 0) - 1;
-              this.cdr.markForCheck();
               console.log('Unlike successful.');
             },
             error: (error) => {
               console.error('Unlike failed:', error);
-              this.cdr.markForCheck();
             }
           });
       }
@@ -134,12 +127,10 @@ export class CommentItemComponent implements OnInit, OnDestroy {
           next: () => {
             this.comment.isLiked = true;
             this.comment.likes = (this.comment.likes || 0) + 1;
-            this.cdr.markForCheck();
             console.log('Like successful.');
           },
           error: (error) => {
             console.error('Like failed:', error);
-            this.cdr.markForCheck();
           }
         });
     }
@@ -152,20 +143,20 @@ export class CommentItemComponent implements OnInit, OnDestroy {
     if (this.isLocked) {
       return 'COMMENTS.DISCUSSION_CLOSED';
     }
-    if (this.pendingReply) {
+    if (this.pendingReply()) {
       return 'COMMENTS.PENDING_TOOLTIP';
     }
-    if (this.provider.capabilities.supportsAuth && !this.isLoggedIn) { 
+    if (this.provider.capabilities.supportsAuth && !this.isLoggedIn()) { 
       return 'COMMENTS.LOGIN_TO_REPLY';
     }
     return null;
   }
 
   toggleReplyForm(): void {
-    const canReply = this.provider.capabilities.supportsAuth ? this.isLoggedIn : true;
+    const canReply = this.provider.capabilities.supportsAuth ? this.isLoggedIn() : true;
     
     if (canReply && this.provider.capabilities.supportsReplying) {
-      this.isReplying = !this.isReplying;
+      this.isReplying.update(v => !v);
     }
   }
 
@@ -175,42 +166,41 @@ export class CommentItemComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.replyText.trim()) return;
+    if (!this.replyText().trim()) return;
 
     const parentId = this.comment.id;
     
-    this.provider.commentService.postComment(this.articleId, this.replyText, parentId).subscribe({
+    this.provider.commentService.postComment(this.articleId, this.replyText(), parentId).subscribe({
       next: (newCommentData) => {
         console.log('Reply sent, got response:', newCommentData);
         
         const newReply: PendingReply = {
           parentId: this.comment.id,
           replyId: newCommentData.id, 
-          content: this.replyText,
+          content: this.replyText(),
           articleId: this.articleId
         };
 
         this.pendingReplyService.addPendingReply(newReply);
-        this.pendingReply = newReply;
+        this.pendingReply.set(newReply);
 
-        this.isReplying = false;
-        this.replyText = '';
-        this.cdr.markForCheck();
+        this.isReplying.set(false);
+        this.replyText.set('');
       },
       error: (err) => {
         console.error('Failed to send reply', err);
-        this.cdr.markForCheck();
       }
     });
   }
 
   copyPendingReply(): void {
-    if (!this.pendingReply) return;
+    const pending = this.pendingReply();
+    if (!pending) return;
 
-    navigator.clipboard.writeText(this.pendingReply.content).then(() => {
-      this.showPendingCopiedTooltip = true;
+    navigator.clipboard.writeText(pending.content).then(() => {
+      this.showPendingCopiedTooltip.set(true);
       setTimeout(() => {
-        this.showPendingCopiedTooltip = false;
+        this.showPendingCopiedTooltip.set(false);
       }, 1500);
     }).catch(err => {
       console.error('Kopiointi epäonnistui: ', err);
@@ -218,10 +208,11 @@ export class CommentItemComponent implements OnInit, OnDestroy {
   }
 
   cancelPendingReply(): void {
-    if (!this.pendingReply) return;
+    const pending = this.pendingReply();
+    if (!pending) return;
 
-    this.pendingReplyService.removePendingReply(this.pendingReply.replyId);    
-    this.pendingReply = null;
+    this.pendingReplyService.removePendingReply(pending.replyId);    
+    this.pendingReply.set(null);
   }
 
   formatDate(dateString: string): string {
@@ -233,13 +224,13 @@ export class CommentItemComponent implements OnInit, OnDestroy {
   }  
 
   onMouseEnter(): void {
-    if (this.pendingReply) {
-      this.isHoveringReplyButton = true;
+    if (this.pendingReply()) {
+      this.isHoveringReplyButton.set(true);
     }
   }
 
   private checkPendingStatus(): void {
     const pendingReplies = this.pendingReplyService.getPendingRepliesForArticle(this.articleId);
-    this.pendingReply = pendingReplies.find(r => r.parentId === this.comment.id) || null;
+    this.pendingReply.set(pendingReplies.find(r => r.parentId === this.comment.id) || null);
   }
 }

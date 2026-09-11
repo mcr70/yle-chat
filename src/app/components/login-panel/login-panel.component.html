@@ -1,5 +1,5 @@
 @if (provider?.capabilities?.supportsAuth) {
-  @if (isLoggedIn$ | async) {
+  @if (isLoggedIn()) {
     <div class="user-info-container">
       <button (click)="logoutAndCloseMenu()" class="yle-button auth-btn" [attr.title]="'AUTH.LOG_OUT' | translate">
         <svg class="auth-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -20,20 +20,20 @@
       <span class="auth-text">{{ 'AUTH.LOGIN' | translate }}</span>
     </button>
   }
-  @if (isLoginFormVisible) {
+  @if (isLoginFormVisible()) {
     <div class="login-modal-overlay">
       <div
         class="login-form-container"
-        [class.login-error]="loginError"
-        [class.login-error-pulse]="loginErrorPulse">
+        [class.login-error]="loginError()"
+        [class.login-error-pulse]="loginErrorPulse()">
         <button (click)="closeLoginForm()" class="close-button">&times;</button>
         <h3>{{ 'AUTH.LOG_IN' | translate }}</h3>
         <p
           class="login-error-message"
-          [class.login-error-message-visible]="loginError"
+          [class.login-error-message-visible]="loginError()"
           role="alert"
           aria-live="assertive">
-          {{ loginError | translate }}
+          {{ loginError() | translate }}
         </p>
         <form (ngSubmit)="submitLogin()">
           <label for="username">{{ 'AUTH.USERNAME' | translate }}</label>
@@ -42,8 +42,8 @@
           <label for="password">{{ 'AUTH.PASSWORD' | translate }}</label>
           <input class="yle-input" type="password" id="password" [(ngModel)]="loginPassword"
             name="password" autocomplete="current-password" required>
-          <button type="submit" class="yle-button" [disabled]="isLoggingIn">
-            {{ isLoggingIn ? ('COMMON.LOADING' | translate) : ('AUTH.LOGIN' | translate) }}
+          <button type="submit" class="yle-button" [disabled]="isLoggingIn()">
+            {{ isLoggingIn() ? ('COMMON.LOADING' | translate) : ('AUTH.LOGIN' | translate) }}
           </button>
         </form>
       </div>

@@ -1,15 +1,14 @@
-import { Component, OnInit, OnDestroy, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, EMPTY, merge, Observable, of, Subject, Subscription } from 'rxjs';
+import { EMPTY, merge, of, Subject, Subscription } from 'rxjs';
 import { catchError, filter, finalize, switchMap, tap } from 'rxjs/operators';
 
 import { Provider } from '@app/models/provider';
 import { GroupedDiscussion } from '@app/models/my-history-service.interface';
 import { ProviderManager } from '@app/models/provider';
 
-import { SpinnerComponent } from '@components/spinner/spinner.component';
 import { SessionStateService } from '@app/services/session-state.service';
 import { RefreshService } from '@app/services/resfresh.service';
 
@@ -22,16 +21,11 @@ import { RefreshService } from '@app/services/resfresh.service';
 })
 export class MyDiscussionsComponent implements OnInit, OnDestroy {
 
-  discussionsData$: BehaviorSubject<GroupedDiscussion[]> = new BehaviorSubject<GroupedDiscussion[]>([]);
-  public readonly myDiscussions$: Observable<GroupedDiscussion[]> = this.discussionsData$.asObservable();
-  
-  // Initialize with BehaviorSubject to guarantee immediate state for the template pipe
-  private isLoggedInSubject = new BehaviorSubject<boolean>(false);
-  public isLoggedIn$: Observable<boolean> = this.isLoggedInSubject.asObservable();
+  public myDiscussions = signal<GroupedDiscussion[]>([]);
+  public isLoggedIn = signal<boolean>(false);
+  public isLoading = signal<boolean>(false);
 
   private refreshTrigger = new Subject<void>();
-  private discussionsLoading = new BehaviorSubject<boolean>(false);
-  isLoading$: Observable<boolean> = this.discussionsLoading.asObservable();
 
   private subscription = new Subscription();
   public provider!: Provider;
@@ -39,14 +33,13 @@ export class MyDiscussionsComponent implements OnInit, OnDestroy {
   @Output() discussionSelected = new EventEmitter<GroupedDiscussion>(); 
   @Output() articleIdFilterChange = new EventEmitter<string>();
 
-  displayLimit = 5;
+  displayLimit = signal<number>(5);
 
   constructor(
     private providerManager: ProviderManager,
     private route: ActivatedRoute,
     private sessionStateService: SessionStateService,
-    private refreshService: RefreshService,
-    private cdr: ChangeDetectorRef
+    private refreshService: RefreshService
   ) {}
 
   ngOnInit(): void {
@@ -60,7 +53,7 @@ export class MyDiscussionsComponent implements OnInit, OnDestroy {
 
     // Guard against providers without history capability or missing service
     if (!this.provider.capabilities.supportsUserHistory || !this.provider.myHistoryService) {
-      this.isLoggedInSubject.next(false);
+      this.isLoggedIn.set(false);
       return;
     }
 
@@ -71,8 +64,7 @@ export class MyDiscussionsComponent implements OnInit, OnDestroy {
 
     // Keep component auth state synchronized with the template
     const authSub = auth$.subscribe(loggedIn => {
-      this.isLoggedInSubject.next(loggedIn);
-      this.cdr.markForCheck();
+      this.isLoggedIn.set(loggedIn);
     });
     this.subscription.add(authSub);
 
@@ -94,21 +86,15 @@ export class MyDiscussionsComponent implements OnInit, OnDestroy {
           return EMPTY;
         }
 
-        // Avoid NG0100 ExpressionChangedAfterItHasBeenCheckedError
-        setTimeout(() => {
-          this.discussionsLoading.next(true);
-          this.cdr.markForCheck();
-        }, 0);
+        this.isLoading.set(true);
 
         return this.provider.myHistoryService.fetchMyDiscussions().pipe(
           tap(data => {
-            this.discussionsData$.next(data);
-            this.cdr.markForCheck();
+            this.myDiscussions.set(data);
             console.log(`Fetched ${data.length} discussions from provider ${this.provider.id}.`);
           }),
           finalize(() => {
-            this.discussionsLoading.next(false);
-            this.cdr.markForCheck();
+            this.isLoading.set(false);
           }),
           catchError((err) => {
             console.error('Failed to fetch user discussions:', err);

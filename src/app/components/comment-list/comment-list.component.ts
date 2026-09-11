@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, HostListener, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, HostListener, signal, computed } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -19,7 +19,6 @@ import { GroupedDiscussion } from '@app/models/my-history-service.interface';
 import { PendingReply, PendingReplyService } from '@services/pending-reply.service';
 import { ProviderManager } from '@app/models/provider';
 
-import { SpinnerComponent } from '@components/spinner/spinner.component';
 import { SessionStateService } from '@app/services/session-state.service';
 import { RefreshService } from '@app/services/resfresh.service';
 
@@ -57,36 +56,61 @@ export class CommentListComponent implements OnInit, OnDestroy {
   private isManualInput = false;
   private currentProviderId: string = 'yle';
 
-  activeSort: SortOption = 'mostLiked';
-  sidebarWidth = 320;
-  isMobileMenuOpen = false;
+  activeSort = signal<SortOption>('mostLiked');
+  sidebarWidth = signal<number>(320);
+  isMobileMenuOpen = signal<boolean>(false);
 
-  articleId: string = '';
-  articleTitle: string = '';
+  articleId = signal<string>('');
+  articleTitle = signal<string>('');
 
-  topicDetails: TopicDetails | null = null;
-  commentsLocked: boolean = false; 
-  pendingMainComments: PendingReply[] = [];
+  topicDetails = signal<TopicDetails | null>(null);
+  commentsLocked = signal<boolean>(false); 
+  pendingMainComments = signal<PendingReply[]>([]);
 
-  currentOffset: number = 0;
+  currentOffset = signal<number>(0);
   readonly limit: number = 1000;
 
-  comments: Comment[] = [];
-  hasMoreComments: boolean = true;
-  isLoading: boolean = false;
+  comments = signal<Comment[]>([]);
+  hasMoreComments = signal<boolean>(true);
+  isLoading = signal<boolean>(false);
 
-  nicknameFilter: string = '';
-  currentMatchIndex: number = -1; 
-  activeTargetId: string | null = null;
+  nicknameFilter = signal<string>('');
+  currentMatchIndex = signal<number>(-1); 
+  activeTargetId = signal<string | null>(null);
 
-  showNewCommentForm: boolean = false;
-  newCommentText: string = '';
+  showNewCommentForm = signal<boolean>(false);
+  newCommentText = signal<string>('');
 
-  isInfoModalOpen = false;
-  showScrollTop: boolean = false;
+  isInfoModalOpen = signal<boolean>(false);
+  showScrollTop = signal<boolean>(false);
 
   private currentRouteArticleId: string | null = null;
 
+  matches = computed(() => {
+    const filter = (this.nicknameFilter() || '').trim().toLowerCase();
+    if (filter.length < 2) return [];
+    
+    const allMatches: any[] = [];
+    
+    const flatten = (items: any[]) => {
+      if (!items || items.length === 0) return;
+
+      items.forEach(item => {
+        const name = item.author || ''; 
+        
+        if (name.toLowerCase().includes(filter)) {
+          allMatches.push(item);
+        }
+        
+        if (item.replies && item.replies.length > 0) {
+          flatten(item.replies);
+        }
+      });
+    };
+    
+    flatten(this.comments());
+    return allMatches;
+  });
 
   constructor(
     private providerManager: ProviderManager,
@@ -95,8 +119,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
     private sessionStateService: SessionStateService,
     private refreshService: RefreshService,
     private router: Router,
-    private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -117,7 +140,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
       this.setupProvider(this.currentProviderId);
 
       if (idFromUrl) {
-        this.articleId = idFromUrl;
+        this.articleId.set(idFromUrl);
         this.sessionStateService.setSelectedArticleId(this.currentProviderId, idFromUrl);
         this.loadComments(true);
       } 
@@ -126,15 +149,14 @@ export class CommentListComponent implements OnInit, OnDestroy {
         
         if (history && history.length > 0) {
           const latestArticle = history[0];
-          this.articleTitle = latestArticle.title || '';
-          this.articleId = latestArticle.id;
+          this.articleTitle.set(latestArticle.title || '');
+          this.articleId.set(latestArticle.id);
           
           this.sessionStateService.setSelectedArticleId(this.currentProviderId, latestArticle.id);
 
           this.loadComments(true); 
         }
       }
-      this.cdr.markForCheck();
     });
 
     this.subscription.add(
@@ -169,7 +191,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
 
     if (this.provider.capabilities.supportsAuth && this.provider.authService) {
       this.authSubscription = this.provider.authService.isLoggedIn$.subscribe(() => {
-        if (this.articleId) {
+        if (this.articleId()) {
           this.loadComments(true); 
         }
       });
@@ -177,63 +199,65 @@ export class CommentListComponent implements OnInit, OnDestroy {
   }
 
   toggleNewCommentForm(): void {
-    if (this.commentsLocked || !this.articleId || !this.provider.capabilities.supportsReplying) return;
-    this.showNewCommentForm = !this.showNewCommentForm;
-    if (!this.showNewCommentForm) {
-      this.newCommentText = '';
+    if (this.commentsLocked() || !this.articleId() || !this.provider.capabilities.supportsReplying) return;
+    this.showNewCommentForm.update(v => !v);
+    if (!this.showNewCommentForm()) {
+      this.newCommentText.set('');
     }
   }
 
   submitNewComment(): void {
-    if (!this.newCommentText.trim() || !this.articleId || !this.provider.commentService.postComment) return;
+    const text = this.newCommentText().trim();
+    const currentArticleId = this.articleId();
+    if (!text || !currentArticleId || !this.provider.commentService.postComment) return;
 
-    this.isLoading = true;
+    this.isLoading.set(true);
 
-    this.provider.commentService.postComment(this.articleId, this.newCommentText.trim(), undefined).subscribe({
+    this.provider.commentService.postComment(currentArticleId, text, undefined).subscribe({
       next: (newCommentData) => {
         console.log('Main comment sent, got response:', newCommentData);
 
         const newMainComment: PendingReply = {
           parentId: null,
           replyId: newCommentData.id,
-          content: this.newCommentText.trim(),
-          articleId: this.articleId
+          content: text,
+          articleId: currentArticleId
         };
 
         this.pendingReplyService.addPendingReply(newMainComment);
-        this.pendingMainComments.unshift(newMainComment);
+        this.pendingMainComments.update(list => [newMainComment, ...list]);
 
-        this.newCommentText = '';
-        this.showNewCommentForm = false;
-        this.isLoading = false;
-        this.cdr.markForCheck();
+        this.newCommentText.set('');
+        this.showNewCommentForm.set(false);
+        this.isLoading.set(false);
       },
       error: (err: any) => {
         console.error('Failed to submit new main comment:', err);
-        this.isLoading = false;
-        this.cdr.markForCheck();
+        this.isLoading.set(false);
       }
     });
   }
 
   loadComments(reset: boolean = false): void {
-    if (this.isLoading) return;
-    if (!this.articleId) {
+    if (this.isLoading()) return;
+    const currentArticleId = this.articleId();
+    if (!currentArticleId) {
         this.resetState();
         return;
     }
 
-    this.pendingMainComments = this.pendingReplyService.getPendingRepliesForArticle(this.articleId)
-      .filter(r => r.parentId === null);
-    this.isLoading = true;
-    this.cdr.markForCheck();
+    this.pendingMainComments.set(
+      this.pendingReplyService.getPendingRepliesForArticle(currentArticleId)
+        .filter(r => r.parentId === null)
+    );
+    this.isLoading.set(true);
 
     let topicDetails$: Observable<TopicDetails | undefined> = reset 
-      ? this.provider.commentService.getTopicDetails(this.articleId) 
+      ? this.provider.commentService.getTopicDetails(currentArticleId) 
       : of(undefined);
 
-    const fetchOffset = reset ? 0 : this.currentOffset;
-    const comments$: Observable<Comment[]> = this.provider.commentService.getComments(this.articleId, fetchOffset, this.limit);
+    const fetchOffset = reset ? 0 : this.currentOffset();
+    const comments$: Observable<Comment[]> = this.provider.commentService.getComments(currentArticleId, fetchOffset, this.limit);
 
     const combinedLoad$: Observable<any> = forkJoin({
         details: topicDetails$,
@@ -244,105 +268,105 @@ export class CommentListComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.details) {
             const details = response.details as TopicDetails;
-            this.topicDetails = details;
-            this.articleTitle = details.title; 
-            this.commentsLocked = details.isLocked; 
-            const finalTitle = details.title || this.articleId;
-            this.historyService.addOrUpdateArticle(this.articleId, finalTitle);
+            this.topicDetails.set(details);
+            this.articleTitle.set(details.title); 
+            this.commentsLocked.set(details.isLocked); 
+            const finalTitle = details.title || currentArticleId;
+            this.historyService.addOrUpdateArticle(currentArticleId, finalTitle);
         }
 
         const newComments = response.comments as Comment[];
 
         if (reset) {
-          if (this.comments.length > 0) {
-            this.transferCommentState(this.comments, newComments);
+          if (this.comments().length > 0) {
+            this.transferCommentState(this.comments(), newComments);
           }
 
-          this.comments = newComments;
-          this.currentOffset = newComments.length;
-          this.hasMoreComments = true;
+          this.comments.set(newComments);
+          this.currentOffset.set(newComments.length);
+          this.hasMoreComments.set(true);
         } 
         else {
-          this.comments = [...this.comments, ...newComments];
-          this.currentOffset += newComments.length;
+          this.comments.update(list => [...list, ...newComments]);
+          this.currentOffset.update(offset => offset + newComments.length);
         }
 
         if (newComments.length < this.limit) {
-          this.hasMoreComments = false;
+          this.hasMoreComments.set(false);
         }
         
-        if (this.nicknameFilter.trim().length > 0) {
-          this.provider.commentService.markNickname(this.comments, this.nicknameFilter);
+        if (this.nicknameFilter().trim().length > 0) {
+          this.provider.commentService.markNickname(this.comments(), this.nicknameFilter());
         }        
         
         if (this.historyListComponent) { 
           this.historyListComponent.reloadHistory(); 
         }
 
-        this.isLoading = false; 
-        this.currentMatchIndex = -1;
+        this.isLoading.set(false); 
+        this.currentMatchIndex.set(-1);
         this.handleInitialAnchor();
 
         this.cleanupPendingReplies(); 
         this.applySorting();
-        this.cdr.markForCheck();
-        console.log(`Loaded ${newComments.length} comments for article ${this.articleId}.`);
+        console.log(`Loaded ${newComments.length} comments for article ${currentArticleId}.`);
       },
       error: (err: any) => {
         console.error('Failed to load comments', {
-          articleId: this.articleId,
+          articleId: currentArticleId,
           offset: fetchOffset,
           limit: this.limit,
           error: err
         });
   
-        this.isLoading = false; 
-        this.hasMoreComments = false;
+        this.isLoading.set(false); 
+        this.hasMoreComments.set(false);
 
         if (reset) { 
           this.resetState();
         }
-        this.cdr.markForCheck();
       }
     });
   }
 
 
   applySorting(): void {
-    if (!this.comments || this.comments.length === 0) return;
+    const currentComments = [...this.comments()];
+    if (!currentComments || currentComments.length === 0) return;
 
-    switch (this.activeSort) {
+    switch (this.activeSort()) {
       case 'newest':
-        this.comments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        currentComments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
 
       case 'oldest':
-        this.comments.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        currentComments.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
         break;
 
       case 'mostLiked':
-        this.comments.sort((a, b) => b.likes - a.likes);
+        currentComments.sort((a, b) => b.likes - a.likes);
         break;
 
       case 'mostReplies':
-        this.comments.sort((a, b) => (b.replies?.length || 0) - (a.replies?.length || 0));
+        currentComments.sort((a, b) => (b.replies?.length || 0) - (a.replies?.length || 0));
         break;
     }
+
+    this.comments.set(currentComments);
   }
 
 
   private resetState(): void {
-    this.comments = [];
-    this.currentOffset = 0;
-    this.hasMoreComments = false;
-    this.topicDetails = null;
-    this.articleTitle = '';
-    this.commentsLocked = false;
-    this.isLoading = false;
-    this.currentMatchIndex = -1;
-    this.showNewCommentForm = false;
-    this.newCommentText = '';
-    this.cdr.markForCheck();
+    this.comments.set([]);
+    this.currentOffset.set(0);
+    this.hasMoreComments.set(false);
+    this.topicDetails.set(null);
+    this.articleTitle.set('');
+    this.commentsLocked.set(false);
+    this.isLoading.set(false);
+    this.currentMatchIndex.set(-1);
+    this.showNewCommentForm.set(false);
+    this.newCommentText.set('');
   }
 
   loadMoreComments(): void {
@@ -350,20 +374,19 @@ export class CommentListComponent implements OnInit, OnDestroy {
   }
 
   onNicknameChanged(value: string): void {
-    this.nicknameFilter = value;
-    this.provider.commentService.markNickname(this.comments, value);
+    this.nicknameFilter.set(value);
+    this.provider.commentService.markNickname(this.comments(), value);
 
-    this.currentMatchIndex = -1;
-
+    this.currentMatchIndex.set(-1);
   }
 
   get filteredComments(): Comment[] {
-    return this.comments; 
+    return this.comments(); 
   }  
 
   toggleMobileMenu() {
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
-    document.body.style.overflow = this.isMobileMenuOpen ? 'hidden' : 'auto';
+    this.isMobileMenuOpen.update(v => !v);
+    document.body.style.overflow = this.isMobileMenuOpen() ? 'hidden' : 'auto';
   }  
 
   onArticleIdChanged(rawInput: string): void {
@@ -372,9 +395,8 @@ export class CommentListComponent implements OnInit, OnDestroy {
     if (!parsedId) {
         if (rawInput === '') {
              this.router.navigate([`/${this.currentProviderId}/comments`]);
-             this.articleId = '';
+             this.articleId.set('');
         }
-        this.cdr.markForCheck();
         return; 
     }
     
@@ -386,49 +408,44 @@ export class CommentListComponent implements OnInit, OnDestroy {
       this.navigateToArticle(parsedId);
     }
 
-    this.articleId = parsedId;
-    this.cdr.markForCheck();
+    this.articleId.set(parsedId);
   }
 
   handleArticleSelected(articleData: ArticleHistoryItem): void {
     if (this.isManualInput) {
-      this.articleId = articleData.id;
-      this.cdr.markForCheck();
+      this.articleId.set(articleData.id);
       return; 
     }    
 
-    this.isMobileMenuOpen = false;
+    this.isMobileMenuOpen.set(false);
     document.body.style.overflow = 'auto'; 
 
     this.navigateToArticle(articleData.id);
-    this.cdr.markForCheck();
   }
 
   handleDiscussionSelected(discussion: GroupedDiscussion): void {
     if (this.isManualInput) {
-      this.articleId = discussion.articleId;
-      this.cdr.markForCheck();
+      this.articleId.set(discussion.articleId);
       return; 
     }
 
-    this.isMobileMenuOpen = false;
+    this.isMobileMenuOpen.set(false);
     document.body.style.overflow = 'auto'; 
     
     this.navigateToArticle(discussion.articleId);
-    this.cdr.markForCheck();
   }
 
   startResizing(event: MouseEvent) {
     event.preventDefault();
 
     const startX = event.clientX;
-    const startWidth = this.sidebarWidth;
+    const startWidth = this.sidebarWidth();
 
     const onMouseMove = (moveEvent: MouseEvent) => {
       const currentWidth = startWidth + (moveEvent.clientX - startX);
       
       if (currentWidth >= 150 && currentWidth <= 500) {
-        this.sidebarWidth = currentWidth;
+        this.sidebarWidth.set(currentWidth);
       }
     };
 
@@ -443,50 +460,23 @@ export class CommentListComponent implements OnInit, OnDestroy {
     document.body.style.cursor = 'col-resize';
   }  
 
-  get matches() {
-    const filter = (this.nicknameFilter || '').trim().toLowerCase();
-    if (filter.length < 2) return [];
-    
-    const allMatches: any[] = [];
-    
-    const flatten = (items: any[]) => {
-      if (!items || items.length === 0) return;
-
-      items.forEach(item => {
-        const name = item.author || ''; 
-        
-        if (name.toLowerCase().includes(filter)) {
-          allMatches.push(item);
-        }
-        
-        if (item.replies && item.replies.length > 0) {
-          flatten(item.replies);
-        }
-      });
-    };
-    
-    flatten(this.comments);
-    return allMatches;
-  }
-
   onFilterChange() {
-    this.currentMatchIndex = this.matches.length > 0 ? 0 : -1;
+    this.currentMatchIndex.set(this.matches().length > 0 ? 0 : -1);
   }
 
   navigateToMatch(direction: 'next' | 'prev') {
-    const total = this.matches.length;
+    const matchesList = this.matches();
+    const total = matchesList.length;
     if (total === 0) return;
 
     if (direction === 'next') {
-      this.currentMatchIndex++;
-      if (this.currentMatchIndex >= total) this.currentMatchIndex = 0;
+      this.currentMatchIndex.update(idx => (idx + 1 >= total ? 0 : idx + 1));
     } else {
-      this.currentMatchIndex--;
-      if (this.currentMatchIndex < 0) this.currentMatchIndex = total - 1;
+      this.currentMatchIndex.update(idx => (idx - 1 < 0 ? total - 1 : idx - 1));
     }
 
-    const targetComment = this.matches[this.currentMatchIndex];
-    this.ensureCommentIsVisible(this.comments, targetComment.id);
+    const targetComment = matchesList[this.currentMatchIndex()];
+    this.ensureCommentIsVisible(this.comments(), targetComment.id);
 
     setTimeout(() => {
       const element = document.getElementById(`comment-${targetComment.id}`);
@@ -502,8 +492,8 @@ export class CommentListComponent implements OnInit, OnDestroy {
           behavior: 'smooth'
         });
         
-        this.activeTargetId = targetComment.id;
-        setTimeout(() => this.activeTargetId = null, 2500);
+        this.activeTargetId.set(targetComment.id);
+        setTimeout(() => this.activeTargetId.set(null), 2500);
       }
     }, 150);
   }
@@ -528,11 +518,11 @@ export class CommentListComponent implements OnInit, OnDestroy {
   }
 
   openInfoModal(): void { 
-    this.isInfoModalOpen = true;
+    this.isInfoModalOpen.set(true);
   }
 
   closeInfoModal(): void {
-    this.isInfoModalOpen = false;
+    this.isInfoModalOpen.set(false);
     localStorage.setItem(INFO_VERSION_KEY, CURRENT_INFO_VERSION);
   }
 
@@ -540,20 +530,18 @@ export class CommentListComponent implements OnInit, OnDestroy {
   @HostListener('window:scroll', [])
   onWindowScroll() {
     const isMobile = window.innerWidth <= 600;
-    this.showScrollTop = isMobile ? window.scrollY > 300: window.scrollY > 5000;
+    this.showScrollTop.set(isMobile ? window.scrollY > 300: window.scrollY > 5000);
   }
 
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-
-
   private checkIfInfoModalShouldOpen(): void {
     const savedVersion = localStorage.getItem(INFO_VERSION_KEY);
 
     if (!savedVersion || savedVersion !== CURRENT_INFO_VERSION) {
-      this.isInfoModalOpen = true;
+      this.isInfoModalOpen.set(true);
     }
   }
 
@@ -562,7 +550,8 @@ export class CommentListComponent implements OnInit, OnDestroy {
   }
 
   private cleanupPendingReplies(): void {
-    const pendingReplies = this.pendingReplyService.getPendingRepliesForArticle(this.articleId);
+    const currentArticleId = this.articleId();
+    const pendingReplies = this.pendingReplyService.getPendingRepliesForArticle(currentArticleId);
     if (!pendingReplies.length) return;
 
     const loadedReplyIds = new Set<string>();
@@ -576,7 +565,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
       }
     };
 
-    findReplyIds(this.comments);
+    findReplyIds(this.comments());
 
     for (const pending of pendingReplies) {
         if (loadedReplyIds.has(pending.replyId)) {
@@ -585,8 +574,10 @@ export class CommentListComponent implements OnInit, OnDestroy {
         }
     }
 
-    this.pendingMainComments = this.pendingReplyService.getPendingRepliesForArticle(this.articleId)
-      .filter(r => r.parentId === null);
+    this.pendingMainComments.set(
+      this.pendingReplyService.getPendingRepliesForArticle(currentArticleId)
+        .filter(r => r.parentId === null)
+    );
   }
 
   private parseArticleIdFromUrl(input: string): string | null {
@@ -647,7 +638,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
     const commentId = hash.replace('#comment-', '');
     
     setTimeout(() => {
-      const isFoundInData = this.ensureCommentIsVisible(this.comments, commentId);
+      const isFoundInData = this.ensureCommentIsVisible(this.comments(), commentId);
       
       if (isFoundInData) {
         setTimeout(() => {
@@ -665,8 +656,8 @@ export class CommentListComponent implements OnInit, OnDestroy {
               behavior: 'smooth'
             });
             
-            this.activeTargetId = commentId;
-            setTimeout(() => this.activeTargetId = null, 3000);
+            this.activeTargetId.set(commentId);
+            setTimeout(() => this.activeTargetId.set(null), 3000);
           }
         }, 100);
       }

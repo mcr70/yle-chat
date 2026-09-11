@@ -1,9 +1,9 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, of, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import { Provider } from '@app/models/provider';
 import { AuthError, AuthErrorCode, AuthService } from '@app/models/auth-service.interface';
@@ -19,27 +19,24 @@ import { ProviderManager } from '@app/models/provider';
 export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
   @Input() provider?: Provider; // ALLOW PROVIDER FROM PARENT
 
-  usernameDisplay = 'Käyttäjä'; 
+  usernameDisplay = signal('Käyttäjä'); 
   loginUsername = ''; 
   loginPassword = '';
 
-  username = '';
-  password = '';
-  isLoginFormVisible: boolean = false;
+  isLoginFormVisible = signal(false);
 
-  loginError: string | null = null;  
-  loginErrorPulse = false;
-  isLoggingIn = false;
+  loginError = signal<string | null>(null);  
+  loginErrorPulse = signal(false);
+  isLoggingIn = signal(false);
   private loginErrorPulseTimeout?: ReturnType<typeof setTimeout>;
   
-  public isLoggedIn$: Observable<boolean> = of(false);
+  public isLoggedIn = signal(false);
   private authService?: AuthService;
   private subscription = new Subscription();
 
   constructor(
     private providerManager: ProviderManager,
-    private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -77,42 +74,46 @@ export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
     // Ensure provider supports authentication
     if (this.provider?.capabilities.supportsAuth && this.provider.authService) {
       this.authService = this.provider.authService;
-      this.isLoggedIn$ = this.authService.isLoggedIn$;
+
+      this.subscription.add(
+        this.authService.isLoggedIn$.subscribe(loggedIn => {
+          this.isLoggedIn.set(loggedIn);
+        })
+      );
 
       const userSub = this.authService.user$.subscribe(usernameFromService => {
         if (usernameFromService && typeof usernameFromService === 'string') {
-          this.usernameDisplay = usernameFromService; 
+          this.usernameDisplay.set(usernameFromService); 
         } else {
-          this.usernameDisplay = 'Käyttäjä'; 
+          this.usernameDisplay.set('Käyttäjä'); 
         }
-        this.cdr.markForCheck();
       });
 
       this.subscription.add(userSub);
     } else {
       this.authService = undefined;
-      this.isLoggedIn$ = of(false);
+      this.isLoggedIn.set(false);
     }
   }
 
   openLoginForm(): void {
     if (!this.authService) return;
 
-    this.loginError = null;
+    this.loginError.set(null);
 
     if (this.authService.requiresCredentials) {
-      this.isLoginFormVisible = true;
+      this.isLoginFormVisible.set(true);
     } else {
       this.executeLogin();
     }
   }
 
   closeLoginForm(): void {
-    this.isLoginFormVisible = false;
+    this.isLoginFormVisible.set(false);
     this.loginUsername = '';
     this.loginPassword = '';
-    this.loginError = null;
-    this.loginErrorPulse = false;
+    this.loginError.set(null);
+    this.loginErrorPulse.set(false);
   }
 
   submitLogin(): void {
@@ -129,7 +130,6 @@ export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
     this.authService.logout().subscribe(() => {
       this.loginUsername = '';
       this.loginPassword = '';
-      this.cdr.markForCheck();
     });
   }
 
@@ -140,20 +140,18 @@ export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
   private executeLogin(username?: string, password?: string): void {
     if (!this.authService) return;
 
-    this.loginError = null;
-    this.isLoggingIn = true;
+    this.loginError.set(null);
+    this.isLoggingIn.set(true);
 
     this.authService.login(username, password).subscribe({
       next: () => {
-        this.isLoggingIn = false;
+        this.isLoggingIn.set(false);
         this.closeLoginForm();
-        this.cdr.markForCheck();
       },
       error: (error) => {
-        this.isLoggingIn = false;
+        this.isLoggingIn.set(false);
         this.showLoginError(this.getLoginErrorKey(error));
         console.error('Kirjautuminen epäonnistui:', error);
-        this.cdr.markForCheck();
       }
     });
   }
@@ -176,18 +174,15 @@ export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private showLoginError(errorKey: string): void {
-    this.loginError = errorKey;
-    this.loginErrorPulse = false;
+    this.loginError.set(errorKey);
+    this.loginErrorPulse.set(false);
 
     if (this.loginErrorPulseTimeout) {
       clearTimeout(this.loginErrorPulseTimeout);
     }
 
-    requestAnimationFrame(() => {
-      this.loginErrorPulse = true;
-      this.loginErrorPulseTimeout = setTimeout(() => {
-        this.loginErrorPulse = false;
-      }, 700);
-    });
+    this.loginErrorPulseTimeout = setTimeout(() => {
+      this.loginErrorPulse.set(true);
+    }, 10);
   }
 }

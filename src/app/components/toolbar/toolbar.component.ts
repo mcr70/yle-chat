@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -28,14 +28,13 @@ export class ToolbarComponent implements OnInit {
   // Event emitted when the menu toggle button is clicked (mobile view)
   @Output() toggleMenu = new EventEmitter<void>();
 
-  isRefreshing: boolean = false;
-  isInfoModalOpen: boolean = false;
-  isPreferencesOpen: boolean = false;
+  isRefreshing = signal(false);
+  isInfoModalOpen = signal(false);
+  isPreferencesOpen = signal(false);
 
   constructor(
     private router: Router,
-    private refreshService: RefreshService,
-    private cdr: ChangeDetectorRef
+    private refreshService: RefreshService
   ) {}
 
   ngOnInit(): void {
@@ -51,37 +50,35 @@ export class ToolbarComponent implements OnInit {
   }
 
   openInfoModal(): void {
-    this.isInfoModalOpen = true;
+    this.isInfoModalOpen.set(true);
   }
 
   closeInfoModal(): void {
-    this.isInfoModalOpen = false;
+    this.isInfoModalOpen.set(false);
     localStorage.setItem(INFO_VERSION_KEY, CURRENT_INFO_VERSION);
   }
 
   togglePreferences(): void {
-    this.isPreferencesOpen = !this.isPreferencesOpen;
+    this.isPreferencesOpen.update(v => !v);
   }
 
   closePreferences(): void {
-    this.isPreferencesOpen = false;
+    this.isPreferencesOpen.set(false);
   }
 
   onRefresh(): void {
     this.refreshService.triggerRefresh();
 
-    this.isRefreshing = true;
-    this.cdr.markForCheck();
+    this.isRefreshing.set(true);
     setTimeout(() => {
-      this.isRefreshing = false;
-      this.cdr.markForCheck();
+      this.isRefreshing.set(false);
     }, 1000); // Reset the refresh state after 1 second
   }
 
   private checkIfInfoModalShouldOpen(): void {
     const savedVersion = localStorage.getItem(INFO_VERSION_KEY);
     if (!savedVersion || savedVersion !== CURRENT_INFO_VERSION) {
-      this.isInfoModalOpen = true;
+      this.isInfoModalOpen.set(true);
     }
   }
 }

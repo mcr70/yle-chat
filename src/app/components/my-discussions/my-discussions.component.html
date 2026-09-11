@@ -5,13 +5,13 @@
   </div>
 
 
-  @if (isLoggedIn$ | async) {
-    @if ((myDiscussions$ | async); as discussions) {
-      @if (!discussions.length && !(isLoading$ | async)) {
+  @if (isLoggedIn()) {
+    @if (myDiscussions(); as discussions) {
+      @if (!discussions.length && !isLoading()) {
         <p>{{ 'MY_DISCUSSIONS.NO_HISTORY' | translate }}</p>
       }
       <ul class="history-list">
-        @for (item of discussions | slice:0:displayLimit; track item.articleId) {
+        @for (item of discussions | slice:0:displayLimit(); track item.articleId) {
           <li>
             <div class="list-item-header">
               <a href="#"
@@ -29,9 +29,9 @@
           </li>
         }
       </ul>
-      @if (discussions.length > displayLimit) {
+      @if (discussions.length > displayLimit()) {
         <button
-          (click)="displayLimit = displayLimit + 5"
+          (click)="displayLimit.set(displayLimit() + 5)"
           class="load-more-button">
           {{ 'COMMON.SHOW_MORE' | translate }}
         </button>
