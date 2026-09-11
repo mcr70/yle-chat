@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute } from '@angular/router';
@@ -45,7 +45,8 @@ export class MyDiscussionsComponent implements OnInit, OnDestroy {
     private providerManager: ProviderManager,
     private route: ActivatedRoute,
     private sessionStateService: SessionStateService,
-    private refreshService: RefreshService
+    private refreshService: RefreshService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -71,6 +72,7 @@ export class MyDiscussionsComponent implements OnInit, OnDestroy {
     // Keep component auth state synchronized with the template
     const authSub = auth$.subscribe(loggedIn => {
       this.isLoggedInSubject.next(loggedIn);
+      this.cdr.markForCheck();
     });
     this.subscription.add(authSub);
 
@@ -95,15 +97,18 @@ export class MyDiscussionsComponent implements OnInit, OnDestroy {
         // Avoid NG0100 ExpressionChangedAfterItHasBeenCheckedError
         setTimeout(() => {
           this.discussionsLoading.next(true);
+          this.cdr.markForCheck();
         }, 0);
 
         return this.provider.myHistoryService.fetchMyDiscussions().pipe(
           tap(data => {
             this.discussionsData$.next(data);
+            this.cdr.markForCheck();
             console.log(`Fetched ${data.length} discussions from provider ${this.provider.id}.`);
           }),
           finalize(() => {
             this.discussionsLoading.next(false);
+            this.cdr.markForCheck();
           }),
           catchError((err) => {
             console.error('Failed to fetch user discussions:', err);

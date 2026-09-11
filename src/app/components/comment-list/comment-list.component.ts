@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, HostListener, ChangeDetectorRef } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -95,7 +95,8 @@ export class CommentListComponent implements OnInit, OnDestroy {
     private sessionStateService: SessionStateService,
     private refreshService: RefreshService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -133,6 +134,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
           this.loadComments(true); 
         }
       }
+      this.cdr.markForCheck();
     });
 
     this.subscription.add(
@@ -204,10 +206,12 @@ export class CommentListComponent implements OnInit, OnDestroy {
         this.newCommentText = '';
         this.showNewCommentForm = false;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         console.error('Failed to submit new main comment:', err);
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -222,6 +226,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
     this.pendingMainComments = this.pendingReplyService.getPendingRepliesForArticle(this.articleId)
       .filter(r => r.parentId === null);
     this.isLoading = true;
+    this.cdr.markForCheck();
 
     let topicDetails$: Observable<TopicDetails | undefined> = reset 
       ? this.provider.commentService.getTopicDetails(this.articleId) 
@@ -280,6 +285,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
 
         this.cleanupPendingReplies(); 
         this.applySorting();
+        this.cdr.markForCheck();
         console.log(`Loaded ${newComments.length} comments for article ${this.articleId}.`);
       },
       error: (err: any) => {
@@ -296,6 +302,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
         if (reset) { 
           this.resetState();
         }
+        this.cdr.markForCheck();
       }
     });
   }
@@ -335,6 +342,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
     this.currentMatchIndex = -1;
     this.showNewCommentForm = false;
     this.newCommentText = '';
+    this.cdr.markForCheck();
   }
 
   loadMoreComments(): void {
@@ -366,6 +374,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
              this.router.navigate([`/${this.currentProviderId}/comments`]);
              this.articleId = '';
         }
+        this.cdr.markForCheck();
         return; 
     }
     
@@ -378,11 +387,13 @@ export class CommentListComponent implements OnInit, OnDestroy {
     }
 
     this.articleId = parsedId;
+    this.cdr.markForCheck();
   }
 
   handleArticleSelected(articleData: ArticleHistoryItem): void {
     if (this.isManualInput) {
       this.articleId = articleData.id;
+      this.cdr.markForCheck();
       return; 
     }    
 
@@ -390,11 +401,13 @@ export class CommentListComponent implements OnInit, OnDestroy {
     document.body.style.overflow = 'auto'; 
 
     this.navigateToArticle(articleData.id);
+    this.cdr.markForCheck();
   }
 
   handleDiscussionSelected(discussion: GroupedDiscussion): void {
     if (this.isManualInput) {
       this.articleId = discussion.articleId;
+      this.cdr.markForCheck();
       return; 
     }
 
@@ -402,6 +415,7 @@ export class CommentListComponent implements OnInit, OnDestroy {
     document.body.style.overflow = 'auto'; 
     
     this.navigateToArticle(discussion.articleId);
+    this.cdr.markForCheck();
   }
 
   startResizing(event: MouseEvent) {

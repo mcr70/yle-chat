@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -20,7 +20,10 @@ export class HistoryListComponent implements OnInit {
     @Input() articleIdFilter: string = ''; 
     @Output() articleSelected = new EventEmitter<ArticleHistoryItem>(); 
 
-    constructor(private historyService: HistoryService) {} 
+    constructor(
+      private historyService: HistoryService,
+      private cdr: ChangeDetectorRef
+    ) {} 
 
     ngOnInit(): void {
         this.loadHistory(); 
@@ -41,6 +44,7 @@ export class HistoryListComponent implements OnInit {
             isEditing: false, 
             editableTitle: item.title || item.id 
         }));
+        this.cdr.markForCheck();
     }
 
     selectArticle(item: ArticleHistoryItem): void {

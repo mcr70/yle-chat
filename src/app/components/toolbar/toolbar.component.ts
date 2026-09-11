@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -34,7 +34,8 @@ export class ToolbarComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private refreshService: RefreshService
+    private refreshService: RefreshService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -70,8 +71,10 @@ export class ToolbarComponent implements OnInit {
     this.refreshService.triggerRefresh();
 
     this.isRefreshing = true;
+    this.cdr.markForCheck();
     setTimeout(() => {
       this.isRefreshing = false;
+      this.cdr.markForCheck();
     }, 1000); // Reset the refresh state after 1 second
   }
 

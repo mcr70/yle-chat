@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute } from '@angular/router';
@@ -38,7 +38,8 @@ export class ArticlesComponent implements OnInit, OnDestroy {
     private providerManager: ProviderManager,
     private route: ActivatedRoute,
     private sessionStateService: SessionStateService,
-    private refreshService: RefreshService
+    private refreshService: RefreshService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -68,11 +69,13 @@ export class ArticlesComponent implements OnInit, OnDestroy {
         // Prevent NG0100 ExpressionChangedAfterItHasBeenCheckedError
         setTimeout(() => {
           this.articlesLoading.next(true);
+          this.cdr.markForCheck();
         }, 0);
 
         return this.provider.articleService.getArticles().pipe(
           tap(data => {
             this.articlesData$.next(data);
+            this.cdr.markForCheck();
             console.log(`Fetched ${data.length} articles from provider ${this.provider.id}.`);
 
             // Handle automatic article restoration / default selection
@@ -85,6 +88,7 @@ export class ArticlesComponent implements OnInit, OnDestroy {
           }),
           finalize(() => {
             this.articlesLoading.next(false);
+            this.cdr.markForCheck();
           }),
           catchError((err) => {
             console.error('Failed to fetch articles:', err);

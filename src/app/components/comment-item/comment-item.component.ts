@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -45,7 +45,8 @@ export class CommentItemComponent implements OnInit, OnDestroy {
   constructor(
     private providerManager: ProviderManager,
     private pendingReplyService: PendingReplyService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -63,6 +64,7 @@ export class CommentItemComponent implements OnInit, OnDestroy {
     if (this.provider.capabilities.supportsAuth && this.provider.authService) {
       this.authSubscription = this.provider.authService.isLoggedIn$.subscribe(isLoggedIn => {
         this.isLoggedIn = isLoggedIn;
+        this.cdr.markForCheck();
       });
     }
   }
@@ -79,8 +81,10 @@ export class CommentItemComponent implements OnInit, OnDestroy {
 
     navigator.clipboard.writeText(shareUrl).then(() => {
       this.showCopiedTooltip = true;
+      this.cdr.markForCheck();
       setTimeout(() => {
         this.showCopiedTooltip = false;
+        this.cdr.markForCheck();
       }, 1500);      
     }).catch(err => {
       console.error('Could not copy link: ', err);
@@ -114,10 +118,12 @@ export class CommentItemComponent implements OnInit, OnDestroy {
             next: () => {
               this.comment.isLiked = false;
               this.comment.likes = (this.comment.likes || 0) - 1;
+              this.cdr.markForCheck();
               console.log('Unlike successful.');
             },
             error: (error) => {
               console.error('Unlike failed:', error);
+              this.cdr.markForCheck();
             }
           });
       }
@@ -128,10 +134,12 @@ export class CommentItemComponent implements OnInit, OnDestroy {
           next: () => {
             this.comment.isLiked = true;
             this.comment.likes = (this.comment.likes || 0) + 1;
+            this.cdr.markForCheck();
             console.log('Like successful.');
           },
           error: (error) => {
             console.error('Like failed:', error);
+            this.cdr.markForCheck();
           }
         });
     }
@@ -187,9 +195,11 @@ export class CommentItemComponent implements OnInit, OnDestroy {
 
         this.isReplying = false;
         this.replyText = '';
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Failed to send reply', err);
+        this.cdr.markForCheck();
       }
     });
   }

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -38,7 +38,8 @@ export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor(
     private providerManager: ProviderManager,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -84,6 +85,7 @@ export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
         } else {
           this.usernameDisplay = 'Käyttäjä'; 
         }
+        this.cdr.markForCheck();
       });
 
       this.subscription.add(userSub);
@@ -127,6 +129,7 @@ export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
     this.authService.logout().subscribe(() => {
       this.loginUsername = '';
       this.loginPassword = '';
+      this.cdr.markForCheck();
     });
   }
 
@@ -144,11 +147,13 @@ export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {
       next: () => {
         this.isLoggingIn = false;
         this.closeLoginForm();
+        this.cdr.markForCheck();
       },
       error: (error) => {
         this.isLoggingIn = false;
         this.showLoginError(this.getLoginErrorKey(error));
         console.error('Kirjautuminen epäonnistui:', error);
+        this.cdr.markForCheck();
       }
     });
   }
