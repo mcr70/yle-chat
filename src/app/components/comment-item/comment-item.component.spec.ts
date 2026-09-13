@@ -65,6 +65,7 @@ describe('CommentItemComponent', () => {
     component.provider = mockProvider;
     component.comment = { ...mockComment };
     component.articleId = 'art-1';
+    component.isLoggedIn.set(true);
     fixture.detectChanges();
   });
 
@@ -88,6 +89,18 @@ describe('CommentItemComponent', () => {
   it('should unlike comment when toggleLike is called on liked comment', () => {
     component.comment.isLiked = true;
     component.comment.likes = 3;
+
+    component.toggleLike();
+
+    expect(component.comment.isLiked).toBe(false);
+    expect(component.comment.likes).toBe(2);
+  });
+
+  // Tests that toggleLike does not like if user is not logged in
+  it('should not like comment if user is not logged in', () => {
+    component.isLoggedIn.set(false);
+    component.comment.isLiked = false;
+    component.comment.likes = 2;
 
     component.toggleLike();
 

@@ -57,6 +57,7 @@
     "REPLY_UNSUPPORTED": "Replying is not supported on this platform",
     "DISCUSSION_CLOSED": "The discussion is closed",
     "LOGIN_TO_REPLY": "Log in to reply",
+    "LOGIN_TO_LIKE": "Log in to like",
     "PENDING_TOOLTIP": "Your reply is being processed: \"{{content}}...\""
   },
   "HISTORY": {

@@ -64,6 +64,7 @@ export class CommentItemComponent implements OnInit, OnDestroy {
     if (this.provider.capabilities.supportsAuth && this.provider.authService) {
       this.authSubscription = this.provider.authService.isLoggedIn$.subscribe(isLoggedIn => {
         this.isLoggedIn.set(isLoggedIn);
+        this.cdr.markForCheck();
       });
     }
   }
@@ -94,14 +95,20 @@ export class CommentItemComponent implements OnInit, OnDestroy {
 
   toggleCollapse() {
     this.comment.isCollapsed = !this.comment.isCollapsed;
+    this.cdr.markForCheck();
   }
 
   toggleReplies(): void {
     this.comment.isExpanded = !this.comment.isExpanded;
+    this.cdr.markForCheck();
   }
 
   public toggleLike() {
     if (!this.provider.capabilities.supportsLiking || !this.provider.commentService.likeComment) {
+      return;
+    }
+
+    if (this.provider.capabilities.supportsAuth && !this.isLoggedIn()) {
       return;
     }
 

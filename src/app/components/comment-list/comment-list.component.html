@@ -144,6 +144,7 @@
         @for (comment of filteredComments; track comment.id) {
           <app-comment-item
             [comment]="comment"
+            [provider]="provider"
             [level]="0"
             [articleId]="articleId()"
             [isLocked]="commentsLocked()">

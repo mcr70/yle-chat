@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, HostListener, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, HostListener, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -120,7 +120,8 @@ export class CommentListComponent implements OnInit, OnDestroy {
     private sessionStateService: SessionStateService,
     private refreshService: RefreshService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -159,6 +160,14 @@ export class CommentListComponent implements OnInit, OnDestroy {
         }
       }
     });
+
+    this.subscription.add(
+      this.route.fragment.subscribe(fragment => {
+        if (fragment && this.comments().length > 0) {
+          this.handleInitialAnchor();
+        }
+      })
+    );
 
     this.subscription.add(
       this.refreshService.refresh$.subscribe(() => {
@@ -306,10 +315,10 @@ export class CommentListComponent implements OnInit, OnDestroy {
 
         this.isLoading.set(false); 
         this.currentMatchIndex.set(-1);
-        this.handleInitialAnchor();
 
         this.cleanupPendingReplies(); 
         this.applySorting();
+        this.handleInitialAnchor();
         console.log(`Loaded ${newComments.length} comments for article ${currentArticleId}.`);
       },
       error: (err: any) => {
@@ -633,35 +642,46 @@ export class CommentListComponent implements OnInit, OnDestroy {
   }
 
   private handleInitialAnchor(): void {
-    const hash = window.location.hash;
-    if (!hash || !hash.startsWith('#comment-')) return;
+    const rawFragment = this.route.snapshot.fragment || (window.location.hash ? window.location.hash.substring(1) : '');
+    if (!rawFragment) return;
 
-    const commentId = hash.replace('#comment-', '');
-    
-    setTimeout(() => {
-      const isFoundInData = this.ensureCommentIsVisible(this.comments(), commentId);
-      
-      if (isFoundInData) {
-        setTimeout(() => {
-          const element = document.getElementById(`comment-${commentId}`);
-          
-          if (element) {
-            const isMobile = window.innerWidth <= 600;
-            const headerOffset = isMobile ? 80 : 220;
+    const commentId = rawFragment.replace(/^comment-/, '');
+    if (!commentId) return;
 
-            const rect = element.getBoundingClientRect();
-            const absoluteTop = rect.top + window.scrollY;
+    const isFoundInData = this.ensureCommentIsVisible(this.comments(), commentId);
+    if (isFoundInData) {
+      this.comments.set([...this.comments()]);
+      this.cdr.markForCheck();
+    }
 
-            window.scrollTo({
-              top: absoluteTop - headerOffset,
-              behavior: 'smooth'
-            });
-            
-            this.activeTargetId.set(commentId);
-            setTimeout(() => this.activeTargetId.set(null), 3000);
-          }
-        }, 100);
-      }
-    }, 600);
+    this.scrollToCommentElement(commentId);
+  }
+
+  private scrollToCommentElement(commentId: string, attempts = 0): void {
+    const maxAttempts = 15;
+    const element = document.getElementById(`comment-${commentId}`);
+
+    if (element) {
+      const isMobile = window.innerWidth <= 600;
+      const headerOffset = isMobile ? 80 : 220;
+
+      const rect = element.getBoundingClientRect();
+      const absoluteTop = rect.top + window.scrollY;
+
+      window.scrollTo({
+        top: Math.max(0, absoluteTop - headerOffset),
+        behavior: 'smooth'
+      });
+
+      this.activeTargetId.set(commentId);
+      setTimeout(() => this.activeTargetId.set(null), 3000);
+      return;
+    }
+
+    if (attempts < maxAttempts) {
+      setTimeout(() => {
+        this.scrollToCommentElement(commentId, attempts + 1);
+      }, 100);
+    }
   }
 }

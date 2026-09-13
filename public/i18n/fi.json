@@ -57,6 +57,7 @@
     "REPLY_UNSUPPORTED": "Vastaaminen ei ole tuettu tällä alustalla",
     "DISCUSSION_CLOSED": "Keskustelu on suljettu",
     "LOGIN_TO_REPLY": "Kirjaudu sisään vastataksesi",
+    "LOGIN_TO_LIKE": "Kirjaudu sisään tykätäksesi",
     "PENDING_TOOLTIP": "Vastauksesi on käsittelyssä: \"{{content}}...\""
   },
   "HISTORY": {

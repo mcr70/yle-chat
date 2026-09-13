@@ -27,19 +27,20 @@
       </div>
 
       @if (provider.capabilities.supportsLiking) {
-        <div class="likes-container">
-          @if (isLoggedIn() && !comment.isCollapsed) {
+        <div class="likes-container" (click)="$event.stopPropagation()">
+          @if (!comment.isCollapsed) {
             <button
               (click)="toggleLike(); $event.stopPropagation()"
               class="like-button"
-              [class.liked]="comment.isLiked">
+              [class.liked]="comment.isLiked"
+              [disabled]="provider.capabilities.supportsAuth && !isLoggedIn()"
+              [attr.title]="(provider.capabilities.supportsAuth && !isLoggedIn()) ? ('COMMENTS.LOGIN_TO_LIKE' | translate) : ''">
               <span class="thumb-icon" [class.liked]="comment.isLiked">★</span>
             </button>
-          }
-          @if (comment.isCollapsed) {
+          } @else {
             <span
               class="thumb-icon"
-            [class.liked]="comment.isLiked">★</span>
+              [class.liked]="comment.isLiked">★</span>
           }
           <span class="likes">{{ comment.likes || 0 }}</span>
         </div>
@@ -114,6 +115,7 @@
       @for (child of comment.replies; track child.id) {
         <app-comment-item
           [comment]="child"
+          [provider]="provider"
           [level]="level + 1"
           [isLocked]="isLocked"
           [articleId]="articleId">
