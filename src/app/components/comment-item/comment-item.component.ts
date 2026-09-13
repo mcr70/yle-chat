@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, signal, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -45,7 +45,8 @@ export class CommentItemComponent implements OnInit, OnDestroy {
   constructor(
     private providerManager: ProviderManager,
     private pendingReplyService: PendingReplyService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -114,6 +115,7 @@ export class CommentItemComponent implements OnInit, OnDestroy {
             next: () => {
               this.comment.isLiked = false;
               this.comment.likes = (this.comment.likes || 0) - 1;
+              this.cdr.markForCheck();
               console.log('Unlike successful.');
             },
             error: (error) => {
@@ -128,6 +130,7 @@ export class CommentItemComponent implements OnInit, OnDestroy {
           next: () => {
             this.comment.isLiked = true;
             this.comment.likes = (this.comment.likes || 0) + 1;
+            this.cdr.markForCheck();
             console.log('Like successful.');
           },
           error: (error) => {
