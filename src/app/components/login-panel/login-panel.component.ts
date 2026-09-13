@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, OnDestroy, signal } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -14,6 +14,7 @@ import { ProviderManager } from '@app/models/provider';
   standalone: true,
   imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './login-panel.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./login-panel.component.scss'] 
 })
 export class LoginPanelComponent implements OnInit, OnChanges, OnDestroy {

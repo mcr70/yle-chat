@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -17,6 +17,7 @@ import { SafeHtmlPipe } from '@app/pipes/safe-html.pipe';
   templateUrl: './comment-item.component.html',
   styleUrls: ['./comment-item.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, SafeHtmlPipe, TranslatePipe] 
 })
 export class CommentItemComponent implements OnInit, OnDestroy {

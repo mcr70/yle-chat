@@ -1,5 +1,5 @@
 
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Output, ChangeDetectionStrategy } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { LanguageService, SupportedLanguage } from '@app/services/language.service';
@@ -9,6 +9,7 @@ import { LanguageService, SupportedLanguage } from '@app/services/language.servi
   standalone: true,
   imports: [TranslatePipe],
   templateUrl: './language-selector.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./language-selector.component.scss']
 })
 export class LanguageSelectorComponent {

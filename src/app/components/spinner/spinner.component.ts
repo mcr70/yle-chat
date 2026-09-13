@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 
 @Component({
@@ -6,6 +6,7 @@ import { Component, Input } from '@angular/core';
   standalone: true,
   imports: [],
   template: `@if (visible) {<span class="spinner">🔄</span>}`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./spinner.component.scss']
 })
 export class SpinnerComponent {

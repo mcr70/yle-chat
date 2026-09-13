@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Output, EventEmitter, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute } from '@angular/router';
@@ -17,6 +17,7 @@ import { RefreshService } from '@app/services/resfresh.service';
   templateUrl: './my-discussions.component.html',
   styleUrls: ['./my-discussions.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, TranslatePipe]
 })
 export class MyDiscussionsComponent implements OnInit, OnDestroy {

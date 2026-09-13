@@ -89,7 +89,7 @@
               class="reply-button"
               (click)="toggleReplyForm(); $event.stopPropagation()"
               [disabled]="isLocked || !!pendingReply() || !isLoggedIn()"
-              [attr.title]="getReplyTooltip() | translate:{ content: pendingReply()?.content?.substring(0, 50) }">
+              [attr.title]="getReplyTooltip() | translate:{ content: $safeNavigationMigration(pendingReply()?.content?.substring(0, 50)) }">
               {{ 'COMMENTS.REPLY' | translate }}
             </button>
           }

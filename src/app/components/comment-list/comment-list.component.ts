@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, HostListener, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, HostListener, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -33,6 +33,7 @@ const INFO_VERSION_KEY = 'app_info_seen_version';
   templateUrl: './comment-list.component.html',
   styleUrls: ['./comment-list.component.scss', './new-main-comment.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     TranslatePipe,

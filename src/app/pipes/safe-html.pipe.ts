@@ -1,21 +1,15 @@
-import { Pipe, PipeTransform, inject } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'safeHtml',
   standalone: true
 })
 export class SafeHtmlPipe implements PipeTransform {
-  private sanitizer = inject(DomSanitizer);
-
-  transform(value: string | null | undefined): SafeHtml {
+  transform(value: string | null | undefined): string {
     if (!value) return '';
 
     // Decode HTML entities while keeping HTML tags intact
-    const decoded = this.decodeHTMLEntities(value);
-
-    // Sanitize and bypass security trust for clean HTML rendering
-    return this.sanitizer.bypassSecurityTrustHtml(decoded);
+    return this.decodeHTMLEntities(value);
   }
 
   private decodeHTMLEntities(text: string): string {
