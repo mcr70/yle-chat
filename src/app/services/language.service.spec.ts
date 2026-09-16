@@ -39,6 +39,7 @@ describe('LanguageService', () => {
       : translateService.currentLang;
 
     expect(service.currentLang()).toBe('fi');
+    expect(service.currentLocale()).toBe('fi-FI');
     expect(currentTranslateLang).toBe('fi');
     expect(localStorage.getItem('app_user_language')).toBe('fi');
     expect(document.documentElement.lang).toBe('fi');
@@ -49,6 +50,7 @@ describe('LanguageService', () => {
     service.setLanguage('de' as any);
 
     expect(service.currentLang()).toBe('en');
+    expect(service.currentLocale()).toBe('en-US');
     expect(localStorage.getItem('app_user_language')).toBe('en');
   });
 

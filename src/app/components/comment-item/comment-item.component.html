@@ -10,7 +10,7 @@
           {{ comment.isCollapsed ? '▶&#xFE0E;' : '▼&#xFE0E;' }}
         </span>
         <strong>{{ comment.author }}</strong>
-        <span class="author-date"> {{ formatDate(comment.createdAt) }}</span>
+        <span class="author-date"> {{ comment.createdAt | date:('COMMON.DATE_FORMAT' | translate):undefined:currentLocale() }}</span>
         <button class="share-btn" (click)="copyLink(comment.id); $event.stopPropagation()"
           [attr.title]="'COMMENTS.COPY_LINK' | translate">
           <span class="share-icon">🔗</span>

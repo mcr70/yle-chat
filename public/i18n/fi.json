@@ -25,7 +25,9 @@
   "ARTICLES": {
     "TITLE": "Keskusteluja",
     "COMMENT_COUNT": "{{count}} kommenttia",
-    "CLOSED": "(Suljettu)",
+    "CLOSED": "(Suljettu)"
+  },
+  "COMMON": {
     "DATE_FORMAT": "d.M. 'klo' HH.mm"
   },
   "COMMENTS": {

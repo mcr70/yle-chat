@@ -1,5 +1,5 @@
 
-import { Injectable, inject, signal, DOCUMENT } from '@angular/core';
+import { Injectable, inject, signal, computed, DOCUMENT } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 export type SupportedLanguage = 'fi' | 'en';
@@ -16,6 +16,7 @@ export class LanguageService {
   readonly supportedLanguages: readonly SupportedLanguage[] = ['fi', 'en'];
   readonly defaultLanguage: SupportedLanguage = 'en';
   readonly currentLang = signal<SupportedLanguage>(this.defaultLanguage);
+  readonly currentLocale = computed(() => this.currentLang() === 'fi' ? 'fi-FI' : 'en-US');
 
   initLanguage(): void {
     this.translate.addLangs([...this.supportedLanguages]);

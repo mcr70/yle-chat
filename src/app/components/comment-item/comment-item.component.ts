@@ -9,6 +9,7 @@ import { Provider } from '@app/models/provider';
 import { Comment } from '@app/models/comment-service.interface';
 
 import { PendingReplyService, PendingReply } from '@services/pending-reply.service'; 
+import { LanguageService } from '@services/language.service';
 import { ProviderManager } from '@app/models/provider';
 import { SafeHtmlPipe } from '@app/pipes/safe-html.pipe';
 
@@ -45,9 +46,14 @@ export class CommentItemComponent implements OnInit, OnDestroy {
   constructor(
     private providerManager: ProviderManager,
     private pendingReplyService: PendingReplyService,
+    private languageService: LanguageService,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) { }
+
+  get currentLocale() {
+    return this.languageService.currentLocale;
+  }
 
   ngOnInit(): void {
     if (!this.provider) {
@@ -224,10 +230,6 @@ export class CommentItemComponent implements OnInit, OnDestroy {
 
     this.pendingReplyService.removePendingReply(pending.replyId);    
     this.pendingReply.set(null);
-  }
-
-  formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleString('fi-FI');
   }
 
   isSpecialComment(): boolean {

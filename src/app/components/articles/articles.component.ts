@@ -8,6 +8,7 @@ import { catchError, finalize, ignoreElements, switchMap, tap } from 'rxjs/opera
 import { Provider, ProviderManager } from '@app/models/provider';
 import { SessionStateService } from '@services/session-state.service';
 import { RefreshService } from '@app/services/resfresh.service';
+import { LanguageService } from '@services/language.service';
 
 @Component({
   selector: 'app-articles',
@@ -36,8 +37,13 @@ export class ArticlesComponent implements OnInit, OnDestroy {
     private providerManager: ProviderManager,
     private route: ActivatedRoute,
     private sessionStateService: SessionStateService,
-    private refreshService: RefreshService
+    private refreshService: RefreshService,
+    private languageService: LanguageService
   ) { }
+
+  get currentLocale() {
+    return this.languageService.currentLocale;
+  }
 
   ngOnInit(): void {
     // Resolve active provider ID from route or parent route

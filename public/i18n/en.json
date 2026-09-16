@@ -25,7 +25,9 @@
   "ARTICLES": {
     "TITLE": "Discussions",
     "COMMENT_COUNT": "{{count}} comments",
-    "CLOSED": "(Closed)",
+    "CLOSED": "(Closed)"
+  },
+  "COMMON": {
     "DATE_FORMAT": "MMM d, HH:mm"
   },
   "COMMENTS": {

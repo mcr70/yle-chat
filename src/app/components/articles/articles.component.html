@@ -30,7 +30,7 @@
 
             @if (article.published) {
               @if (article.category) { <span class="separator">|</span> }
-              <span class="publish-time">{{ article.published | date:('ARTICLES.DATE_FORMAT' | translate) }}</span>
+              <span class="publish-time">{{ article.published | date:('COMMON.DATE_FORMAT' | translate):undefined:currentLocale() }}</span>
             }
 
             @if (!article.isActive) {
