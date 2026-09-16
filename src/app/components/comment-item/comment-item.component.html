@@ -27,23 +27,31 @@
       </div>
 
       @if (provider.capabilities.supportsLiking) {
-        <div class="likes-container" (click)="$event.stopPropagation()">
-          @if (!comment.isCollapsed) {
+        @if (!comment.isCollapsed) {
+          @if (!provider.capabilities.supportsAuth || isLoggedIn()) {
+            <!-- The entire container acts as a button for logged-in users -->
             <button
-              (click)="toggleLike(); $event.stopPropagation()"
-              class="like-button"
+              type="button"
+              class="likes-container like-button-container"
               [class.liked]="comment.isLiked"
-              [disabled]="provider.capabilities.supportsAuth && !isLoggedIn()"
-              [attr.title]="(provider.capabilities.supportsAuth && !isLoggedIn()) ? ('COMMENTS.LOGIN_TO_LIKE' | translate) : ''">
+              (click)="toggleLike(); $event.stopPropagation()">
               <span class="thumb-icon" [class.liked]="comment.isLiked">★</span>
+              <span class="likes">{{ comment.likes || 0 }}</span>
             </button>
           } @else {
-            <span
-              class="thumb-icon"
-              [class.liked]="comment.isLiked">★</span>
+            <!-- If not logged in, show read-only likes container -->
+            <div class="likes-container read-only" (click)="$event.stopPropagation()">
+              <span class="thumb-icon read-only">★</span>
+              <span class="likes">{{ comment.likes || 0 }}</span>
+            </div>
           }
-          <span class="likes">{{ comment.likes || 0 }}</span>
-        </div>
+        } @else {
+          <!-- Collapsed comment view -->
+          <div class="likes-container read-only" (click)="$event.stopPropagation()">
+            <span class="thumb-icon" [class.liked]="comment.isLiked">★</span>
+            <span class="likes">{{ comment.likes || 0 }}</span>
+          </div>
+        }
       }
     </div>
 
