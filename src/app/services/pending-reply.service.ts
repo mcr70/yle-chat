@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 // Public interface: Clean and strictly what components care about
 export interface PendingReply {
@@ -17,6 +18,7 @@ interface StoredPendingReply extends PendingReply {
 export class PendingReplyService {
   private readonly STORAGE_KEY = 'pending_replies';
   private readonly MAX_AGE_MS = 12 * 60 * 60 * 1000; // 12 hours timeout for pending replies
+  readonly pendingRepliesChanged$ = new Subject<void>();
 
   /**
    * Get all the pending replies for the given article 
@@ -89,5 +91,6 @@ export class PendingReplyService {
 
   private savePendingReplies(replies: StoredPendingReply[]): void {
     sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(replies));
+    this.pendingRepliesChanged$.next();
   }
 }

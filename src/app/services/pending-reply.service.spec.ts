@@ -93,6 +93,22 @@ describe('PendingReplyService', () => {
     expect(result.length).toBe(0);
   });
 
+  it('should notify subscribers when a pending reply is removed', () => {
+    const changed = vi.fn();
+    service.pendingRepliesChanged$.subscribe(changed);
+    service.addPendingReply({
+      parentId: 'comment-1',
+      replyId: 'reply-to-remove',
+      content: 'Pending reply',
+      articleId: 'article-1'
+    });
+
+    changed.mockClear();
+    service.removePendingReply('reply-to-remove');
+
+    expect(changed).toHaveBeenCalledOnce();
+  });
+
   // Tests cleanup of expired pending replies (older than 12 hours)
   it('should filter out expired items older than 12 hours', () => {
     const expiredTimestamp = Date.now() - (13 * 60 * 60 * 1000);

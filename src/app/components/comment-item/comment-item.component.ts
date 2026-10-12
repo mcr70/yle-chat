@@ -24,6 +24,7 @@ import { SafeHtmlPipe } from '@app/pipes/safe-html.pipe';
 export class CommentItemComponent implements OnInit, OnDestroy {
 
   private authSubscription: Subscription | undefined;
+  private pendingReplySubscription: Subscription | undefined;
   
   // Allow provider injection from parent
   @Input() provider!: Provider;
@@ -66,6 +67,10 @@ export class CommentItemComponent implements OnInit, OnDestroy {
     }
 
     this.checkPendingStatus();
+    this.pendingReplySubscription = this.pendingReplyService.pendingRepliesChanged$.subscribe(() => {
+      this.checkPendingStatus();
+      this.cdr.markForCheck();
+    });
 
     if (this.provider.capabilities.supportsAuth && this.provider.authService) {
       this.authSubscription = this.provider.authService.isLoggedIn$.subscribe(isLoggedIn => {
@@ -79,6 +84,7 @@ export class CommentItemComponent implements OnInit, OnDestroy {
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
     }
+    this.pendingReplySubscription?.unsubscribe();
   }
 
   copyLink(commentId: string): void {
